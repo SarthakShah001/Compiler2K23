@@ -48,33 +48,56 @@ bool fill_buffer()
     else{
         return true;
     }
+    return false;
 }
 
 char get_next_char(char *forward_ptr)
 {
+    bool end_file=false;
     if (*forward_ptr == '\0')
     {
-        fill_buffer();
+        end_file =fill_buffer();
     }
-    
+    if(end_file){
+        return '\0';
+    }
     return *(forward_ptr++);
 }
+Token tokenise(char type[],int retract_length,bool is_final_state){
 
+}
 Token get_next_token()
 {
     Token currtoken;
     int current_state = 0;
-
-    while (1)
-    {
+    bool is_tokenised=false;
+    while (!is_tokenised)
+    {   
+        char c;
         switch (current_state)
         {
         case 0:
         {
-            char incoming = get_next_char(forward_ptr);
+             c = get_next_char(forward_ptr);
+            if( (c <=90 && c >=65) ||(c <=122 && c >=97) || (c=='_') ){
+                current_state = 1;
+            }
+            else if(c=='\0'){
+                // tokenise();
+            }
             break;
         }
-
+        case 1:
+        {
+            c = get_next_char(forward_ptr);
+            if((c <=90 && c >=65) ||(c <=122 && c >=97) || (c=='_')||(c >=48 && c<=57)){
+                continue;
+            }
+            else{
+                // retract here by 1
+                // tokenise();
+            }
+        }
         default:
             break;
         }
