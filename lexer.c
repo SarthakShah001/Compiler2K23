@@ -56,6 +56,7 @@ char get_next_char(char *forward_ptr)
 
 Token get_next_token()
 {
+    Token currtoken;
     int current_state = 0;
 
     while (1)
@@ -65,7 +66,6 @@ Token get_next_token()
         case 0:
         {
             char incoming = get_next_char(forward_ptr);
-            printf("%c\n", incoming);
             break;
         }
 
@@ -86,17 +86,6 @@ int main()
         return 0;
     }
     start_lexer(fptr);
-    // char *begin,*forward;
-    // forward=buff1;
-    // int lineno=1;
-    // int i=0;
-    // printf("%s\n",buff1);
-    // for(i=0;i<buff_size;i++){
-    //     if(buff1[i]=='\n'){
-    //         lineno++;
-    //     }
-    // }
-    // printf("%d\n",lineno);
     while (1)
     {
         Token current_token = get_next_token();
