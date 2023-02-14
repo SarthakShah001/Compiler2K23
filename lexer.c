@@ -3,74 +3,138 @@
 #include <stdbool.h>
 #define buff_size 500
 
-char buffer1[buff_size];
-char buffer2[buff_size]; 
+char buffer1[buff_size+1];
+char buffer2[buff_size+1]; 
 
 bool is_buffer1_filled = false, is_buffer2_filled = false;
 // bool end_file=false;
 char *begin_ptr, *forward_ptr;
 FILE *fptr;
 int curr_line_no;
+int char_count;
+bool where_begin,where_forward;//0 indicates buff1, 1 indicates buff2
+
 typedef struct token
 {
-    char token_type[20];
-    char lexeme[30];
+    char token_type;
+    char *lexeme;
     int line_no;
 } Token;
 
 void start_lexer(FILE *fp)
 {
     curr_line_no=1;
+    char_count=0;
     begin_ptr = buffer1;
+    where_begin=false;
     forward_ptr = begin_ptr;
+    where_forward=false;
     int x= fread(buffer1,sizeof(char), buff_size, fp);
-    if(x<buff_size){
-        is_buffer1_filled = true;
-    }
-    
+    is_buffer1_filled=true;
+    buffer1[x]=EOF;
 }
 
-bool fill_buffer()
+void fill_buffer()
 {
     if (is_buffer1_filled)
     {
-        fread(buffer2, 1, buff_size, fptr);
+        int x=fread(buffer2, 1, buff_size, fptr);
         is_buffer1_filled = false;
         is_buffer2_filled = true;
+        where_forward=true;
+        buffer2[x]=EOF;
         forward_ptr=buffer2;
     }
     else if(is_buffer2_filled){
-        fread(buffer1, 1, buff_size, fptr);
+        int x= fread(buffer1, 1, buff_size, fptr);
         is_buffer2_filled = false;
         is_buffer1_filled = true;
-        forward_ptr=buffer2;
+        buffer1[x]=EOF;
+        forward_ptr=buffer1;
+        where_forward=true;
     }
-    else{
-        return true;
-    }
-    return false;
 }
 
 char get_next_char(char *forward_ptr)
 {
-    bool end_file=false;
-    if (*forward_ptr == '\0')
-    {
-        end_file =fill_buffer();
+    if(!where_forward){
+        if(forward_ptr==buffer1+buff_size){
+            //forward at the end of buffer 1
+            fill_buffer();
+        }
     }
-    if(end_file){
-        return '\0';
+    else{
+        if(forward_ptr==buffer2+buff_size){
+            //forward at the end of buffer 2
+            fill_buffer();
+        }
     }
+    char_count++;
     return *(forward_ptr++);
+
 }
 Token tokenise(char type[],int retract_length,bool is_final_state){
+
+
+
+}
+char* get_lexeme(char*begin_ptr,char*forward_ptr){
+    char *lexeme=(char*)malloc((char_count+1)*sizeof(char));
+    if(char_count>20){
+        //throw error
+    }
+    int i=0;
+    if(!where_begin&&!where_forward){
+        char *temp=begin_ptr;
+        while(temp!=forward_ptr){
+            lexeme[i]=*temp;
+            temp++;
+            i++;
+        }
+    }
+    else if(!where_begin&&where_forward){
+        while(begin_ptr!=buffer1+buff_size){
+            lexeme[i]=*begin_ptr;
+            begin_ptr++;
+            i++;
+        }
+        char* temp=buffer2;
+        while(temp!=forward_ptr){
+            lexeme[i]=*temp;
+            temp++;
+            i++;
+        }
+    }
+    else if(where_begin&&!where_forward){
+        while(begin_ptr!=buffer2+buff_size){
+            lexeme[i]=*begin_ptr;
+            begin_ptr++;
+            i++;
+        }
+        char* temp=buffer1;
+        while(temp!=forward_ptr){
+            lexeme[i]=*temp;
+            temp++;
+            i++;
+        }
+    }
+    else{
+        char *temp=begin_ptr;
+        while(temp!=forward_ptr){
+            lexeme[i]=*temp;
+            temp++;
+            i++;
+        }
+    }
+    char_count=0;
+    begin_ptr=forward_ptr;
+    where_begin=where_forward;
+    return lexeme;
 
 }
 Token get_next_token()
 {
-    //0 to 12 siddharth
-    // 13 to 30 rishi
-    // 31 to 51 Archaj
+    
     Token currtoken;
     int current_state = 0;
     char *lexeme;
@@ -142,6 +206,9 @@ Token get_next_token()
             }
             else if(c == '\n'){
                 current_state = 15;
+            }
+            else if(c==EOF){
+                // tokenid=sentinel
             }
             else{
                 // error
