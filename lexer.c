@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #define buff_size 500
 
 char buffer1[buff_size+1];
@@ -14,14 +15,66 @@ int curr_line_no;
 int char_count;
 bool where_begin,where_forward;//0 indicates buff1, 1 indicates buff2
 bool retract_case;
+
+// enum for TOKEN_ID
+enum TK_TYPE{
+    TK_ID = 2,
+    TK_NUM = 4,
+    TK_RNUM = 12,
+    TK_RANGEOP = 14,
+    TK_PLUS = 16,
+    TK_MINUS = 17,
+    TK_MUL = 19,
+    TK_DIVIDE = ,
+    TK_LE = 9,
+    TK_DRIVERDEF = 10,
+    TK_DEF = 11,
+    TK_LT = 12,
+    TK_SQBO = 13,
+    TK_SQBC = 14,
+    TK_BO = 15,
+    TK_BC = 16,
+    TK_GE = 17,
+    TK_GT = 18,
+    TK_DRIVERENDDEF = 19,
+    TK_ENDDEF = 20,
+    TK_EQ = 21,
+    TK_NE = 22,
+    TK_ASSIGNOP = 23,
+    TK_COLON = 24,
+    TK_SEMICOLON = 25,
+    TK_COMMA = 26,
+    // Token_ID for keywords
+
+    TK_AND = 27,
+    TK_OR = 28,
+    TK_TRUE = 29,
+    TK_FALSE = 30,
+    TK_INTEGER = 31,
+    TK_REAL = 32,
+    TK_BOOLEAN = 33,
+    TK_OF = 34,
+    TK_ARRAY = 35,
+    TK_START = 36,
+    TK_END = 37
+    
+    
+    
+
+};
+
 typedef struct token
 {
-    char token_type;
-    char *lexeme;
+    lexeme lex;
     int line_no;
 } Token;
+typedef union u{
+    int integer;
+    float decimal;
+    char value[20];
+}lexeme;
 
-void start_lexer(FILE *fp)
+void start_lexer()
 {
     retract_case=false;
     curr_line_no=1;
@@ -30,7 +83,7 @@ void start_lexer(FILE *fp)
     where_begin=false;
     forward_ptr = begin_ptr;
     where_forward=false;
-    int x= fread(buffer1,sizeof(char), buff_size, fp);
+    int x= fread(buffer1,sizeof(char), buff_size, fptr);// might have to handle error in case of not read
     is_buffer1_filled=true;
     buffer1[x]=EOF;
 }
@@ -117,12 +170,7 @@ void retract(int n){
         }
     }
 }
-Token tokenise(char type[],int retract_length,bool is_final_state){
-
-
-
-}
-char* get_lexeme(char*begin_ptr,char*forward_ptr){
+char* get_lexeme(){
     char *lexeme=(char*)malloc((char_count+1)*sizeof(char));
     if(char_count>20){
         //throw error
@@ -174,7 +222,21 @@ char* get_lexeme(char*begin_ptr,char*forward_ptr){
     begin_ptr=forward_ptr;
     where_begin=where_forward;
     return lexeme;
-
+}
+Token tokenise(char tokentype[],int retract_length,bool is_final_state,int state){
+    Token token;
+    retract(retract_length);
+    lexeme l;
+    strcpy(l.value,get_lexeme());
+    if(strcmp(tokentype,"TK_NUM")==0){
+        int x = 
+    }
+    else if(strcmp(tokentype,"TK_RNUM")==0){
+        
+    }
+    token.lex=l;
+    token.line_no=curr_line_no;
+    return token;
 }
 Token get_next_token()
 {
