@@ -17,7 +17,7 @@ bool where_begin,where_forward;//0 indicates buff1, 1 indicates buff2
 bool retract_case;
 
 // enum for TOKEN_ID
-enum TK_TYPE{
+enum TK_TYPE {
     TK_ID = 2,
     TK_NUM = 4,
     TK_RNUM = 12,
@@ -25,54 +25,72 @@ enum TK_TYPE{
     TK_PLUS = 16,
     TK_MINUS = 17,
     TK_MUL = 19,
-    TK_DIVIDE = ,
-    TK_LE = 9,
-    TK_DRIVERDEF = 10,
-    TK_DEF = 11,
-    TK_LT = 12,
-    TK_SQBO = 13,
-    TK_SQBC = 14,
-    TK_BO = 15,
-    TK_BC = 16,
-    TK_GE = 17,
-    TK_GT = 18,
-    TK_DRIVERENDDEF = 19,
-    TK_ENDDEF = 20,
-    TK_EQ = 21,
-    TK_NE = 22,
-    TK_ASSIGNOP = 23,
-    TK_COLON = 24,
-    TK_SEMICOLON = 25,
-    TK_COMMA = 26,
+    TK_DIVIDE = 24,
+    TK_LE = 26,
+    TK_DRIVERDEF = 28,
+    TK_DEF = 29,
+    TK_LT = 30,
+    TK_SQBO = 33,
+    TK_SQBC = 34,
+    TK_BO = 35,
+    TK_BC = 36,
+    TK_GE = 38,
+    TK_GT = 39,
+    TK_DRIVERENDDEF = 41,
+    TK_ENDDEF = 42,
+    TK_EQ = 44,
+    TK_NE = 46,
+    TK_ASSIGNOP = 48,
+    TK_COLON = 49,
+    TK_SEMICOLON = 50,
+    TK_COMMA = 51,
     // Token_ID for keywords
 
-    TK_AND = 27,
-    TK_OR = 28,
-    TK_TRUE = 29,
-    TK_FALSE = 30,
-    TK_INTEGER = 31,
-    TK_REAL = 32,
-    TK_BOOLEAN = 33,
-    TK_OF = 34,
-    TK_ARRAY = 35,
-    TK_START = 36,
-    TK_END = 37
-    
-    
-    
-
+    TK_AND = 52,
+    TK_OR,
+    TK_TRUE,
+    TK_FALSE,
+    TK_INTEGER,
+    TK_REAL,
+    TK_BOOLEAN,
+    TK_OF,
+    TK_ARRAY,
+    TK_START,
+    TK_END,
+    TK_DECLARE,
+    TK_MODULE,
+    TK_DRIVER,
+    TK_PROGRAM,
+    TK_GET_VALUE,
+    TK_PRINT,
+    TK_USE,
+    TK_WITH,
+    TK_PARAMETERS,
+    TK_TAKES,
+    TK_INPUT,
+    TK_RETURNS,
+    TK_FOR,
+    TK_IN,
+    TK_SWITCH,
+    TK_CASE,
+    TK_BREAK,
+    TK_DEFAULT,
+    TK_WHILE
 };
 
-typedef struct token
-{
-    lexeme lex;
-    int line_no;
-} Token;
-typedef union u{
+
+
+typedef union u {
     int integer;
     float decimal;
     char value[20];
-}lexeme;
+} lexeme;
+
+typedef struct token {
+    lexeme lex;
+    int line_no;
+    enum TK_TYPE token_type;
+} Token;
 
 void start_lexer()
 {
@@ -229,10 +247,12 @@ Token tokenise(char tokentype[],int retract_length,bool is_final_state,int state
     lexeme l;
     strcpy(l.value,get_lexeme());
     if(strcmp(tokentype,"TK_NUM")==0){
-        int x = 
+        int x = atoi(l.value);
+        l.integer = x;
     }
     else if(strcmp(tokentype,"TK_RNUM")==0){
-        
+        double x = atof(l.value);
+        l.decimal = x;
     }
     token.lex=l;
     token.line_no=curr_line_no;
