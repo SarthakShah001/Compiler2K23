@@ -13,7 +13,7 @@ FILE *fptr;
 int curr_line_no;
 int char_count;
 bool where_begin,where_forward;//0 indicates buff1, 1 indicates buff2
-
+bool retract_case;
 typedef struct token
 {
     char token_type;
@@ -23,6 +23,7 @@ typedef struct token
 
 void start_lexer(FILE *fp)
 {
+    retract_case=false;
     curr_line_no=1;
     char_count=0;
     begin_ptr = buffer1;
@@ -51,7 +52,7 @@ void fill_buffer()
         is_buffer1_filled = true;
         buffer1[x]=EOF;
         forward_ptr=buffer1;
-        where_forward=true;
+        where_forward=false;
     }
 }
 
@@ -60,18 +61,61 @@ char get_next_char(char *forward_ptr)
     if(!where_forward){
         if(forward_ptr==buffer1+buff_size){
             //forward at the end of buffer 1
+            if(retract_case){
+                retract_case=false;
+                forward_ptr=buffer2;
+                where_forward=true;
+            }
+            else{
             fill_buffer();
+            }
         }
     }
     else{
         if(forward_ptr==buffer2+buff_size){
             //forward at the end of buffer 2
+            if(retract_case){
+                retract_case=false;
+                forward_ptr=buffer1;
+                where_forward=false;
+            }
+            else{
             fill_buffer();
+            }
         }
     }
     char_count++;
     return *(forward_ptr++);
 
+}
+void retract(int n){
+    if((!where_begin&&!where_forward)||(where_begin&&where_forward)){
+        forward_ptr=forward_ptr-n;
+    }
+    else if(!where_begin&&where_forward){
+        if(forward_ptr-buffer2<n){
+            retract_case=true;
+            n=n-(forward_ptr-buffer2)-1;
+            forward_ptr=buffer1+buff_size-1;
+            forward_ptr-=n;
+            where_forward=false;
+        }
+        else{
+            forward_ptr-=n;
+        }
+    }
+    else{
+        if(forward_ptr-buffer1<n){
+            retract_case=true;
+            n=n-(forward_ptr-buffer1)-1;
+            forward_ptr=buffer2+buff_size-1;
+            forward_ptr-=n;
+            where_forward=true;
+        }
+        else{
+            forward_ptr-=n;
+        }
+    }
 }
 Token tokenise(char type[],int retract_length,bool is_final_state){
 
