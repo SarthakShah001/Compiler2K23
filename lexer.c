@@ -8,7 +8,6 @@ char buffer1[buff_size + 1];
 char buffer2[buff_size + 1];
 
 bool is_buffer1_filled = false, is_buffer2_filled = false;
-// bool end_file=false;
 char *begin_ptr, *forward_ptr;
 FILE *fptr;
 int curr_line_no = 0;
@@ -16,68 +15,38 @@ int char_count;
 bool where_begin, where_forward; // 0 indicates buff1, 1 indicates buff2
 bool retract_case;
 
-// enum for TOKEN_ID
-// enum TK_TYPE
-// {
-//     TK_ID = 2,
-//     TK_NUM = 4,
-//     TK_RNUM = 12,
-//     TK_RANGEOP = 14,
-//     TK_PLUS = 16,
-//     TK_MINUS = 17,
-//     TK_MUL = 19,
-//     TK_DIVIDE = 24,
-//     TK_LE = 26,
-//     TK_DRIVERDEF = 28,
-//     TK_DEF = 29,
-//     TK_LT = 30,
-//     TK_SQBO = 33,
-//     TK_SQBC = 34,
-//     TK_BO = 35,
-//     TK_BC = 36,
-//     TK_GE = 38,
-//     TK_GT = 39,
-//     TK_DRIVERENDDEF = 41,
-//     TK_ENDDEF = 42,
-//     TK_EQ = 44,
-//     TK_NE = 46,
-//     TK_ASSIGNOP = 48,
-//     TK_COLON = 49,
-//     TK_SEMICOLON = 50,
-//     TK_COMMA = 51,
-//     // Token_ID for keywords
-
-//     TK_AND = 52,
-//     TK_OR,
-//     TK_TRUE,
-//     TK_FALSE,
-//     TK_INTEGER,
-//     TK_REAL,
-//     TK_BOOLEAN,
-//     TK_OF,
-//     TK_ARRAY,
-//     TK_START,
-//     TK_END,
-//     TK_DECLARE,
-//     TK_MODULE,
-//     TK_DRIVER,
-//     TK_PROGRAM,
-//     TK_GET_VALUE,
-//     TK_PRINT,
-//     TK_USE,
-//     TK_WITH,
-//     TK_PARAMETERS,
-//     TK_TAKES,
-//     TK_INPUT,
-//     TK_RETURNS,
-//     TK_FOR,
-//     TK_IN,
-//     TK_SWITCH,
-//     TK_CASE,
-//     TK_BREAK,
-//     TK_DEFAULT,
-//     TK_WHILE,TK_EOF
-// };
+char reserved[30][20] = {
+    "AND",
+    "OR",
+    "true",
+    "false",
+    "integer",
+    "real",
+    "boolean",
+    "of",
+    "array",
+    "start",
+    "end",
+    "declare",
+    "module",
+    "driver",
+    "program",
+    "get_value",
+    "print",
+    "use",
+    "with",
+    "parameters",
+    "takes",
+    "input",
+    "returns",
+    "for",
+    "in",
+    "switch",
+    "case",
+    "break",
+    "default",
+    "while",
+};
 
 typedef union u
 {
@@ -273,50 +242,49 @@ char *get_lexeme()
     return lexeme;
 }
 
-void report_error(int state)
+void report_error(int state, char *lexeme)
 {
-    char *str = get_lexeme();
     switch (state)
     {
     case -1:
     {
-        printf("\nError at line = %d : CHARACTERS GREATER THAN 20 AT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : CHARACTERS GREATER THAN 20 AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
 
     case 0:
     {
-        printf("\nError at line = %d : UNKNOWN IDENTIFIER AT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : UNKNOWN IDENTIFIER AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 5:
     {
-        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 8:
     {
-        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 9:
     {
-        printf("\nError at line = %d : NOT A VALID DECIMALAT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : NOT A VALID DECIMALAT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 13:
     {
-        printf("\nError at line = %d : NOT A VALID SYMBOLAT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : NOT A VALID SYMBOLAT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 43:
     {
-        printf("\nError at line = %d : NOT A VALID RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : NOT A VALID RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 45:
     {
-        printf("\nError at line = %d : NOT A RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, str);
+        printf("\nError at line = %d : NOT A RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
 
@@ -325,16 +293,21 @@ void report_error(int state)
     }
 }
 
-Token tokenise(char tokentype[], int retract_length, bool is_final_state, int state, bool *istok)
+Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, int state, bool *istok)
 {
+    char tokentype[50];
+    strcpy(tokentype,tokenincoming);
 
     Token token;
     retract(retract_length);
+    lexeme l;
     char_count -= retract_length;
+    char *str = get_lexeme();
+    
     if (char_count > 20)
     {
         // throw error
-        report_error(-1);
+        report_error(-1, str);
         token.token_type = "TK_ERROR";
         begin_ptr = forward_ptr;
         where_begin = where_forward;
@@ -346,7 +319,7 @@ Token tokenise(char tokentype[], int retract_length, bool is_final_state, int st
     if (strcmp(tokentype, "TK_ERROR") == 0)
     {
 
-        report_error(state);
+        report_error(state, str);
         begin_ptr = forward_ptr;
         where_begin = where_forward;
         token.token_type = "TK_ERROR";
@@ -355,9 +328,19 @@ Token tokenise(char tokentype[], int retract_length, bool is_final_state, int st
         return token;
     }
 
-    lexeme l;
-
-    strcpy(l.value, get_lexeme());
+    if (strcmp(tokentype, "TK_ID") == 0)
+    {
+        for (int i = 0; i < 30; i++)
+        {
+            if (strcmp(reserved[i], str) == 0)
+            {
+                char tk_[40] = "TK_";
+                strcat(tk_, str);
+                strcpy(tokentype, tk_);
+            }
+        }
+    }
+    strcpy(l.value,str);
     if (strcmp(tokentype, "TK_NUM") == 0)
     {
         int x = atoi(l.value);
@@ -368,6 +351,7 @@ Token tokenise(char tokentype[], int retract_length, bool is_final_state, int st
         double x = atof(l.value);
         l.decimal = x;
     }
+    
     token.token_type = tokentype;
     token.lex = l;
     token.line_no = curr_line_no;
