@@ -272,6 +272,59 @@ char *get_lexeme()
     where_begin = where_forward;
     return lexeme;
 }
+
+void report_error(int state)
+{
+    char *str = get_lexeme();
+    switch (state)
+    {
+    case -1:
+    {
+        printf("\nError at line = %d : CHARACTERS GREATER THAN 20 AT => %s\n\n", curr_line_no, str);
+        break;
+    }
+
+    case 0:
+    {
+        printf("\nError at line = %d : UNKNOWN IDENTIFIER AT => %s\n\n", curr_line_no, str);
+        break;
+    }
+    case 5:
+    {
+        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, str);
+        break;
+    }
+    case 8:
+    {
+        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, str);
+        break;
+    }
+    case 9:
+    {
+        printf("\nError at line = %d : NOT A VALID DECIMALAT => %s\n\n", curr_line_no, str);
+        break;
+    }
+    case 13:
+    {
+        printf("\nError at line = %d : NOT A VALID SYMBOLAT => %s\n\n", curr_line_no, str);
+        break;
+    }
+    case 43:
+    {
+        printf("\nError at line = %d : NOT A VALID RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, str);
+        break;
+    }
+    case 45:
+    {
+        printf("\nError at line = %d : NOT A RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, str);
+        break;
+    }
+
+    default:
+        break;
+    }
+}
+
 Token tokenise(char tokentype[], int retract_length, bool is_final_state, int state, bool *istok)
 {
 
@@ -281,9 +334,10 @@ Token tokenise(char tokentype[], int retract_length, bool is_final_state, int st
     if (char_count > 20)
     {
         // throw error
-        printf("Variable Name Can't Be Greater Than 20 Characters\n");
+        report_error(-1);
         token.token_type = "TK_ERROR";
         begin_ptr = forward_ptr;
+        where_begin = where_forward;
         *istok = false;
         char_count = 0;
         return token;
@@ -292,8 +346,9 @@ Token tokenise(char tokentype[], int retract_length, bool is_final_state, int st
     if (strcmp(tokentype, "TK_ERROR") == 0)
     {
 
-        printf("Error occured at line %d\n", curr_line_no);
+        report_error(state);
         begin_ptr = forward_ptr;
+        where_begin = where_forward;
         token.token_type = "TK_ERROR";
         *istok = false;
         char_count = 0;
@@ -608,6 +663,9 @@ Token get_next_token()
         case 15:
         {
             curr_line_no++;
+            begin_ptr = forward_ptr;
+            where_begin = where_forward;
+            char_count = 0;
             current_state = 0;
             break;
         }
@@ -653,7 +711,7 @@ Token get_next_token()
             {
                 current_state = 21;
             }
-            if (c == '\n')
+            else if (c == '\n')
             {
                 current_state = 22;
                 curr_line_no++;
@@ -671,7 +729,7 @@ Token get_next_token()
             {
                 current_state = 23;
             }
-            if (c == '\n')
+            else if (c == '\n')
             {
                 current_state = 22;
                 curr_line_no++;
@@ -689,7 +747,7 @@ Token get_next_token()
             {
                 current_state = 21;
             }
-            if (c == '\n')
+            else if (c == '\n')
             {
                 current_state = 22;
                 curr_line_no++;
@@ -702,6 +760,9 @@ Token get_next_token()
         }
         case 23:
         {
+            begin_ptr = forward_ptr;
+            where_begin = where_forward;
+            char_count = 0;
             current_state = 0;
             break;
         }
@@ -718,7 +779,7 @@ Token get_next_token()
             {
                 current_state = 26;
             }
-            if (c == '<')
+            else if (c == '<')
             {
                 current_state = 27;
             }
@@ -788,6 +849,9 @@ Token get_next_token()
         {
             // delim final retraction state
             retract(1);
+            begin_ptr = forward_ptr;
+            where_begin = where_forward;
+            char_count = 0;
             current_state = 0;
             break;
         }
