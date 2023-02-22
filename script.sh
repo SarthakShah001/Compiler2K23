@@ -3,4 +3,4 @@ gcc -o a.out lexer.o
 ./a.out
 
 rm *.o
-# rm *a.out
+rm *a.out
