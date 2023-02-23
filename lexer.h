@@ -1,3 +1,7 @@
+#ifndef _lexer_
+#define _lexer_
+
+
 #include "lexerDef.h"
 
 // initialising lexer variables
@@ -26,7 +30,7 @@ Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, in
 
 //returns next token
 Token get_next_token();
-
+#endif
 
 
 

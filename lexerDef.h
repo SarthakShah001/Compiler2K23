@@ -1,3 +1,6 @@
+#ifndef _lexerdef_
+#define _lexerdef_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -61,3 +64,4 @@ char reserved[30][20] = {
     "default",
     "while",
 };
+#endif
