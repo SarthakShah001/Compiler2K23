@@ -59,7 +59,7 @@ typedef struct token
 {
     lexeme lex;
     int line_no;
-    char *token_type;
+    char token_type[20];
 } Token;
 
 void start_lexer()
@@ -308,7 +308,7 @@ Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, in
     {
         // throw error
         report_error(-1, str);
-        token.token_type = "TK_ERROR";
+        strcpy(token.token_type,"TK_ERROR");
         begin_ptr = forward_ptr;
         where_begin = where_forward;
         *istok = false;
@@ -322,12 +322,11 @@ Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, in
         report_error(state, str);
         begin_ptr = forward_ptr;
         where_begin = where_forward;
-        token.token_type = "TK_ERROR";
+        strcpy(token.token_type,"TK_ERROR");
         *istok = false;
         char_count = 0;
         return token;
     }
-
     if (strcmp(tokentype, "TK_ID") == 0)
     {
         for (int i = 0; i < 30; i++)
@@ -352,7 +351,8 @@ Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, in
         l.decimal = x;
     }
     
-    token.token_type = tokentype;
+    strcpy(token.token_type,tokentype);
+    // printf("%s\n",tokentype);
     token.lex = l;
     token.line_no = curr_line_no;
     *istok = true;
@@ -1018,7 +1018,7 @@ Token get_next_token()
         }
         }
     }
-    // printf("IN SWITCH %d\n", currtoken.line_no);
+    // printf("IN SWITCH %s\n", currtoken.token_type);
     return currtoken;
 }
 
@@ -1032,21 +1032,20 @@ int main()
     }
     printf("Tokenization Started\n");
     start_lexer(fptr);
-
     while (true)
     {
         Token current_token = get_next_token();
-
         if (strcmp(current_token.token_type, "TK_NUM") == 0)
         {
             printf("TOKEN TYPE => <%s> , LEXEME =>  %d , LINE => %d\n", current_token.token_type, current_token.lex.integer, current_token.line_no);
         }
         else if (strcmp(current_token.token_type, "TK_RNUM") == 0)
         {
-            printf("TOKEN TYPE => <%s> , LEXEME =>  %lf , LINE => %d\n", current_token.token_type, current_token.lex.decimal, current_token.line_no);
+            printf("Token Type =>%s , Lexeme => %f , line=>%d\n", current_token.token_type, current_token.lex.decimal, current_token.line_no);
         }
         else
         {
+            //  printf("%s\n", current_token.token_type);
             printf("TOKEN TYPE => <%s> , LEXEME =>  %s , LINE => %d\n", current_token.token_type, current_token.lex.value, current_token.line_no);
         }
 
