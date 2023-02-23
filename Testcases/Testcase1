@@ -1,13 +1,20 @@
-<<module  arraysum>> 
-takes input[list:array[4..20] of real]; 
-returns [sum:real]; 
-start 
- declare s: real; 
- s := 0.0; 
- declare index : integer; 
- for (index in 4..20) 
- start 
-  s := s + list[index]; 
- end 
- sum := s; 
+declare module mod1;
+<<<driver Program>>>
+start
+    declare v, w, r :integer;
+    get_value(v);
+    w:=5;
+    declare m:real;
+    [r,m] := use module mod1 with parameters v, w;
+    print(r);
+    print(m);
+end
+<<module mod1>>
+takes input [a: integer, b: integer];
+returns [x: integer, abc: real];
+start
+    declare c: real;
+    c:=10.4;
+    x:=a+b-10;
+    abc:=b/5+c;
 end

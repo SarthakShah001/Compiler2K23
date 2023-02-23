@@ -1,4 +1,4 @@
-gcc -c lexer.c
+gcc -c lexer.c 
 gcc -o a.out lexer.o
 ./a.out
 
