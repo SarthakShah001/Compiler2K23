@@ -26,7 +26,7 @@ char *get_lexeme();
 void report_error(int state, char *lexeme);
 
 //tokenises the current lexeme
-Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, int state, bool *istok);
+Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, int state, bool *istok);
 
 //returns next token
 Token get_next_token();

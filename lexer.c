@@ -238,11 +238,9 @@ void report_error(int state, char *lexeme)
     }
 }
 
-Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, int state, bool *istok)
+Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, int state, bool *istok)
 {
-    char tokentype[50];
-    strcpy(tokentype,tokenincoming);
-
+    tkType tokentype=tokenincoming;
     Token token;
     retract(retract_length);
     lexeme l;
@@ -253,7 +251,7 @@ Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, in
     {
         // throw error
         report_error(-1, str);
-        strcpy(token.token_type,"TK_ERROR");
+        token.token_type=TK_ERROR;
         begin_ptr = forward_ptr;
         where_begin = where_forward;
         *istok = false;
@@ -261,42 +259,39 @@ Token tokenise(char tokenincoming[], int retract_length, bool is_final_state, in
         return token;
     }
 
-    if (strcmp(tokentype, "TK_ERROR") == 0)
+    if (tokentype== TK_ERROR)
     {
-
         report_error(state, str);
         begin_ptr = forward_ptr;
         where_begin = where_forward;
-        strcpy(token.token_type,"TK_ERROR");
+        token.token_type=TK_ERROR;
         *istok = false;
         char_count = 0;
         return token;
     }
-    if (strcmp(tokentype, "TK_ID") == 0)
+    if (tokentype==TK_ID)
     {
         for (int i = 0; i < 30; i++)
         {
-            if (strcmp(reserved[i], str) == 0)
+            if (strcmp(reserved[i].first, str) == 0)
             {
-                char tk_[40] = "TK_";
-                strcat(tk_, str);
-                strcpy(tokentype, tk_);
+                tokentype=reserved[i].second;
             }
         }
     }
     strcpy(l.value,str);
-    if (strcmp(tokentype, "TK_NUM") == 0)
+    if (tokentype==TK_NUM)
     {
         int x = atoi(l.value);
         l.integer = x;
     }
-    else if (strcmp(tokentype, "TK_RNUM") == 0)
+    else if (tokentype==TK_RNUM)
     {
         double x = atof(l.value);
         l.decimal = x;
     }
     
-    strcpy(token.token_type,tokentype);
+    token.token_type=tokentype;
     // printf("%s\n",tokentype);
     token.lex = l;
     token.line_no = curr_line_no;
@@ -403,13 +398,13 @@ Token get_next_token()
                 // tokenid=sentinel
                 // we have assumed 0 to be final state
 
-                currtoken = tokenise("TK_EOF", 0, true, 0, &is_tokenised);
+                currtoken = tokenise(TK_EOF, 0, true, 0, &is_tokenised);
                 current_state = 0;
             }
             else
             {
                 // error
-                tokenise("TK_ERROR", 0, true, 0, &is_tokenised);
+                tokenise(TK_ERROR, 0, true, 0, &is_tokenised);
                 current_state = 0;
             }
             break;
@@ -431,7 +426,7 @@ Token get_next_token()
         case 2:
         {
             // tokenise for id and retract 1 position forward ptr
-            currtoken = tokenise("TK_ID", 1, true, 2, &is_tokenised);
+            currtoken = tokenise(TK_ID, 1, true, 2, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -457,7 +452,7 @@ Token get_next_token()
         case 4:
         {
             // tokenise for number and retract
-            currtoken = tokenise("TK_NUM", 1, true, 4, &is_tokenised);
+            currtoken = tokenise(TK_NUM, 1, true, 4, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -476,7 +471,7 @@ Token get_next_token()
             else
             {
                 // error
-                tokenise("TK_ERROR", 1, false, 5, &is_tokenised);
+                tokenise(TK_ERROR, 1, false, 5, &is_tokenised);
                 current_state = 0;
             }
             break;
@@ -484,7 +479,7 @@ Token get_next_token()
         case 6:
         {
             // retract 2 positions and tokenise the previous read number
-            currtoken = tokenise("TK_NUM", 2, true, 6, &is_tokenised);
+            currtoken = tokenise(TK_NUM, 2, true, 6, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -519,7 +514,7 @@ Token get_next_token()
             else
             {
                 // error
-                tokenise("TK_ERROR", 1, false, 8, &is_tokenised);
+                tokenise(TK_ERROR, 1, false, 8, &is_tokenised);
                 current_state = 0;
             }
             break;
@@ -534,7 +529,7 @@ Token get_next_token()
             else
             {
                 // error
-                tokenise("TK_ERROR", 1, false, 9, &is_tokenised);
+                tokenise(TK_ERROR, 1, false, 9, &is_tokenised);
                 current_state = 0;
             }
             break;
@@ -556,7 +551,7 @@ Token get_next_token()
         case 11:
         {
             // retract and tokenise for real number here E notation is used
-            currtoken = tokenise("TK_RNUM", 1, true, 11, &is_tokenised);
+            currtoken = tokenise(TK_RNUM, 1, true, 11, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -564,7 +559,7 @@ Token get_next_token()
         case 12:
         {
             // retract and tokenise for real number here decimal notation is used
-            currtoken = tokenise("TK_RNUM", 1, true, 12, &is_tokenised);
+            currtoken = tokenise(TK_RNUM, 1, true, 12, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -578,14 +573,14 @@ Token get_next_token()
             else
             {
                 // error
-                tokenise("TK_ERROR", 1, false, 13, &is_tokenised);
+                tokenise(TK_ERROR, 1, false, 13, &is_tokenised);
                 current_state = 0;
             }
         }
         case 14:
         {
             // tokenise: TK_RANGEP
-            currtoken = tokenise("TK_RANGEOP", 0, true, 14, &is_tokenised);
+            currtoken = tokenise(TK_RANGEOP, 0, true, 14, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -601,14 +596,14 @@ Token get_next_token()
         case 16:
         {
             // tokenise: TK_PLUS
-            currtoken = tokenise("TK_PLUS", 0, true, 16, &is_tokenised);
+            currtoken = tokenise(TK_PLUS, 0, true, 16, &is_tokenised);
             current_state = 0;
             break;
         }
         case 17:
         {
             // tokenise: TK_MINUS
-            currtoken = tokenise("TK_MINUS", 0, true, 17, &is_tokenised);
+            currtoken = tokenise(TK_MINUS, 0, true, 17, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -629,7 +624,7 @@ Token get_next_token()
         {
             // tokenise: TK_MUL
             // retract
-            currtoken = tokenise("TK_MUL", 1, true, 19, &is_tokenised);
+            currtoken = tokenise(TK_MUL, 1, true, 19, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -697,7 +692,7 @@ Token get_next_token()
         }
         case 24:
         {
-            currtoken = tokenise("TK_DIVIDE", 0, true, 24, &is_tokenised);
+            currtoken = tokenise(TK_DIVIDE, 0, true, 24, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -721,7 +716,7 @@ Token get_next_token()
         case 26:
         {
             // tokenise: TK_LE
-            currtoken = tokenise("TK_LE", 0, true, 26, &is_tokenised);
+            currtoken = tokenise(TK_LE, 0, true, 26, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -741,7 +736,7 @@ Token get_next_token()
         case 28:
         {
             // tokenise: TK_DRIVERDEFF
-            currtoken = tokenise("TK_DRIVERDEFF", 0, true, 28, &is_tokenised);
+            currtoken = tokenise(TK_DRIVERDEF, 0, true, 28, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -749,7 +744,7 @@ Token get_next_token()
         {
             // tokenise: TK_DEF
             // retract
-            currtoken = tokenise("TK_DEF", 1, true, 29, &is_tokenised);
+            currtoken = tokenise(TK_DEF, 1, true, 29, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -757,7 +752,7 @@ Token get_next_token()
         {
             // tokenise: TK_LT
             // retract
-            currtoken = tokenise("TK_LT", 1, true, 30, &is_tokenised);
+            currtoken = tokenise(TK_LT, 1, true, 30, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -787,28 +782,28 @@ Token get_next_token()
         case 33:
         {
             // Tokenise [
-            currtoken = tokenise("TK_SQBO", 0, true, 33, &is_tokenised);
+            currtoken = tokenise(TK_SQBO, 0, true, 33, &is_tokenised);
             current_state = 0;
             break;
         }
         case 34:
         {
             // Tokenise ]
-            currtoken = tokenise("TK_SQBC", 0, true, 34, &is_tokenised);
+            currtoken = tokenise(TK_SQBC, 0, true, 34, &is_tokenised);
             current_state = 0;
             break;
         }
         case 35:
         {
             // Tokenise (
-            currtoken = tokenise("TK_BO", 0, true, 35, &is_tokenised);
+            currtoken = tokenise(TK_BO, 0, true, 35, &is_tokenised);
             current_state = 0;
             break;
         }
         case 36:
         {
             // Tokenise )
-            currtoken = tokenise("TK_BC", 0, true, 36, &is_tokenised);
+            currtoken = tokenise(TK_BC, 0, true, 36, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -832,14 +827,14 @@ Token get_next_token()
         case 38:
         {
             // Tokenise >=
-            currtoken = tokenise("TK_GE", 0, true, 38, &is_tokenised);
+            currtoken = tokenise(TK_GE, 0, true, 38, &is_tokenised);
             current_state = 0;
             break;
         }
         case 39:
         {
             // Retract and Tokenise >
-            currtoken = tokenise("TK_GT", 1, true, 39, &is_tokenised);
+            currtoken = tokenise(TK_GT, 1, true, 39, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -859,7 +854,7 @@ Token get_next_token()
         case 41:
         {
             // Tokenise >>>
-            currtoken = tokenise("TK_DRIVERENDDEF", 0, true, 41, &is_tokenised);
+            currtoken = tokenise(TK_DRIVERENDDEF, 0, true, 41, &is_tokenised);
             current_state = 0;
 
             break;
@@ -867,7 +862,7 @@ Token get_next_token()
         case 42:
         {
             // Retract and Tokenise >>
-            currtoken = tokenise("TK_ENDDEF", 1, true, 42, &is_tokenised);
+            currtoken = tokenise(TK_ENDDEF, 1, true, 42, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -881,7 +876,7 @@ Token get_next_token()
             else
             {
                 // Trap state
-                tokenise("TK_ERROR", 1, false, 43, &is_tokenised);
+                tokenise(TK_ERROR, 1, false, 43, &is_tokenised);
                 current_state = 0;
             }
             break;
@@ -889,7 +884,7 @@ Token get_next_token()
         case 44:
         {
             // Tokenise ==
-            currtoken = tokenise("TK_EQ", 0, true, 44, &is_tokenised);
+            currtoken = tokenise(TK_EQ, 0, true, 44, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -903,7 +898,7 @@ Token get_next_token()
             else
             {
                 // Trap state
-                tokenise("TK_ERROR", 1, false, 45, &is_tokenised);
+                tokenise(TK_ERROR, 1, false, 45, &is_tokenised);
                 current_state = 0;
             }
             break;
@@ -911,7 +906,7 @@ Token get_next_token()
         case 46:
         {
             // Tokenise !=
-            currtoken = tokenise("TK_NE", 0, true, 46, &is_tokenised);
+            currtoken = tokenise(TK_NE, 0, true, 46, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -931,28 +926,28 @@ Token get_next_token()
         case 48:
         {
             // Tokenise :=
-            currtoken = tokenise("TK_ASSIGNOP", 0, true, 48, &is_tokenised);
+            currtoken = tokenise(TK_ASSIGNOP, 0, true, 48, &is_tokenised);
             current_state = 0;
             break;
         }
         case 49:
         {
             // Retract and Tokenise :
-            currtoken = tokenise("TK_COLON", 1, true, 49, &is_tokenised);
+            currtoken = tokenise(TK_COLON, 1, true, 49, &is_tokenised);
             current_state = 0;
             break;
         }
         case 50:
         {
             // Tokenise ;
-            currtoken = tokenise("TK_SEMICOL", 0, true, 50, &is_tokenised);
+            currtoken = tokenise(TK_SEMICOLON, 0, true, 50, &is_tokenised);
             current_state = 0;
             break;
         }
         case 51:
         {
             // Tokenise ,
-            currtoken = tokenise("TK_COMMA", 0, true, 51, &is_tokenised);
+            currtoken = tokenise(TK_COMMA, 0, true, 51, &is_tokenised);
             current_state = 0;
             break;
         }
@@ -963,7 +958,7 @@ Token get_next_token()
         }
         }
     }
-    // printf("IN SWITCH %s\n", currtoken.token_type);
+    // printf("IN SWITCH %d\n", currtoken.token_type);
     return currtoken;
 }
 
@@ -986,21 +981,22 @@ int main()
     while (true)
     {
         Token current_token = get_next_token();
-        if (strcmp(current_token.token_type, "TK_NUM") == 0)
+        // printf("%d\n",current_token.token_type);
+        if (current_token.token_type==TK_NUM)
         {
-            printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", current_token.token_type, current_token.lex.integer, current_token.line_no);
+            printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", enum_to_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
         }
-        else if (strcmp(current_token.token_type, "TK_RNUM") == 0)
+        else if (current_token.token_type==TK_RNUM)
         {
-            printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", current_token.token_type, current_token.lex.decimal, current_token.line_no);
+            printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", enum_to_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
         }
         else
         {
             //  printf("%s\n", current_token.token_type);
-            printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n", current_token.token_type, current_token.lex.value, current_token.line_no);
+            printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",enum_to_str[current_token.token_type], current_token.lex.value, current_token.line_no);
         }
 
-        if (strcmp(current_token.token_type, "TK_EOF") == 0)
+        if (current_token.token_type==TK_EOF)
         {
             printf("Tokenization Process Finished\n");
             break;
