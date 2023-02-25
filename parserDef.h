@@ -11,13 +11,19 @@ typedef enum NONTERMINAL{
 
 }nonterminal;
 
-typedef struct{
+typedef struct SYMBOL* symbol;
+struct SYMBOL{
     union element
     {
         terminal t;
         nonterminal nt;
     };
     bool is_terminal;
-} symbol;
-
+};
+typedef struct RULES{
+    nonterminal LHS;
+    symbol head;
+    symbol tail;
+}rule;
+rule grep[num_rules];
 #endif

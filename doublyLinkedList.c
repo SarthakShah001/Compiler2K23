@@ -2,14 +2,6 @@
 #include <stdlib.h>
 #include "doublyLinkedList.h"
 
-struct DLLNode
-{
-    int val;
-    struct DLLNode *next, *prev;
-};
-
-struct DLLNode *head, *tail;
-
 void print()
 {
     struct DLLNode *temp = head;

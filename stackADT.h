@@ -1,3 +1,7 @@
+#ifndef _stackADT_
+#define _stackADT_
+
+
 typedef struct stacknode* StackNode;
 typedef union ele element;
 
@@ -34,6 +38,6 @@ void pop(stack S);
  
 void top(stack S);
 
-
+#endif
 
 
