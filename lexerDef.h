@@ -77,6 +77,7 @@ typedef enum TK_TYPE{
     $,
     TK_ERROR,
     TK_EOF,
+    epsilon
     }tkType;
 
 

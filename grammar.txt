@@ -1,19 +1,19 @@
 <program> -> <moduleDeclarations><otherModules><driverModule><otherModules>
 <moduleDeclarations> -> <moduleDeclaration><moduleDeclarations>
-<moduleDeclarations> -> ε
+<moduleDeclarations> -> epsilon
 <moduleDeclaration> -> TK_DECLARE TK_MODULE TK_ID TK_SEMICOL
 <otherModules> -> <module><otherModules> 
-<otherModules> -> ε
+<otherModules> -> epsilon
 <driverModule> -> TK_DRIVERDEF TK_DRIVER TK_PROGRAM TK_DRIVERENDDEF <moduleDef>
 <module> -> TK_DEF TK_MODULE TK_ID TK_ENDDEF TK_TAKES TK_INPUT TK_SQBO <input_plist> TK_SQBC TK_SEMICOL <ret><moduleDef>
 <ret> -> TK_RETURNS TK_SQBO <output_plist> TK_SQBC TK_SEMICOL 
-<ret> -> ε
+<ret> -> epsilon
 <input_plist> -> TK_ID TK_COLON <dataType><N1>
 <N1> -> TK_COMMA TK_ID TK_COLON <dataType><N1>
-<N1> -> ε
+<N1> -> epsilon
 <output_plist> -> TK_ID TK_COLON <type><N2>
 <N2> -> TK_COMMA TK_ID TK_COLON <type><N2>
-<N2> -> ε
+<N2> -> epsilon
 <dataType> -> TK_ARRAY TK_SQBO <range_arrays> TK_SQBC TK_OF <type>
 <range_arrays> -> <index_arr> RANGEOP <index_arr> 
 <type> -> INTEGER 
@@ -21,7 +21,7 @@
 <type> -> BOOLEAN
 <moduleDef> -> START <statements> END
 <statements> -> <statement><statements> 
-<statements> -> ε
+<statements> -> epsilon
 <statement> -> <ioStmt>
 <statement> -> <simpleStmt>
 <statement> -> <declareStmt>
@@ -43,7 +43,7 @@
 <var_print> -> RNUM 
 <var_print> -> <boolConstt>
 <P1> -> SQBO <new_index> SQBC 
-<P1> -> ε
+<P1> -> epsilon
 <simpleStmt> -> <assignmentStmt> 
 <simpleStmt> -> <moduleReuseStmt>
 <assignmentStmt> -> ID <whichStmt>
@@ -56,13 +56,13 @@
 <new_index> ID
 <sign> -> PLUS 
 <sign> -> MINUS 
-<sign> -> ε
+<sign> -> epsilon
 <moduleReuseStmt> -> <optional> USE MODULE ID WITH PARAMETERS <idList>SEMICOL
 <optional> -> SQBO <idList> SQBC ASSIGNOP 
-<optional> -> ε
+<optional> -> epsilon
 <output_plist> -> ID <N3>
 <N3> -> COMMA ID <N3> 
-<N3> -> ε
+<N3> -> epsilon
 <expression> -> <arithmeticOrBooleanExpr> 
 <expression> -> <U> 
 <new_NT> -> BO <arithmeticExpr> BC 
@@ -72,11 +72,11 @@
 <arithmeticExpr> -> <arithmeticExpr> <op> <term>
 <arithmeticExpr> -> <term> <N4> 
 <N4> -> <op1> <term> <N4> 
-<N4> -> ε
+<N4> -> epsilon
 <term> -> <term> <op> <factor>
 <term> -> <factor> <N5> 
 <N5> -> <op2> <factor> <N5>
-| ε 
+| epsilon 
 <factor> -> BO <arithmeticExpr> BC
 <factor> -> <id_num_rnum> 
 | <boolConstt> 
@@ -87,13 +87,13 @@
 | <sign> BO <arrExpr> BC
 <arrExpr> -> <arrTerm> <arr_N4>
 <arr_N4> -> <op1> <arrTerm> <arr_N4> 
-| ε
+| epsilon
 <arrTerm> -> <arrFactor> <arr_N5> 
 <arr_N5> -> <op2> <arrFactor> <arr_N5>
-| ε 
+| epsilon 
 <arrFactor> -> <id_num_rnum> 
-| <boolConstt> 
-| BO <arrExpr> BC
+<arrFactor> -><boolConstt> 
+<arrFactor> ->BO <arrExpr> BC
 <element_index_with_expressions> -> <sign> <N_10> 
 | <arrExpr> …..33 i
 <N_10> -> <new_index> 
@@ -113,16 +113,16 @@
 <declareStmt> -> DECLARE <idList> COLON <dataType> SEMICOL
 <condionalStmt> -> SWITCH BO ID BC START <caseStmts><default> END 
 <caseStmts> -> CASE <value> COLON <statements> BREAK SEMICOL <N9>
-<N9> -> CASE <value> COLON <statements> BREAK SEMICOL <N9> | ε
+<N9> -> CASE <value> COLON <statements> BREAK SEMICOL <N9> | epsilon
 <value> -> NUM 
 | TRUE 
 | FALSE
 <default> -> DEFAULT COLON <statements> BREAK SEMICOL 
-| ε
+| epsilon
 <iterativeStmt> -> FOR BO ID IN <range_for_loop> BC START <statements> END
 <iterativeStmt> -> WHILE BO <arithmeticOrBooleanExpr> BC START <statements> END
 <index_for_loop> -> <sign_for_loop><new_index_for_loop> 
 <new_index_for_loop > -> NUM 
 <sign_for_loop > -> PLUS 
 | MINUS 
-| ε
+| epsilon
