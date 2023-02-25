@@ -72,7 +72,7 @@
 <arithmeticExpr> -> <arithmeticExpr> <op> <term>
 <arithmeticExpr> -> <term> <N4> 
 <N4> -> <op1> <term> <N4> 
-| ε
+<N4> -> ε
 <term> -> <term> <op> <factor>
 <term> -> <factor> <N5> 
 <N5> -> <op2> <factor> <N5>
