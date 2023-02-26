@@ -3,24 +3,25 @@
 #include <stdbool.h>
 #include "parserDef.h"
 #include "stackADT.h"
+typedef struct stack* parse_Stack;
 
-parse_Stack* init_parseStack()
+struct stack* init_parseStack()
 {
-    parse_Stack* S = (parse_Stack*)(malloc(sizeof(parse_Stack)));
+    parse_Stack S = (parse_Stack)(malloc(sizeof(struct stack)));
     S->size = 0;
     S->top = NULL;
     return S;
 }
 
-bool isEmpty(parseStack* S)
+bool isEmpty(parse_Stack S)
 {
     return S->size == 0;
 }
 
-void push(parseStack* S, stackNode* x)
+void push(parse_Stack S, stackNode x)
 {
     // int to be changed to element
-    stackNode *temp = (stackNode *)(malloc(sizeof(stackNode)));
+    stackNode temp = (stackNode)(malloc(sizeof(struct node)));
 
     // define which datatype to use
     if (temp == NULL)
@@ -29,24 +30,24 @@ void push(parseStack* S, stackNode* x)
         return;
     }
 
-    if (x->sym.is_terminal)
+    if (x->sym->is_terminal)
     {
-        temp->symbol->t = x->symbol->t;
-        temp->symbol->is_terminal = true;
+        temp->sym->t = x->sym->t;
+        temp->sym->is_terminal = true;
     }
     else
     {
-        temp->sym.nt = x->sym.nt;
-        temp->sym.is_terminal = false;
+        temp->sym->nt = x->sym->nt;
+        temp->sym->is_terminal = false;
     }
     temp->next = S->top;
     S->top = temp;
     S->size++;
 
-    temp = NULL;
+    // temp = NULL;
 }
 
-void pop(parseStack* St)
+void pop(parse_Stack S)
 {
     if (isEmpty(S))
     {
@@ -54,25 +55,25 @@ void pop(parseStack* St)
     }
     else
     {
-        stackNode *temp = St->top;
-        St->top = St->top->next;
+        stackNode temp = S->top;
+        S->top = S->top->next;
         temp->next = NULL;
-        St->size--;
+        S->size--;
 
         free(temp);
     }
     return;
 }
 
-symbol(parseStack* St)
+stackNode (parse_Stack S)
 {
-    if (isEmpty(St))
+    if (isEmpty(S))
     {
         printf("Stack is empty.\n");
-        return -1;
+        return NULL;
     }
     else
     {
-        return St->top->sym;
+        return S->top;
     }
 }

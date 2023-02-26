@@ -1,7 +1,5 @@
 #include "parser.h"
 #include "setADT.h"
-int arr1[num_nonterminals];
-int arr2[num_nonterminals];
 char *nonterminal_str[]={
 "<program>",
 "<moduleDeclarations>",
