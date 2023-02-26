@@ -75,7 +75,7 @@ char *nonterminal_str[]={
 "<new_index_for_loop>",
 "<sign_for_loop>",
 };
-
+dllnode parse_table[num_nonterminals][num_terminals];
 hashtable terminals,nonterminals;
 rule grep[num_rules];
 setNode first_set[num_nonterminals];
@@ -102,12 +102,9 @@ void fill_grammer(){
     char buffer[max_rule_length];
     while(fgets(buffer,max_rule_length,fp)!=NULL){
         char *rule_str=strtok(buffer," \n");
-        // printf("%s\n",rule_str);
         grep[rule_no].LHS= find_value(nonterminals,rule_str);
-        // printf("%d\n",grep[rule_no].LHS);
         rule_str=strtok(NULL," \n");
         rule_str=strtok(NULL," \n");
-        // printf("%s\n",rule_str);
         dlinkedlist rhs=createDLinkedList();
         while(rule_str!=NULL){
         symbol s=(symbol)malloc(sizeof(struct SYMBOL));
@@ -119,23 +116,13 @@ void fill_grammer(){
             s->is_terminal=true;
             s->t=find_value(terminals,rule_str);
         }
-        
-        // printf("%d %d",s->t,find_value(terminals,rule_str));
-        
         insertEnd(rhs,s);
         rule_str=strtok(NULL," \n");
         }
         grep[rule_no].RHS=rhs;
-        // printf("%d\n",grep[rule_no].RHS->head->val->t);
-        // print(rhs);
         rule_no++;
-        
-        // printf("%d\n",rule_no);
     }
 }
-// bool* fill_first_set(nonterminal nt){
-    
-// }
 void fill_hash_tables(){
     hash_init(terminals);
     hash_init(nonterminals);
@@ -145,12 +132,6 @@ void fill_hash_tables(){
     for(int i=0;i<num_terminals;i++){
         hash_insert(terminals,terminal_str[i],i);
     }
-    // for(int i=0;i<num_terminals;i++){
-    //    printf("%s %d %d %d\n",terminal_str[i], is_str_present(terminals,terminal_str[i]),hash(terminal_str[i]),find_value(terminals,terminal_str[i]));
-    // }
-    // for(int i=0;i<HASHSIZE;i++){
-    //     printf("%d\n",terminals[i]);
-    // }
 }
 void populateFirstSet(nonterminal nt){
     //firstly initialise the set
@@ -160,7 +141,6 @@ void populateFirstSet(nonterminal nt){
     first_set[nt]->is_filled=true;
     for(int i=0;i<num_rules;i++){
         if(grep[i].LHS==nt){
-            printf("rule_no=%d,%s\n",i,nonterminal_str[nt]);
             dlinkedlist dl=grep[i].RHS;
             dllnode dn=dl->head;
             bool will_be_epsilon=true;
@@ -169,30 +149,24 @@ void populateFirstSet(nonterminal nt){
                 // f=false;
                 symbol s=dn->val;
                 if(s->is_terminal&&s->t==epsilon){
-                    printf("1 ");
                     first_set[nt]->arr[epsilon]=true;
                     break;
                 }
                 else if(s->is_terminal){
-                    printf("2 ");
                     first_set[nt]->arr[s->t]=true;
                     will_be_epsilon=false;
                     break;
                 }
                 else{
                     do{
-                        printf("3 ");
                         s=dn->val;
                         populateFirstSet(s->nt);
                         setUnion(first_set[nt],first_set[s->nt],first_set[nt]);
                         if(first_set[s->nt]->arr[epsilon]){
-                            printf("4 ");
                             first_set[nt]->arr[epsilon]=false;
                             dn=dn->next;
                         }
                         else{
-                            printf("5 ");
-                            // printf("5 ");
                             will_be_epsilon=false;
                             f=false;
                             break;
@@ -205,32 +179,9 @@ void populateFirstSet(nonterminal nt){
                 first_set[nt]->arr[epsilon]=true;
             }
             }
-            // printf("\n");
          }
      }         
 }
-
-// dn = dn->next;
-//                 while(dn!=NULL && !(dn->val)->is_terminal ){
-//                     
-//                     setUnion(follow_set[nt1],first_set[(dn->val)->nt],follow_set[nt1]);
-//                     if (findInSet(first_set[(dn->val)->nt], epsilon)){
-//                         deleteElement(follow_set[nt1], epsilon);
-                            // dn = dn->next;
-//                         continue;
-//                     }
-//                     else break ;  
-//                 }
-//                 if(dn==NULL){
-//                     populateFollowSet(grep[i].LHS);
-//                     setUnion(follow_set[nt1],follow_set[grep[i].LHS],follow_set[nt1]);
-                    
-
-//                 }
-                //    else if((dn->val)->is_terminal){
-                //     insertElement(follow_set[nt1],(dn->val)->t);
-                //    }
-// }
 
 void populateFollowSet(nonterminal nt1){
     if(follow_set[nt1]->is_filled){
@@ -238,12 +189,10 @@ void populateFollowSet(nonterminal nt1){
     } 
     follow_set[nt1]->is_filled = true;
     for(int i=0;i<num_rules;i++){
-        printf("rule_no=%d %s\n",i,nonterminal_str[nt1]);
         dlinkedlist dl = grep[i].RHS;
         dllnode dn = dl->head;
         while(dn!=NULL){
             if((dn->val)->is_terminal || (dn->val)->nt!= nt1){
-                printf("1 ");
                 dn = dn->next;
                 continue;
             }
@@ -251,16 +200,12 @@ void populateFollowSet(nonterminal nt1){
                 dn=dn->next;
                 while(dn!=NULL){
                     if(dn->val->is_terminal){
-                        printf("2 ");
                         insertElement(follow_set[nt1],dn->val->t);
                         break;
                     }
                     else{
-                        printf("3 ");
-                        // populateFirstSet((dn->val)->nt);
                         setUnion(follow_set[nt1],first_set[(dn->val)->nt],follow_set[nt1]);
                         if (findInSet(first_set[(dn->val)->nt], epsilon)){
-                            printf("4 ");
                             deleteElement(follow_set[nt1], epsilon);
                             dn=dn->next;
                             continue;
@@ -269,22 +214,73 @@ void populateFollowSet(nonterminal nt1){
                     }
                 }
                 if(dn==NULL){
-                    printf("5 ");
                     populateFollowSet(grep[i].LHS);
                     setUnion(follow_set[nt1],follow_set[grep[i].LHS],follow_set[nt1]);
                 }
             }
-            printf("\n");
+        }
+    }
+}
+void init_parse_table(){
+    for(int i=0;i<num_nonterminals;i++){
+        for(int j=0;j<num_terminals;j++){
+            parse_table[i][j]=NULL;
         }
     }
 }
 
+void fill_parse_table(){
+    init_parse_table();
+    for(int i=0;i<num_rules;i++){
+        setNode temp=(setNode)malloc(sizeof(struct SETNODE));
+        dlinkedlist dl=grep[i].RHS;
+            dllnode dn=dl->head;
+            bool will_be_epsilon=true;
+            bool f=true;
+            while(f&&dn!=NULL){
+                // f=false;
+                symbol s=dn->val;
+                if(s->is_terminal&&s->t==epsilon){
+                    temp->arr[epsilon]=true;
+                    break;
+                }
+                else if(s->is_terminal){
+                    temp->arr[s->t]=true;
+                    will_be_epsilon=false;
+                    break;
+                }
+                else{
+                    do{
+                        s=dn->val;
+                        // populateFirstSet(s->nt);
+                        setUnion(temp,first_set[s->nt],temp);
+                        if(first_set[s->nt]->arr[epsilon]){
+                            temp->arr[epsilon]=false;
+                            dn=dn->next;
+                        }
+                        else{
+                            will_be_epsilon=false;
+                            f=false;
+                            break;
+                        }
+                    }
+                    while(dn!=NULL);
+                    break;
+            }
+            if(will_be_epsilon){
+                temp->arr[epsilon]=true;
+            }
+            }
+        for(int j=0;j<num_terminals;j++){
+            if(temp->arr[j]){
+                parse_table[grep[i].LHS][j]=grep[i].RHS->tail;
+            }
+        }
+    }
+}
 int main(){
     fill_hash_tables();
     fill_grammer();
-    // for(int i=0;i<num_rules;i++){
-    //     printf("%d %d\n",grep[i].LHS,grep[i].RHS->head->val->is_terminal);
-    // }
     for(int i=0;i<num_nonterminals;i++){
         first_set[i]=initSet();
     }
@@ -298,11 +294,21 @@ int main(){
     for(int i=0;i<num_nonterminals;i++){
         populateFollowSet(i);
     }
+    fill_parse_table();
+    for(int i=0;i<num_nonterminals;i++){
+        printf("%s -> ",nonterminal_str[i]);
+        for(int j=0;j<num_terminals;j++){
+            if(parse_table[i][j]!=NULL){
+                printf("%d ",parse_table[i][j]->val->is_terminal);
+            }
+        }
+        printf("\n");
+    }
     // for(int i=0;i<num_nonterminals;i++){
     //     printf("%s\n",nonterminal_str[i]);
     //     for(int j=0;j<num_terminals;j++){
     //         // printf("%d ",first_set[0]->arr[j]);
-    //         if(follow_set[i]->arr[j]){
+    //         if(first_set[i]->arr[j]){
     //             printf("%s ",terminal_str[j]);
     //         }
     //     }

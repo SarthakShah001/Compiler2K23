@@ -20,8 +20,13 @@ struct SETNODE{
 extern setNode first_set[num_nonterminals];
 extern setNode follow_set[num_nonterminals];
 
+// initialising Set
 setNode initSet() ; 
-void insertElement(setNode set,terminal t) ; 
+
+// insert terminal in set
+void insertElement(setNode set,terminal t) ;
+
+// deleting element 
 void deleteElement(setNode set, terminal t) ;
 bool findInSet(setNode s, terminal t) ;
 void setUnion(setNode s1, setNode s2, setNode dest); 
