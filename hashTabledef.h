@@ -7,7 +7,6 @@ typedef struct ELEMENT{
     bool is_present;
     int value;
 }hashelement;
-
 typedef hashelement hashtable[HASHSIZE];
 
 #endif

@@ -4,11 +4,12 @@
 #include<stdbool.h>
 #include<string.h>
 #include "lexer.h"
-
+#include "doublyLinkedList.h"
 #define terminal tkType
 #define num_terminals 60
 #define num_nonterminals 72
 #define num_rules 148
+#define max_rule_length 100
 typedef enum NONTERMINAL{
 program,
 moduleDeclarations,
@@ -84,81 +85,9 @@ new_index_for_loop,
 sign_for_loop
 } nonterminal;
 
-char *nonterminal_str[]={
-"<program>",
-"<moduleDeclarations>",
-"<moduleDeclaration>",
-"<otherModules>",
-"<driverModule>",
-"<module>",
-"<ret>",
-"<input_plist>",
-"<N1>",
-"<output_plist>",
-"<N2>",
-"<dataType>",
-"<range_arrays>",
-"<type>",
-"<moduleDef>",
-"<statements>",
-"<statement>",
-"<ioStmt>",
-"<boolConstt>",
-"<id_num_rnum>",
-"<array_element_for_print>",
-"<var_print>",
-"<P1>",
-"<simpleStmt>",
-"<assignmentStmt>",
-"<whichStmt>",
-"<lvalueIDStmt>",
-"<lvalueARRStmt>",
-"<index_arr>",
-"<new_index>",
-"<sign>",
-"<moduleReuseStmt>",
-"<actual_para_list>",
-"<optional>",
-"<idList>",
-"<N3>",
-"<expression>",
-"<new_NT>",
-"<var_id_num>",
-"<unary_op>",
-"<arithmeticOrBooleanExpr>",
-"<N7>",
-"<AnyTerm>",
-"<N8>",
-"<arithmeticExpr>",
-"<N4>",
-"<term>",
-"<N5>",
-"<factor>",
-"<N11>",
-"<element_index_with_expressions>",
-"<arrExpr>",
-"<arr_N4>",
-"<arrTerm>",
-"<arr_N5>",
-"<arrFactor>",
-"<N10>",
-"<op1>",
-"<op2>",
-"<logicalOp>",
-"<relationalOp>",
-"<declareStmt>",
-"<condionalStmt>",
-"<caseStmts>",
-"<N9>",
-"<value>",
-"<default>",
-"<iterativeStmt>",
-"<range_for_loop>",
-"<index_for_loop>",
-"<new_index_for_loop>",
-"<sign_for_loop>",
-};
-typedef struct SYMBOL* symbol;
+extern char *nonterminal_str[];
+
+typedef struct SYMBOL symbol;
 struct SYMBOL{
     union
     {
@@ -167,10 +96,11 @@ struct SYMBOL{
     };
     bool is_terminal;
 };
+
 typedef struct RULES{
     nonterminal LHS;
-    symbol head;
-    symbol tail;
+    struct DLinkedList* RHS;
 }rule;
-rule grep[num_rules];
+
+extern rule grep[num_rules];
 #endif

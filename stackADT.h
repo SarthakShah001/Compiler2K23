@@ -1,43 +1,29 @@
-#ifndef _stackADT_
-#define _stackADT_
+#include "parserDef.h"
 
-
-typedef struct stacknode* StackNode;
-typedef union ele element;
-
-
-struct stacknode {
-
-    // data type for union of terminal, non terminal and $
-    union ele {
-        // datatype for terminals(token type)
-        // datatype for non terminals
-        int terminal;
-        float nonterminal;
-    };
-
-    bool is_terminal;
-    int val; //for dummy purpose
-
-    StackNode next;
-
+typedef struct node stackNode;
+struct node
+{
+    symbol sym;
+    stackNode *next;
 };
 
-
-typedef struct {
+typedef struct
+{
     int size;
-    StackNode top;
+    stackNode *top;
+} parseStack;
 
-} stack;
+// function to create parseStack
+parseStack init_parseStack();
 
-stack createStack();
+// function to check if parseStack is empty
+bool isEmpty(parseStack S);
 
-void push(stack S, int x);
+// function to push on parseStack
+void push(parseStack S, stackNode x);
 
-void pop(stack S);
- 
-void top(stack S);
+// function to pop from parseStack
+void pop(parseStack S);
 
-#endif
-
-
+// function to get the top of pareStack
+symbol top(parseStack S);

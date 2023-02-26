@@ -3,8 +3,6 @@
 #include<string.h>
 #include<stdbool.h>
 #include "hashTable.h"
-#include "parserDef.h"
-#include "lexerDef.h"
 int hash(char*str){
     long long int char_sum=0;
     int len=0;

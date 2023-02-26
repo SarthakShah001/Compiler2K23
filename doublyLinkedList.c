@@ -2,20 +2,90 @@
 #include <stdlib.h>
 #include "doublyLinkedList.h"
 
-void print()
+struct DLinkedList createDLinkedList()
 {
-    struct DLLNode *temp = head;
+    struct DLinkedList list;
+    list.head = NULL;
+    list.tail = NULL;
+    list.listSize = 0;
+
+    return list;
+}
+
+void insertBegin(struct DLinkedList *list, int val)
+{
+    struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
+    if (new_node == NULL)
+    {
+        printf("COULD NOT ALLOCATE MEMORY TO NODE\n");
+    }
+
+    new_node->val = val;
+
+    if (list->head == NULL)
+    {
+        new_node->next = NULL;
+        new_node->prev = NULL;
+        list->head = new_node;
+        list->tail = new_node;
+        list->listSize = 1;
+        return;
+    }
+
+    new_node->next = list->head;
+    list->head->prev = new_node;
+    new_node->prev = NULL;
+    list->head = new_node;
+    list->listSize++;
+
+    // print(list);
+    printRev(list);
+}
+
+void insertEnd(struct DLinkedList *list, int val)
+{
+    struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
+    if (new_node == NULL)
+    {
+        printf("COULD NOT ALLOCATE MEMORY TO NODE\n");
+    }
+
+    new_node->val = val;
+
+    if (list->tail == NULL)
+    {
+        new_node->next = NULL;
+        new_node->prev = NULL;
+        list->head = new_node;
+        list->tail = new_node;
+        list->listSize = 1;
+        return;
+    }
+
+    list->tail->next = new_node;
+    new_node->prev = list->tail;
+    list->tail = new_node;
+    list->listSize++;
+
+    // print(list);
+    printRev(list);
+}
+
+void print(struct DLinkedList *list)
+{
+    struct DLLNode *temp = list->head;
     while (temp)
     {
         printf("%d ", temp->val);
         temp = temp->next;
     }
+
     printf("\n");
 }
 
-void printrev()
+void printRev(struct DLinkedList *list)
 {
-    struct DLLNode *temp = tail;
+    struct DLLNode *temp = list->tail;
     while (temp)
     {
         printf("%d ", temp->val);
@@ -25,110 +95,23 @@ void printrev()
     printf("\n");
 }
 
-void insertBegin()
-{
-    int val;
-    printf("Enter the value to be inserted \n");
-    scanf("%d", &val);
+// int main()
+// {
+//     struct DLinkedList list = createDLinkedList();
 
-    if (head == NULL)
-    {
-        struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
-        new_node->val = val;
-        new_node->prev = NULL;
-        new_node->next = NULL;
-        head = new_node;
-        tail = new_node;
-    }
-    else
-    {
-        struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
-        new_node->val = val;
-        new_node->next = head;
-        head->prev = new_node;
-        head = new_node;
-    }
+//     insertBegin(&list, 10);
+//     insertBegin(&list, 20);
+//     insertBegin(&list, 30);
+//     insertBegin(&list, 40);
+//     insertBegin(&list, 50);
+//     insertBegin(&list, 60);
 
-    print();
-    printrev();
-}
+//     insertEnd(&list, 1);
+//     insertEnd(&list, 2);
+//     insertEnd(&list, 3);
+//     insertEnd(&list, 4);
+//     insertEnd(&list, 5);
+//     insertEnd(&list, 6);
 
-void insertEnd()
-{
-    int val;
-    printf("Enter the value to be inserted \n");
-    scanf("%d", &val);
-
-    if (tail == NULL)
-    {
-        struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
-        new_node->val = val;
-        new_node->prev = NULL;
-        new_node->next = NULL;
-        head = new_node;
-        tail = new_node;
-    }
-    else
-    {
-        struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
-        new_node->val = val;
-        new_node->prev = tail;
-        tail->next = new_node;
-        tail = new_node;
-    }
-
-    print();
-    printrev();
-}
-
-int main()
-{
-
-    printf("Enter the number of nodes\n");
-    int n, val;
-    scanf("%d", &n);
-    if (n <= 0)
-    {
-        printf("INVALID NODES\n");
-    }
-    else
-    {
-        struct DLLNode *node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
-
-        printf("Enter the value of the node\n");
-        scanf("%d", &val);
-
-        node->val = val;
-
-        node->next = NULL;
-        node->prev = NULL;
-
-        head = node;
-        tail = node;
-        // head->next = NULL;
-        // tail->next = NULL;
-        // head->prev = NULL;
-        // tail->prev = NULL;
-
-        struct DLLNode *temp = node;
-
-        for (int i = 2; i <= n; i++)
-        {
-            struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
-
-            printf("Enter the value of the node\n");
-            scanf("%d", &val);
-
-            new_node->val = val;
-            new_node->prev = temp;
-            temp->next = new_node;
-            tail = new_node;
-            temp = temp->next;
-            temp->next = NULL;
-        }
-    }
-
-    print();
-    printrev();
-    return 0;
-}
+//     return 0;
+// }
