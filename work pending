@@ -5,12 +5,12 @@ hashing implementation
 
 
 ****Parser****
-stack,set,tree adt and functions
-first and follow set functions
-parse stack
-parse tree
-parse table
-handling grammar rules
+first and follow sets // done
+parse table and parsestack // done
+parse tree and functions
+error handling
+Parser testing
+
 etc.
 
 ****Parser****
