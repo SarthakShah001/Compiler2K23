@@ -3,9 +3,8 @@
 #include <stdbool.h>
 #include "parserDef.h"
 #include "stackADT.h"
-typedef struct stack* parse_Stack;
 
-struct stack* init_parseStack()
+parse_Stack init_parseStack()
 {
     parse_Stack S = (parse_Stack)(malloc(sizeof(struct stack)));
     S->size = 0;
@@ -18,28 +17,25 @@ bool isEmpty(parse_Stack S)
     return S->size == 0;
 }
 
-void push(parse_Stack S, stackNode x)
-{
-    // int to be changed to element
+void push(parse_Stack S, stackNode x){
+
     stackNode temp = (stackNode)(malloc(sizeof(struct node)));
 
-    // define which datatype to use
-    if (temp == NULL)
-    {
+    if (temp == NULL){
         printf("Malloc function failed\n");
         return;
     }
 
-    if (x->sym->is_terminal)
-    {
+    if (x->sym->is_terminal){
         temp->sym->t = x->sym->t;
         temp->sym->is_terminal = true;
     }
-    else
-    {
+
+    else{
         temp->sym->nt = x->sym->nt;
         temp->sym->is_terminal = false;
     }
+
     temp->next = S->top;
     S->top = temp;
     S->size++;
@@ -47,33 +43,32 @@ void push(parse_Stack S, stackNode x)
     // temp = NULL;
 }
 
-void pop(parse_Stack S)
-{
-    if (isEmpty(S))
-    {
+void pop(parse_Stack S){
+
+    if (isEmpty(S)){
         printf("Stack is empty.\n");
     }
-    else
-    {
+
+    else{
         stackNode temp = S->top;
         S->top = S->top->next;
         temp->next = NULL;
         S->size--;
-
         free(temp);
     }
+
     return;
 }
 
-stackNode (parse_Stack S)
-{
-    if (isEmpty(S))
-    {
+stackNode top(parse_Stack S){
+
+    if (isEmpty(S)){
         printf("Stack is empty.\n");
         return NULL;
     }
-    else
-    {
+
+    else{
         return S->top;
     }
+    
 }
