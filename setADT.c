@@ -4,35 +4,49 @@
 #include "parserDef.h"
 #include "setADT.h"
 
-void initSet(bool set[]){
+setNode initSet(){
+    setNode set=(setNode)malloc(sizeof(struct SETNODE));
     for(int i = 0; i<num_terminals; i++){
-        set[i] = false; 
+        set->arr[i] = false; 
     }
+    set->is_filled=false;
 }
 
-void insertElement(bool set[]  , terminal t){
-    set[t] = true; 
+void insertElement(setNode set  , terminal t){
+    set->arr[t] = true; 
 }
 
 
-void deleteElement(bool  set[] , terminal t){
-    set[t] = false ; 
+void deleteElement(setNode  set , terminal t){
+    set->arr[t] = false ; 
 }
 
-bool findInSet(bool set[] , terminal t){
-    return set[t] ; 
+bool findInSet(setNode set , terminal t){
+    return set->arr[t] ; 
 }
 
-void setUnion(bool s1[] , bool s2[] , bool dest[]){
+void setUnion(setNode s1 , setNode s2 , setNode dest){
     for(int i = 0 ; i<num_terminals ; i++){
-        dest[i] = (s1[i] || s2[i]) ;
+        dest->arr[i] = (s1->arr[i] || s2->arr[i]) ;
     }
 }
 
-void setIntersection(bool s1[] , bool s2[] , bool dest[]){
+void setIntersection(setNode s1 , setNode s2 , setNode dest){
     for(int i = 0 ; i<num_terminals ; i++){
-        dest[i] = (s1[i] && s2[i]) ;
+        dest->arr[i] = (s1->arr[i] && s2->arr[i]) ;
     }
 }
+
+bool isSuperset(setNode s1, setNode s2){
+    for(int i = 0; i<num_terminals; i++){
+        if(s1->arr[i] == true && s2->arr[i] == false){
+            return false;
+        }
+    }
+    return true;
+    
+}
+
+
 
 

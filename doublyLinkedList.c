@@ -2,17 +2,16 @@
 #include <stdlib.h>
 #include "doublyLinkedList.h"
 
-struct DLinkedList createDLinkedList()
+dlinkedlist createDLinkedList()
 {
-    struct DLinkedList list;
-    list.head = NULL;
-    list.tail = NULL;
-    list.listSize = 0;
-
+    struct DLinkedList *list=(dlinkedlist)malloc(sizeof(struct DLinkedList));
+    list->head = NULL;
+    list->tail = NULL;
+    list->listSize = 0;
     return list;
 }
 
-void insertBegin(struct DLinkedList *list, int val)
+void insertBegin(struct DLinkedList *list, symbol val)
 {
     struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
     if (new_node == NULL)
@@ -42,7 +41,7 @@ void insertBegin(struct DLinkedList *list, int val)
     printRev(list);
 }
 
-void insertEnd(struct DLinkedList *list, int val)
+void insertEnd(struct DLinkedList *list, symbol val)
 {
     struct DLLNode *new_node = (struct DLLNode *)malloc(sizeof(struct DLLNode));
     if (new_node == NULL)
@@ -68,7 +67,7 @@ void insertEnd(struct DLinkedList *list, int val)
     list->listSize++;
 
     // print(list);
-    printRev(list);
+    // printRev(list);
 }
 
 void print(struct DLinkedList *list)
@@ -76,7 +75,7 @@ void print(struct DLinkedList *list)
     struct DLLNode *temp = list->head;
     while (temp)
     {
-        printf("%d ", temp->val);
+        printf("%d ", temp->val->is_terminal);
         temp = temp->next;
     }
 
@@ -88,7 +87,7 @@ void printRev(struct DLinkedList *list)
     struct DLLNode *temp = list->tail;
     while (temp)
     {
-        printf("%d ", temp->val);
+        printf("%d ", temp->val->is_terminal);
         temp = temp->prev;
     }
 

@@ -3,6 +3,7 @@
 #include<string.h>
 #include<stdbool.h>
 #include "hashTable.h"
+#include "parserDef.h"
 int hash(char*str){
     long long int char_sum=0;
     int len=0;
@@ -56,3 +57,4 @@ bool is_str_present(hashtable t,char*str){
     }
     return false;
 }
+

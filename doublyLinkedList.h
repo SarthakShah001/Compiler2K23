@@ -1,23 +1,24 @@
 #ifndef _doublylinkedlist_
 #define _doublylinkedlist_
 #include <stdbool.h>
+typedef struct DLinkedList* dlinkedlist;
+typedef struct DLLNode* dllnode;
 #include "parserDef.h"
 
 struct DLLNode
 {
-    int val;
+    symbol val;
     struct DLLNode *next, *prev;
 };
-// typedef struct DLinkedList dlinkedlist;
 struct DLinkedList
 {
     struct DLLNode *head, *tail;
     int listSize;
 };
 
-struct DLinkedList createDLinkedList();
-void insertBegin(struct DLinkedList *list, int val);
-void insertEnd(struct DLinkedList *list, int val);
+dlinkedlist createDLinkedList();
+void insertBegin(struct DLinkedList *list,symbol val);
+void insertEnd(struct DLinkedList *list,symbol val);
 void print(struct DLinkedList *list);
 void printRev(struct DLinkedList *list);
 

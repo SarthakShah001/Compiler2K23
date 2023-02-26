@@ -3,13 +3,14 @@
 #include<stdlib.h>
 #include<stdbool.h>
 #include<string.h>
+typedef struct SYMBOL* symbol;
 #include "lexer.h"
 #include "doublyLinkedList.h"
 #define terminal tkType
 #define num_terminals 60
 #define num_nonterminals 72
 #define num_rules 148
-#define max_rule_length 100
+#define max_rule_length 200
 typedef enum NONTERMINAL{
 program,
 moduleDeclarations,
@@ -87,7 +88,7 @@ sign_for_loop
 
 extern char *nonterminal_str[];
 
-typedef struct SYMBOL symbol;
+
 struct SYMBOL{
     union
     {
@@ -99,7 +100,7 @@ struct SYMBOL{
 
 typedef struct RULES{
     nonterminal LHS;
-    struct DLinkedList* RHS;
+    dlinkedlist RHS;
 }rule;
 
 extern rule grep[num_rules];

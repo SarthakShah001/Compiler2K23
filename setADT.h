@@ -1,28 +1,31 @@
 #ifndef _setADT_
 #define _setADT_
-
 #include <stdbool.h>
 #include "parserDef.h"
 
-// typedef struct setnode* SetNode;
+typedef struct SETNODE* setNode;
 
-// typedef struct SetNode{
-//     bool arr[num_terminals];
-// }setnode; 
+struct SETNODE{
+    bool arr[num_terminals];
+    bool is_filled;
+}; 
+
+
 
 // typedef struct {
 //     SetNode s;
 //     nonterminal nt;
 // }set;
 
-bool first_set[num_nonterminals][num_terminals];
-bool follow_set[num_nonterminals][num_terminals];
+extern setNode first_set[num_nonterminals];
+extern setNode follow_set[num_nonterminals];
 
-void initSet(bool set[]) ; 
-void insertElement(bool set[],terminal t) ; 
-void deleteElement(bool set[], terminal t) ;
-bool findInSet(bool s[], terminal t) ;
-void setUnion(bool s1[], bool s2[], bool dest[]); 
-void setIntersection(bool s1[], bool s2[], bool dest[]); 
+setNode initSet() ; 
+void insertElement(setNode set,terminal t) ; 
+void deleteElement(setNode set, terminal t) ;
+bool findInSet(setNode s, terminal t) ;
+void setUnion(setNode s1, setNode s2, setNode dest); 
+void setIntersection(setNode s1, setNode s2, setNode dest);
+bool isSuperset(setNode s1,setNode s2);
 
 #endif
