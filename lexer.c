@@ -984,16 +984,16 @@ int main()
         // printf("%d\n",current_token.token_type);
         if (current_token.token_type==TK_NUM)
         {
-            printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", enum_to_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
+            printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
         }
         else if (current_token.token_type==TK_RNUM)
         {
-            printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", enum_to_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
+            printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
         }
         else
         {
             //  printf("%s\n", current_token.token_type);
-            printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",enum_to_str[current_token.token_type], current_token.lex.value, current_token.line_no);
+            printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
         }
 
         if (current_token.token_type==TK_EOF)

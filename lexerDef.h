@@ -81,7 +81,7 @@ typedef enum TK_TYPE{
     }tkType;
 
 
-char *enum_to_str[]={
+char *terminal_str[]={
     "TK_ID",
     "TK_NUM",
     "TK_RNUM",
@@ -141,7 +141,8 @@ char *enum_to_str[]={
     "TK_WHILE", 
     "$",
     "TK_ERROR",
-    "TK_EOF"
+    "TK_EOF",
+    "epsilon"
 };
 typedef struct PAIR{
     char *first;
