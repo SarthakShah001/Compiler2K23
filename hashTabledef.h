@@ -3,7 +3,7 @@
 
 #define HASHSIZE 100
 typedef struct ELEMENT{
-    char lexeme[20];
+    char lexeme[40];
     bool is_present;
     int value;
 }hashelement;

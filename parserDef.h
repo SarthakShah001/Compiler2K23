@@ -8,8 +8,8 @@ typedef struct SYMBOL* symbol;
 #include "doublyLinkedList.h"
 #define terminal tkType
 #define num_terminals 60
-#define num_nonterminals 72
-#define num_rules 148
+#define num_nonterminals 71
+#define num_rules 139
 #define max_rule_length 200
 typedef enum NONTERMINAL{
 program,
@@ -31,8 +31,6 @@ statements,
 statement,
 ioStmt,
 boolConstt,
-id_num_rnum,
-array_element_for_print,
 var_print,
 P1,
 simpleStmt,

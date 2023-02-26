@@ -34,15 +34,11 @@
 <ioStmt> -> TK_PRINT TK_BO <var_print> TK_BC TK_SEMICOL
 <boolConstt> -> TK_TRUE
 <boolConstt> -> TK_FALSE
-<id_num_rnum> -> TK_ID
-<id_num_rnum> -> TK_NUM
-<id_num_rnum> -> TK_RNUM
-<array_element_for_print> -> TK_ID TK_SQBO <index_arr> TK_SQBC
 <var_print> -> TK_ID <P1>
 <var_print> -> TK_NUM
 <var_print> -> TK_RNUM
 <var_print> -> <boolConstt>
-<P1> -> TK_SQBO <new_index> TK_SQBC
+<P1> -> TK_SQBO <index_arr> TK_SQBC
 <P1> -> epsilon
 <simpleStmt> -> <assignmentStmt> 
 <simpleStmt> -> <moduleReuseStmt>
@@ -61,8 +57,7 @@
 <actual_para_list> -> TK_NUM
 <actual_para_list> -> TK_RNUM
 <actual_para_list> -> <boolConstt>
-<actual_para_list> -> TK_ID
-<actual_para_list> -> <N11> 
+<actual_para_list> -> TK_ID <N11>
 <optional> -> TK_SQBO <idList> TK_SQBC TK_ASSIGNOP
 <optional> -> epsilon
 <idList> -> TK_ID <N3>
@@ -70,6 +65,7 @@
 <N3> -> epsilon
 <expression> -> <arithmeticOrBooleanExpr> 
 <expression> -> <U>
+<U> -> <unary_op> <new_NT>
 <new_NT> -> TK_BO <arithmeticExpr> TK_BC
 <new_NT> -> <var_id_num>
 <var_id_num> -> TK_ID
@@ -84,11 +80,9 @@
 <AnyTerm> -> <boolConstt>
 <N8> -> <relationalOp> <arithmeticExpr>
 <N8> -> epsilon
-<arithmeticExpr> -> <arithmeticExpr> <op1> <term>
 <arithmeticExpr> -> <term> <N4> 
 <N4> -> <op1> <term> <N4>
 <N4> -> epsilon
-<term> -> <term> <op2> <factor>
 <term> -> <factor> <N5>
 <N5> -> <op2> <factor> <N5>
 <N5> -> epsilon
@@ -99,9 +93,6 @@
 <factor> -> TK_ID <N11>
 <N11> -> TK_SQBO <element_index_with_expressions> TK_SQBC 
 <N11> -> epsilon
-<element_index_with_expressions> -> <sign> <new_index> 
-<element_index_with_expressions> -> <arrExpr>
-<element_index_with_expressions> -> <sign> TK_BO <arrExpr> TK_BC
 <arrExpr> -> <arrTerm> <arr_N4>
 <arr_N4> -> <op1> <arrTerm> <arr_N4>
 <arr_N4> -> epsilon

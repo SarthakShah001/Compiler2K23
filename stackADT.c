@@ -4,20 +4,20 @@
 #include "parserDef.h"
 #include "stackADT.h"
 
-parseStack init_parseStack()
+parse_Stack* init_parseStack()
 {
-    parseStack S;
-    S.size = 0;
-    S.top = NULL;
+    parse_Stack* S = (parse_Stack*)(malloc(sizeof(parse_Stack)));
+    S->size = 0;
+    S->top = NULL;
     return S;
 }
 
-bool isEmpty(parseStack S)
+bool isEmpty(parseStack* S)
 {
-    return S.size == 0;
+    return S->size == 0;
 }
 
-void push(parseStack S, stackNode x)
+void push(parseStack* S, stackNode* x)
 {
     // int to be changed to element
     stackNode *temp = (stackNode *)(malloc(sizeof(stackNode)));
@@ -29,24 +29,24 @@ void push(parseStack S, stackNode x)
         return;
     }
 
-    if (x.sym.is_terminal)
+    if (x->sym.is_terminal)
     {
-        temp->sym.t = x.sym.t;
-        temp->sym.is_terminal = true;
+        temp->symbol->t = x->symbol->t;
+        temp->symbol->is_terminal = true;
     }
     else
     {
-        temp->sym.nt = x.sym.nt;
+        temp->sym.nt = x->sym.nt;
         temp->sym.is_terminal = false;
     }
-    temp->next = S.top;
-    S.top = temp;
-    S.size++;
+    temp->next = S->top;
+    S->top = temp;
+    S->size++;
 
     temp = NULL;
 }
 
-void pop(parseStack S)
+void pop(parseStack* St)
 {
     if (isEmpty(S))
     {
@@ -54,25 +54,25 @@ void pop(parseStack S)
     }
     else
     {
-        stackNode *temp = S.top;
-        S.top = S.top->next;
+        stackNode *temp = St->top;
+        St->top = St->top->next;
         temp->next = NULL;
-        S.size--;
+        St->size--;
 
         free(temp);
     }
     return;
 }
 
-symbol(parseStack S)
+symbol(parseStack* St)
 {
-    if (isEmpty(S))
+    if (isEmpty(St))
     {
         printf("Stack is empty.\n");
         return -1;
     }
     else
     {
-        return S.top->sym;
+        return St->top->sym;
     }
 }

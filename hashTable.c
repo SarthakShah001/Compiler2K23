@@ -27,7 +27,7 @@ void hash_insert(hashtable t,char *str,int value){
     int hash_val=hash(str);
     while(t[hash_val].is_present){
         prob++;
-        hash_val=(hash_val+prob*prob)%HASHSIZE;
+        hash_val=(hash_val+prob)%HASHSIZE;
     }
     t[hash_val].is_present=true;
     t[hash_val].value=value;
@@ -41,7 +41,7 @@ int find_value(hashtable t,char *str){
             return t[hash_val].value;
         }
         prob++;
-        hash_val=(hash_val+prob*prob)%HASHSIZE;
+        hash_val=(hash_val+prob)%HASHSIZE;
     }
     return -1;
 }
@@ -53,7 +53,7 @@ bool is_str_present(hashtable t,char*str){
             return true;
         }
         prob++;
-        hash_val=(hash_val+prob*prob)%HASHSIZE;
+        hash_val=(hash_val+prob)%HASHSIZE;
     }
     return false;
 }

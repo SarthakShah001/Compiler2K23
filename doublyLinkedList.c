@@ -75,13 +75,11 @@ void print(struct DLinkedList *list)
     struct DLLNode *temp = list->head;
     while (temp)
     {
-        printf("%d ", temp->val->is_terminal);
+        printf("%d ", temp->val->t);
         temp = temp->next;
     }
-
     printf("\n");
 }
-
 void printRev(struct DLinkedList *list)
 {
     struct DLLNode *temp = list->tail;
