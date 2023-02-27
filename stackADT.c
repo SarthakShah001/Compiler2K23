@@ -8,6 +8,7 @@ parse_Stack init_parseStack()
 {
     parse_Stack S = (parse_Stack)(malloc(sizeof(struct stack)));
     stackNode n = (stackNode)malloc(sizeof(struct node));
+    parseTreeNode tnode=(parseTreeNode)malloc(sizeof(struct PARSETREENODE));
     symbol s1 = (symbol)malloc(sizeof(struct SYMBOL));
     s1->is_terminal = true;
     s1->t = $;
