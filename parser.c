@@ -139,7 +139,7 @@ void populateFirstSet(nonterminal nt){
     first_set[nt]->is_filled=true;
     for(int i=0;i<num_rules;i++){
         if(grep[i].LHS==nt){
-            printf("rule no.=%d\n",i+1);
+            // printf("rule no.=%d\n",i+1);
             dlinkedlist dl=grep[i].RHS;
             dllnode dn=dl->head;
             bool will_be_epsilon=true;

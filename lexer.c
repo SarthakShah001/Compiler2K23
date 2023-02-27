@@ -232,7 +232,9 @@ void retract(int n)
 char *get_lexeme()
 {
 
-    char *lexeme = (char *)malloc((char_count + 1) * sizeof(char));
+    char *lexeme = (char *)malloc((char_count+1) * sizeof(char));
+    lexeme[char_count]='\0';
+    // printf("IN LEXEME => %s\n",lexeme);
     int i = 0;
     if (!where_begin && !where_forward)
     {
@@ -240,6 +242,7 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
+            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -249,6 +252,7 @@ char *get_lexeme()
         while (begin_ptr != buffer1 + buff_size)
         {
             lexeme[i] = *begin_ptr;
+            // printf("IN LEXEME => %s\n",lexeme);
             begin_ptr++;
             i++;
         }
@@ -256,6 +260,7 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
+            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -265,6 +270,7 @@ char *get_lexeme()
         while (begin_ptr != buffer2 + buff_size)
         {
             lexeme[i] = *begin_ptr;
+            // printf("IN LEXEME => %s\n",lexeme);
             begin_ptr++;
             i++;
         }
@@ -272,6 +278,7 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
+            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -282,6 +289,7 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
+            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -289,6 +297,8 @@ char *get_lexeme()
 
     begin_ptr = forward_ptr;
     where_begin = where_forward;
+        //     printf("IN LEXEME => %s\n",lexeme);
+        // printf("\n");
     return lexeme;
 }
 
@@ -402,20 +412,20 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
     token.line_no = curr_line_no;
     *istok = true;
     char_count = 0;
-    if (token.token_type==TK_NUM)
-        {
-            printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[token.token_type], token.lex.integer, token.line_no);
-        }
-        else if (token.token_type==TK_RNUM)
-        {
-            printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[token.token_type], token.lex.decimal, token.line_no);
-        }
-        else
-        {
-            //  printf("%s\n", token.token_type);
-            printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[token.token_type], token.lex.value, token.line_no);
-        }
-        printf("\n");
+    // if (token.token_type==TK_NUM)
+    //     {
+    //         printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[token.token_type], token.lex.integer, token.line_no);
+    //     }
+    //     else if (token.token_type==TK_RNUM)
+    //     {
+    //         printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[token.token_type], token.lex.decimal, token.line_no);
+    //     }
+    //     else
+    //     {
+    //         //  printf("%s\n", token.token_type);
+    //         printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[token.token_type], token.lex.value, token.line_no);
+    //     }
+    //     printf("\n");
     return token;
 }
 Token get_next_token()
@@ -1080,20 +1090,20 @@ Token get_next_token()
         }
         }
     }
-    if (currtoken.token_type==TK_NUM)
-        {
-            printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[currtoken.token_type], currtoken.lex.integer, currtoken.line_no);
-        }
-        else if (currtoken.token_type==TK_RNUM)
-        {
-            printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[currtoken.token_type], currtoken.lex.decimal, currtoken.line_no);
-        }
-        else
-        {
-            //  printf("%s\n", currtoken.token_type);
-            printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[currtoken.token_type], currtoken.lex.value, currtoken.line_no);
-        }
-        printf("\n");
+    // if (currtoken.token_type==TK_NUM)
+    //     {
+    //         printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[currtoken.token_type], currtoken.lex.integer, currtoken.line_no);
+    //     }
+    //     else if (currtoken.token_type==TK_RNUM)
+    //     {
+    //         printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[currtoken.token_type], currtoken.lex.decimal, currtoken.line_no);
+    //     }
+    //     else
+    //     {
+    //         //  printf("%s\n", currtoken.token_type);
+    //         printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[currtoken.token_type], currtoken.lex.value, currtoken.line_no);
+    //     }
+    //     printf("\n");
     // printf("IN SWITCH %s\n", currtoken.lex);
     return currtoken;
 }
