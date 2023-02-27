@@ -259,7 +259,6 @@ void fill_parse_table(){
                     break;
                 }
                 else{
-                    do{
                         s=dn->val;
                         // populateFirstSet(s->nt);
                         setUnion(temp,first_set[s->nt],temp);
@@ -272,9 +271,6 @@ void fill_parse_table(){
                             f=false;
                             break;
                         }
-                    }
-                    while(dn!=NULL);
-                    break;
             }
             if(will_be_epsilon){
                 temp->arr[epsilon]=true;
@@ -287,7 +283,6 @@ void fill_parse_table(){
         }
     }
 }
-
 int main(){
     fill_hash_tables();
     fill_grammer();
@@ -308,31 +303,31 @@ int main(){
     for(int i=0;i<num_terminals;i++){
     printf("%s ->%d\n",terminal_str[i],first_set[moduleReuseStmt]->arr[i]);
     }
-    // for(int i=0;i<num_nonterminals;i++){
-    //     printf("%s -> ",nonterminal_str[i]);
-    //     for(int j=0;j<num_terminals;j++){
-    //         if(parse_table[i][j]!=NULL){
-    //             printf("%d ",parse_table[i][j]->head->val->is_terminal);
-    //         }
-    //     }
-    //     printf("\n");
-    // }
-    // for(int i=0;i<num_nonterminals;i++){
-    //     printf("%s\n",nonterminal_str[i]);
-    //     for(int j=0;j<num_terminals;j++){
-    //         // printf("%d ",first_set[0]->arr[j]);
-    //         if(first_set[i]->arr[j]){
-    //             printf("%s ",terminal_str[j]);
-    //         }
-    //     }
-    //     printf("\n");
-    // }
+    for(int i=0;i<num_nonterminals;i++){
+        printf("%s -> ",nonterminal_str[i]);
+        for(int j=0;j<num_terminals;j++){
+            if(parse_table[i][j]!=NULL){
+                printf("%d ",parse_table[i][j]->head->val->is_terminal);
+            }
+        }
+        printf("\n");
+    }
+    for(int i=0;i<num_nonterminals;i++){
+        printf("%s\n",nonterminal_str[i]);
+        for(int j=0;j<num_terminals;j++){
+            // printf("%d ",first_set[0]->arr[j]);
+            if(first_set[i]->arr[j]){
+                printf("%s ",terminal_str[j]);
+            }
+        }
+        printf("\n");
+    }
     // printf("\n%d\n",find_value(terminals,"TK_REAL"));
     char testcase;
     printf("Enter no. of testcase you wanna check upon:");
     scanf("%c",&testcase);
-    char filename[]="./Testcases/Testcase0";
-    filename[20]=testcase;
+    char filename[]="./TestcasesFromMam/Testcase0";
+    filename[27]=testcase;
     fptr = fopen(filename, "r");
     if (fptr == NULL)
     {
@@ -349,7 +344,8 @@ int main(){
     parseTreeNode root=createTree();
     push_on_stack(stk,root);
     Token current_token = get_next_token();
-    while (!is_tk_finish)
+    int error_count =0;
+    while (!is_tk_finish&&!isEmpty(stk))
     {
         if (current_token.token_type==TK_NUM)
         {
@@ -385,10 +381,10 @@ int main(){
                 continue;
             }
             else{
-                //mismatch error
-                 //handle error 
-                 printf("mismatch error\n");
-                 current_token = get_next_token();  
+                // mismatch error
+                 printf("In line no.-> %d terminal mismatch error, Expected->%s,In code->%s\n",current_token.line_no,terminal_str[s->tree_ptr->s->t],terminal_str[current_token.token_type]);
+                 pop(stk);  
+                 error_count++;
             }
         }
         else if(!s->tree_ptr->s->is_terminal){
@@ -402,8 +398,17 @@ int main(){
             else{
                 //no rule error
                 //handle error
-                printf("no rule error\n");
+                printf("Line No.->%d no rule error in parse table, non terminal=%s,terminal=%s\n",current_token.line_no,nonterminal_str[s->tree_ptr->s->nt],terminal_str[current_token.token_type]);
+                setNode sync_set=compute_synchro_set(s->tree_ptr->s->nt);
+                while(current_token.token_type!=TK_EOF && !findInSet(sync_set,current_token.token_type)){
+                sync_set=compute_synchro_set(s->tree_ptr->s->nt);
                 current_token = get_next_token();
+                }
+                if(current_token.token_type==TK_SEMICOLON){
+                    current_token=get_next_token();
+                }
+                pop(stk);
+                error_count++;
             }
         }
     }
@@ -424,11 +429,13 @@ int main(){
         //stack not empty and tokens finished
         //handle error
         else{
-        printf("stack not empty and tokens finished error\n"); 
+        printf("stack not empty and tokens finished error\n");
+        error_count++; 
         }
     }
+    printf("no. of errors=%d\n",error_count);
+    // printParseTree(root);
 }
-
 // int main()
 // {
 //     char testcase;

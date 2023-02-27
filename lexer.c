@@ -1,51 +1,51 @@
 #include "lexer.h"
 #define buff_size 200
- char buffer1[buff_size + 1];
- char buffer2[buff_size + 1];
- bool is_buffer1_filled, is_buffer2_filled;
- char *begin_ptr, *forward_ptr;
- FILE *fptr;
- int curr_line_no;
- int char_count;
- bool where_begin, where_forward; // 0 indicates buff1, 1 indicates buff2
- bool retract_case;
-char *terminal_str[]={
+char buffer1[buff_size + 1];
+char buffer2[buff_size + 1];
+bool is_buffer1_filled, is_buffer2_filled;
+char *begin_ptr, *forward_ptr;
+FILE *fptr;
+int curr_line_no;
+int char_count;
+bool where_begin, where_forward; // 0 indicates buff1, 1 indicates buff2
+bool retract_case;
+char *terminal_str[] = {
     "TK_ID",
     "TK_NUM",
     "TK_RNUM",
     "TK_RANGEOP",
     "TK_PLUS",
-    "TK_MINUS", 
-    "TK_MUL", 
-    "TK_DIV",    
+    "TK_MINUS",
+    "TK_MUL",
+    "TK_DIV",
     "TK_LE",
-    "TK_DRIVERDEF", 
-    "TK_DEF", 
+    "TK_DRIVERDEF",
+    "TK_DEF",
     "TK_LT",
-    "TK_SQBO", 
-    "TK_SQBC", 
+    "TK_SQBO",
+    "TK_SQBC",
     "TK_BO",
     "TK_BC",
-    "TK_GE", 
-    "TK_GT", 
-    "TK_DRIVERENDDEF", 
-    "TK_ENDDEF", 
+    "TK_GE",
+    "TK_GT",
+    "TK_DRIVERENDDEF",
+    "TK_ENDDEF",
     "TK_EQ",
     "TK_NE",
-    "TK_ASSIGNOP", 
+    "TK_ASSIGNOP",
     "TK_COLON",
     "TK_SEMICOL",
-    "TK_COMMA", 
+    "TK_COMMA",
     // Token_ID for keywords
     "TK_AND",
     "TK_OR",
     "TK_TRUE",
-    "TK_FALSE", 
-    "TK_INTEGER", 
+    "TK_FALSE",
+    "TK_INTEGER",
     "TK_REAL",
-    "TK_BOOLEAN", 
+    "TK_BOOLEAN",
     "TK_OF",
-    "TK_ARRAY", 
+    "TK_ARRAY",
     "TK_START",
     "TK_END",
     "TK_DECLARE",
@@ -66,53 +66,54 @@ char *terminal_str[]={
     "TK_CASE",
     "TK_BREAK",
     "TK_DEFAULT",
-    "TK_WHILE", 
+    "TK_WHILE",
     "$",
     "TK_ERROR",
     "TK_EOF",
-    "epsilon"
-};
+    "epsilon"};
 pair reserved[30] = {
-    {"AND",TK_AND},
-    {"OR",TK_OR},
-    {"true",TK_TRUE},
-    {"false",TK_FALSE},
-    {"integer",TK_INTEGER},
-    {"real",TK_REAL},
-    {"boolean",TK_BOOLEAN},
-    {"of",TK_OF},
-    {"array",TK_ARRAY},
-    {"start",TK_START},
-    {"end",TK_END},
-    {"declare",TK_DECLARE},
-    {"module",TK_MODULE},
-    {"driver",TK_DRIVER},
-    {"program",TK_PROGRAM},
-    {"get_value",TK_GETVALUE},
-    {"print",TK_PRINT},
-    {"use",TK_USE},
-    {"with",TK_WITH},
-    {"parameters",TK_PARAMETERS},
-    {"takes",TK_TAKES},
-    {"input",TK_INPUT},
-    {"returns",TK_RETURNS},
-    {"for",TK_FOR},
-    {"in",TK_IN},
-    {"switch",TK_SWITCH},
-    {"case",TK_CASE},
-    {"break",TK_BREAK},
-    {"default",TK_DEFAULT},
-    {"while",TK_WHILE},
+    {"AND", TK_AND},
+    {"OR", TK_OR},
+    {"true", TK_TRUE},
+    {"false", TK_FALSE},
+    {"integer", TK_INTEGER},
+    {"real", TK_REAL},
+    {"boolean", TK_BOOLEAN},
+    {"of", TK_OF},
+    {"array", TK_ARRAY},
+    {"start", TK_START},
+    {"end", TK_END},
+    {"declare", TK_DECLARE},
+    {"module", TK_MODULE},
+    {"driver", TK_DRIVER},
+    {"program", TK_PROGRAM},
+    {"get_value", TK_GETVALUE},
+    {"print", TK_PRINT},
+    {"use", TK_USE},
+    {"with", TK_WITH},
+    {"parameters", TK_PARAMETERS},
+    {"takes", TK_TAKES},
+    {"input", TK_INPUT},
+    {"returns", TK_RETURNS},
+    {"for", TK_FOR},
+    {"in", TK_IN},
+    {"switch", TK_SWITCH},
+    {"case", TK_CASE},
+    {"break", TK_BREAK},
+    {"default", TK_DEFAULT},
+    {"while", TK_WHILE},
 };
-void lexer_init(){
-    is_buffer1_filled=false;
-    is_buffer2_filled=false;
-    begin_ptr=NULL;
-    forward_ptr=NULL;
+
+void lexer_init()
+{
+    is_buffer1_filled = false;
+    is_buffer2_filled = false;
+    begin_ptr = NULL;
+    forward_ptr = NULL;
     retract_case = false;
     curr_line_no = 1;
-    where_begin=false;
-    where_forward=false;
+    where_begin = false;
+    where_forward = false;
     char_count = 0;
 }
 void start_lexer()
@@ -232,9 +233,8 @@ void retract(int n)
 char *get_lexeme()
 {
 
-    char *lexeme = (char *)malloc((char_count+1) * sizeof(char));
-    lexeme[char_count]='\0';
-    // printf("IN LEXEME => %s\n",lexeme);
+    char *lexeme = (char *)malloc((char_count + 1) * sizeof(char));
+    lexeme[char_count] = '\0';
     int i = 0;
     if (!where_begin && !where_forward)
     {
@@ -242,7 +242,6 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
-            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -252,7 +251,7 @@ char *get_lexeme()
         while (begin_ptr != buffer1 + buff_size)
         {
             lexeme[i] = *begin_ptr;
-            // printf("IN LEXEME => %s\n",lexeme);
+
             begin_ptr++;
             i++;
         }
@@ -260,7 +259,6 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
-            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -270,7 +268,6 @@ char *get_lexeme()
         while (begin_ptr != buffer2 + buff_size)
         {
             lexeme[i] = *begin_ptr;
-            // printf("IN LEXEME => %s\n",lexeme);
             begin_ptr++;
             i++;
         }
@@ -278,7 +275,6 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
-            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -289,7 +285,6 @@ char *get_lexeme()
         while (temp != forward_ptr)
         {
             lexeme[i] = *temp;
-            // printf("IN LEXEME => %s\n",lexeme);
             temp++;
             i++;
         }
@@ -297,8 +292,6 @@ char *get_lexeme()
 
     begin_ptr = forward_ptr;
     where_begin = where_forward;
-        //     printf("IN LEXEME => %s\n",lexeme);
-        // printf("\n");
     return lexeme;
 }
 
@@ -355,19 +348,17 @@ void report_error(int state, char *lexeme)
 
 Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, int state, bool *istok)
 {
-    tkType tokentype=tokenincoming;
+    tkType tokentype = tokenincoming;
     Token token;
     retract(retract_length);
     lexeme l;
     char_count -= retract_length;
-    char str[50];
-    strcpy(str,get_lexeme());
-    
+    char *str = get_lexeme();
     if (char_count > 20)
     {
         // throw error
         report_error(-1, str);
-        token.token_type=TK_ERROR;
+        token.token_type = TK_ERROR;
         begin_ptr = forward_ptr;
         where_begin = where_forward;
         *istok = false;
@@ -375,17 +366,17 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
         return token;
     }
 
-    if (tokentype== TK_ERROR)
+    if (tokentype == TK_ERROR)
     {
         report_error(state, str);
         begin_ptr = forward_ptr;
         where_begin = where_forward;
-        token.token_type=TK_ERROR;
+        token.token_type = TK_ERROR;
         *istok = false;
         char_count = 0;
         return token;
     }
-    if (tokentype==TK_ID)
+    if (tokentype == TK_ID)
     {
         for (int i = 0; i < 30; i++)
         {
@@ -394,38 +385,28 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
                 tokentype=reserved[i].second;
             }
         }
+        // int x = find_value(terminals, str);
+        // if (x != -1)
+        // {
+        //     tokentype = x;
+        // }
     }
-    strcpy(l.value,str);
-    if (tokentype==TK_NUM)
+    strcpy(l.value, str);
+    if (tokentype == TK_NUM)
     {
         int x = atoi(l.value);
         l.integer = x;
     }
-    else if (tokentype==TK_RNUM)
+    else if (tokentype == TK_RNUM)
     {
         double x = atof(l.value);
         l.decimal = x;
     }
-    token.token_type=tokentype;
-    // printf("%s\n",l);
+    token.token_type = tokentype;
     token.lex = l;
     token.line_no = curr_line_no;
     *istok = true;
     char_count = 0;
-    // if (token.token_type==TK_NUM)
-    //     {
-    //         printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[token.token_type], token.lex.integer, token.line_no);
-    //     }
-    //     else if (token.token_type==TK_RNUM)
-    //     {
-    //         printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[token.token_type], token.lex.decimal, token.line_no);
-    //     }
-    //     else
-    //     {
-    //         //  printf("%s\n", token.token_type);
-    //         printf("IN TOKENISE TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[token.token_type], token.lex.value, token.line_no);
-    //     }
-    //     printf("\n");
     return token;
 }
 Token get_next_token()
@@ -927,7 +908,7 @@ Token get_next_token()
         {
             // Tokenise (
             currtoken = tokenise(TK_BO, 0, true, 35, &is_tokenised);
-            // printf("%s\n",currtoken.lex);
+
             current_state = 0;
             break;
         }
@@ -935,7 +916,7 @@ Token get_next_token()
         {
             // Tokenise )
             currtoken = tokenise(TK_BC, 0, true, 36, &is_tokenised);
-            // printf("%s\n",currtoken.lex);
+
             current_state = 0;
             break;
         }
@@ -1090,63 +1071,5 @@ Token get_next_token()
         }
         }
     }
-    // if (currtoken.token_type==TK_NUM)
-    //     {
-    //         printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[currtoken.token_type], currtoken.lex.integer, currtoken.line_no);
-    //     }
-    //     else if (currtoken.token_type==TK_RNUM)
-    //     {
-    //         printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[currtoken.token_type], currtoken.lex.decimal, currtoken.line_no);
-    //     }
-    //     else
-    //     {
-    //         //  printf("%s\n", currtoken.token_type);
-    //         printf("IN SWITCH TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[currtoken.token_type], currtoken.lex.value, currtoken.line_no);
-    //     }
-    //     printf("\n");
-    // printf("IN SWITCH %s\n", currtoken.lex);
     return currtoken;
 }
-
-// int main()
-// {
-//     char testcase;
-//     printf("Enter no. of testcase you wanna check upon:");
-//     scanf("%c",&testcase);
-//     char filename[]="./Testcases/Testcase0";
-//     filename[20]=testcase;
-//     fptr = fopen(filename, "r");
-//     if (fptr == NULL)
-//     {
-//         printf("File not opened\n");
-//         return 0;
-//     }
-//     printf("Tokenization Started\n");
-//     lexer_init();
-//     start_lexer();
-//     while (true)
-//     {
-//         Token currtoken = get_next_token();
-//         // printf("%d\n",current_token.token_type);
-//         if (current_token.token_type==TK_NUM)
-//         {
-//             printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
-//         }
-//         else if (current_token.token_type==TK_RNUM)
-//         {
-//             printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
-//         }
-//         else
-//         {
-//             //  printf("%s\n", current_token.token_type);
-//             printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
-//         }
-
-//         if (current_token.token_type==TK_EOF)
-//         {
-//             printf("Tokenization Process Finished\n");
-//             break;
-//         }
-//     }
-//     return 0;
-// }

@@ -32,5 +32,5 @@ bool findInSet(setNode s, terminal t) ;
 void setUnion(setNode s1, setNode s2, setNode dest); 
 void setIntersection(setNode s1, setNode s2, setNode dest);
 bool isSuperset(setNode s1,setNode s2);
-
+setNode compute_synchro_set(nonterminal nt);
 #endif

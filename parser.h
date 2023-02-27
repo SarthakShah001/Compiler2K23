@@ -2,7 +2,6 @@
 #define _parser_
 
 #include "parserDef.h"
-#include "hashTable.h"
 #include "doublyLinkedList.h"
 #include "stackADT.h"
 

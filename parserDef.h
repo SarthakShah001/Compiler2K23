@@ -4,6 +4,7 @@
 #include<stdbool.h>
 #include<string.h>
 typedef struct SYMBOL* symbol;
+#include "hashTable.h"
 #include "lexer.h"
 #include "doublyLinkedList.h"
 #define terminal tkType
@@ -86,6 +87,7 @@ sign_for_loop
 } nonterminal;
 
 extern char *nonterminal_str[];
+extern hashtable terminals,nonterminals;
 
 
 struct SYMBOL{

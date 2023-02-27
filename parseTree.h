@@ -10,7 +10,7 @@ typedef struct PARSETREENODE* parseTreeNode ;
 struct PARSETREENODE{
     parseTreeNode parent , sibling , prevSibling ;
 
-    // childrenList is a linked list containing all first child node of the parent
+    // childrenList is an array containing all first child node of the parent
     // X -> ABC
     // X -> DEF 
 
@@ -28,5 +28,10 @@ struct PARSETREENODE{
 parseTreeNode createTree() ; 
 
 void addRuleInTree(parseTreeNode treeNode , dlinkedlist node) ; 
+
+
+// outfile will add later 
+void printParseTree(parseTreeNode treeNode) ; 
+
 #endif
 
