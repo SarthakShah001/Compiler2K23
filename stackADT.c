@@ -8,16 +8,16 @@ parse_Stack init_parseStack()
 {
     parse_Stack S = (parse_Stack)(malloc(sizeof(struct stack)));
     stackNode n = (stackNode)malloc(sizeof(struct node));
-    parseTreeNode tnode=(parseTreeNode)malloc(sizeof(struct PARSETREENODE));
+    parseTreeNode tnode=createTree();
     symbol s1 = (symbol)malloc(sizeof(struct SYMBOL));
     s1->is_terminal = true;
     s1->t = $;
     tnode->s = s1;
-    tnode->childrenCount = 0;
-    tnode->parent = NULL;
-    tnode->prevSibling = NULL;
-    tnode->sibling = NULL;
-    memset(tnode->childrenList,NULL,20);
+    // tnode->childrenCount = 0;
+    // tnode->parent = NULL;
+    // tnode->prevSibling = NULL;
+    // tnode->sibling = NULL;
+    // memset(tnode->childrenList,NULL,20);
     n->tree_ptr = tnode;
     n->next = NULL;
     S->size = 1;

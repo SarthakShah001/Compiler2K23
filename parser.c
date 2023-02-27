@@ -139,44 +139,54 @@ void populateFirstSet(nonterminal nt){
     first_set[nt]->is_filled=true;
     for(int i=0;i<num_rules;i++){
         if(grep[i].LHS==nt){
+            printf("rule no.=%d\n",i+1);
             dlinkedlist dl=grep[i].RHS;
             dllnode dn=dl->head;
             bool will_be_epsilon=true;
             bool f=true;
             while(f&&dn!=NULL){
                 // f=false;
+                // printf("1 ");
                 symbol s=dn->val;
                 if(s->is_terminal&&s->t==epsilon){
+                    // printf("2 ");
                     first_set[nt]->arr[epsilon]=true;
                     break;
                 }
                 else if(s->is_terminal){
+                    // printf("3 ");
                     first_set[nt]->arr[s->t]=true;
                     will_be_epsilon=false;
                     break;
                 }
                 else{
-                    do{
+                        // printf("4 ");
                         s=dn->val;
                         populateFirstSet(s->nt);
                         setUnion(first_set[nt],first_set[s->nt],first_set[nt]);
                         if(first_set[s->nt]->arr[epsilon]){
+                            // printf("5 ");
                             first_set[nt]->arr[epsilon]=false;
                             dn=dn->next;
+                            if(dn==NULL){
+                                break;
+                            }
+                            if(dn->val->is_terminal){
+                            // printf("%s\n",terminal_str[dn->val->t]);
+                            }
                         }
                         else{
+                            // printf("6 ");
                             will_be_epsilon=false;
                             f=false;
                             break;
                         }
                     }
-                    while(dn!=NULL);
-                    break;
             }
             if(will_be_epsilon){
                 first_set[nt]->arr[epsilon]=true;
             }
-            }
+            // printf("\n");
          }
      }         
 }
@@ -293,12 +303,14 @@ int main(){
         populateFollowSet(i);
     }
     fill_parse_table();
-
+    for(int i=0;i<num_terminals;i++){
+    printf("%s ->%d\n",terminal_str[i],first_set[moduleReuseStmt]->arr[i]);
+    }
     // for(int i=0;i<num_nonterminals;i++){
     //     printf("%s -> ",nonterminal_str[i]);
     //     for(int j=0;j<num_terminals;j++){
     //         if(parse_table[i][j]!=NULL){
-    //             printf("%d ",parse_table[i][j]->val->is_terminal);
+    //             printf("%d ",parse_table[i][j]->head->val->is_terminal);
     //         }
     //     }
     //     printf("\n");
@@ -333,22 +345,23 @@ int main(){
     stk=init_parseStack();
     bool is_tk_finish=false;
     parseTreeNode root=createTree();
+    push_on_stack(stk,root);
+    Token current_token = get_next_token();
     while (!is_tk_finish)
     {
-        Token current_token = get_next_token();
-        // if (current_token.token_type==TK_NUM)
-        // {
-        //     printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
-        // }
-        // else if (current_token.token_type==TK_RNUM)
-        // {
-        //     printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
-        // }
-        // else
-        // {
-        //     //  printf("%s\n", current_token.token_type);
-        //     printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
-        // }
+        if (current_token.token_type==TK_NUM)
+        {
+            printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
+        }
+        else if (current_token.token_type==TK_RNUM)
+        {
+            printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
+        }
+        else
+        {
+            //  printf("%s\n", current_token.token_type);
+            printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
+        }
 
         if (current_token.token_type==TK_EOF)
         {
@@ -357,15 +370,23 @@ int main(){
             current_token.token_type=$;
         }
         stackNode s=top(stk);
+        if(!s->tree_ptr->s->is_terminal){
+        printf("%s\n",nonterminal_str[s->tree_ptr->s->nt]);
+        }
+        else{
+            printf("%s\n",terminal_str[s->tree_ptr->s->t]);
+        }
         if(s->tree_ptr->s->is_terminal){
             if(s->tree_ptr->s->t==current_token.token_type){
                 pop(stk);
+                current_token = get_next_token();
                 continue;
             }
             else{
                 //mismatch error
                  //handle error 
-                 printf("mismatch error\n");  
+                 printf("mismatch error\n");
+                 current_token = get_next_token();  
             }
         }
         else if(!s->tree_ptr->s->is_terminal){
@@ -373,10 +394,14 @@ int main(){
                 addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
                 push_rule(stk,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
             }
+            else if(parse_table[s->tree_ptr->s->nt][epsilon]!=NULL){
+                pop(stk);
+            }
             else{
                 //no rule error
                 //handle error
-                printf("no rule error\n");  
+                printf("no rule error\n");
+                current_token = get_next_token();
             }
         }
     }

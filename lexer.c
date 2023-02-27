@@ -1,5 +1,5 @@
 #include "lexer.h"
-#define buff_size 43
+#define buff_size 200
  char buffer1[buff_size + 1];
  char buffer2[buff_size + 1];
  bool is_buffer1_filled, is_buffer2_filled;
@@ -895,6 +895,7 @@ Token get_next_token()
         {
             // Tokenise ]
             currtoken = tokenise(TK_SQBC, 0, true, 34, &is_tokenised);
+
             current_state = 0;
             break;
         }
@@ -902,6 +903,7 @@ Token get_next_token()
         {
             // Tokenise (
             currtoken = tokenise(TK_BO, 0, true, 35, &is_tokenised);
+            printf("%s\n",currtoken.lex);
             current_state = 0;
             break;
         }
@@ -909,6 +911,7 @@ Token get_next_token()
         {
             // Tokenise )
             currtoken = tokenise(TK_BC, 0, true, 36, &is_tokenised);
+            printf("%s\n",currtoken.lex);
             current_state = 0;
             break;
         }
