@@ -286,6 +286,7 @@ void fill_parse_table(){
         }
     }
 }
+
 int main(){
     fill_hash_tables();
     fill_grammer();
@@ -412,3 +413,47 @@ int main(){
     }
 
 }
+
+// int main()
+// {
+//     char testcase;
+//     printf("Enter no. of testcase you wanna check upon:");
+//     scanf("%c",&testcase);
+//     char filename[]="./Testcases/Testcase0";
+//     filename[20]=testcase;
+//     fptr = fopen(filename, "r");
+//     if (fptr == NULL)
+//     {
+//         printf("File not opened\n");
+//         return 0;
+//     }
+//     printf("Tokenization Started\n");
+//     lexer_init();
+//     start_lexer();
+//     Token current_token = get_next_token();
+//     while (true)
+//     {
+//         // printf("%d\n",current_token.token_type);
+//         if (current_token.token_type==TK_NUM)
+//         {
+//             printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
+//         }
+//         else if (current_token.token_type==TK_RNUM)
+//         {
+//             printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
+//         }
+//         else
+//         {
+//             //  printf("%s\n", current_token.token_type);
+//             printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
+//         }
+
+//         if (current_token.token_type==TK_EOF)
+//         {
+//             printf("Tokenization Process Finished\n");
+//             break;
+//         }
+//         current_token=get_next_token();
+//     }
+//     return 0;
+// }
