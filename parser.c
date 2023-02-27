@@ -328,62 +328,62 @@ int main(){
     printf("Tokenization Started\n");
     lexer_init();
     start_lexer();
-    //initialise stack
-    // parse_Stack stk;
-    // stk=init_parseStack();
-    // bool is_tk_finish=false;
-    // parseTreeNode root=createTree();
-    // while (!is_tk_finish)
-    // {
-    //     Token current_token = get_next_token();
-    //     // if (current_token.token_type==TK_NUM)
-    //     // {
-    //     //     printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
-    //     // }
-    //     // else if (current_token.token_type==TK_RNUM)
-    //     // {
-    //     //     printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
-    //     // }
-    //     // else
-    //     // {
-    //     //     //  printf("%s\n", current_token.token_type);
-    //     //     printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
-    //     // }
+    // initialise stack
+    parse_Stack stk;
+    stk=init_parseStack();
+    bool is_tk_finish=false;
+    parseTreeNode root=createTree();
+    while (!is_tk_finish)
+    {
+        Token current_token = get_next_token();
+        // if (current_token.token_type==TK_NUM)
+        // {
+        //     printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
+        // }
+        // else if (current_token.token_type==TK_RNUM)
+        // {
+        //     printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
+        // }
+        // else
+        // {
+        //     //  printf("%s\n", current_token.token_type);
+        //     printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
+        // }
 
-    //     if (current_token.token_type==TK_EOF)
-    //     {
-    //         printf("Tokenization Process Finished\n");
-    //         is_tk_finish=true;
-    //         current_token.token_type=$;
-    //     }
-    //     stackNode s=top(stk);
-    //     if(s->tree_ptr->s->is_terminal){
-    //         if(s->tree_ptr->s->t==current_token.token_type){
-    //             pop(stk);
-    //             continue;
-    //         }
-    //         else{
-    //             //mismatch error
-    //              //handle error 
-    //              printf("mismatch error\n");  
-    //         }
-    //     }
-    //     else if(!s->tree_ptr->s->is_terminal){
-    //         if(parse_table[s->tree_ptr->s->nt][current_token.token_type]!=NULL){
-    //             addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
-    //             push_rule(stk,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
-    //         }
-    //         else{
-    //             //no rule error
-    //             //handle error
-    //             printf("no rule error\n");  
-    //         }
-    //     }
-    // }
-    // if(!isEmpty(stk)){
-    //     //stack not empty and tokens finished
-    //     //handle error
-    //     printf("stack not empty and tokens finished error\n");  
-    // }
+        if (current_token.token_type==TK_EOF)
+        {
+            printf("Tokenization Process Finished\n");
+            is_tk_finish=true;
+            current_token.token_type=$;
+        }
+        stackNode s=top(stk);
+        if(s->tree_ptr->s->is_terminal){
+            if(s->tree_ptr->s->t==current_token.token_type){
+                pop(stk);
+                continue;
+            }
+            else{
+                //mismatch error
+                 //handle error 
+                 printf("mismatch error\n");  
+            }
+        }
+        else if(!s->tree_ptr->s->is_terminal){
+            if(parse_table[s->tree_ptr->s->nt][current_token.token_type]!=NULL){
+                addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
+                push_rule(stk,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
+            }
+            else{
+                //no rule error
+                //handle error
+                printf("no rule error\n");  
+            }
+        }
+    }
+    if(!isEmpty(stk)){
+        //stack not empty and tokens finished
+        //handle error
+        printf("stack not empty and tokens finished error\n");  
+    }
 
 }

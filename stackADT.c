@@ -8,9 +8,10 @@ parse_Stack init_parseStack()
 {
     parse_Stack S = (parse_Stack)(malloc(sizeof(struct stack)));
     stackNode n = (stackNode)malloc(sizeof(struct node));
-    symbol s = (symbol)malloc(sizeof(struct SYMBOL));
-    n->tree_ptr->s->t = $;
-    n->tree_ptr->s->is_terminal = true;
+    symbol s1 = (symbol)malloc(sizeof(struct SYMBOL));
+    s1->is_terminal = true;
+    s1->t = $;
+    n->tree_ptr->s = s1;
     n->next = NULL;
     S->size = 1;
     S->top = n;
@@ -25,6 +26,7 @@ bool isEmpty(parse_Stack S)
 void push_on_stack(parse_Stack S, parseTreeNode x){
 
     stackNode temp = (stackNode)(malloc(sizeof(struct node)));
+    symbol s1 = (symbol)malloc(sizeof(struct SYMBOL));
 
     if (temp == NULL){
         printf("Malloc function failed\n");
@@ -32,15 +34,17 @@ void push_on_stack(parse_Stack S, parseTreeNode x){
     }
 
     if (x->s->is_terminal){
-        temp->tree_ptr->s->t = x->s->t;
-        temp->tree_ptr->s->is_terminal = true;
+        s1->is_terminal = true;
+        s1->t = x->s->t;
+       
     }
 
     else{
-        temp->tree_ptr->s->nt = x->s->nt;
-        temp->tree_ptr->s->is_terminal = false;
+        s1->is_terminal = false;
+        s1->nt = x->s->nt;
+        
     }
-
+    temp->tree_ptr->s = s1;
     temp->next = S->top;
     S->top = temp;
     S->size++;
@@ -80,7 +84,7 @@ stackNode top(parse_Stack S){
 void push_rule(parse_Stack S, dlinkedlist node){
     stackNode t = S->top;
     parseTreeNode p1 = t->tree_ptr;
-    parseTreeNode temp;
+    parseTreeNode temp = NULL;
     for(int i = 0; i<p1->childrenCount; i++){
         if(p1->childrenList[i]->s == node->head->val){
             temp = p1->childrenList[i];
@@ -88,7 +92,7 @@ void push_rule(parse_Stack S, dlinkedlist node){
         }
     }
     // parseTreeNode temp2 = temp;
-    while(temp->sibling!=NULL){
+    while(temp && temp->sibling!=NULL){
         temp = temp->sibling;
     }
     pop(S);
