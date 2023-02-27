@@ -10,6 +10,7 @@ struct DLLNode
     symbol val;
     struct DLLNode *next, *prev;
 };
+
 struct DLinkedList
 {
     struct DLLNode *head, *tail;

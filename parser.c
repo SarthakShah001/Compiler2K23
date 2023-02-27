@@ -73,7 +73,7 @@ char *nonterminal_str[]={
 "<new_index_for_loop>",
 "<sign_for_loop>",
 };
-dllnode parse_table[num_nonterminals][num_terminals];
+dlinkedlist parse_table[num_nonterminals][num_terminals];
 hashtable terminals,nonterminals;
 rule grep[num_rules];
 setNode first_set[num_nonterminals];
@@ -271,7 +271,7 @@ void fill_parse_table(){
             }
         for(int j=0;j<num_terminals;j++){
             if(temp->arr[j]){
-                parse_table[grep[i].LHS][j]=grep[i].RHS->tail;
+                parse_table[grep[i].LHS][j]=grep[i].RHS;
             }
         }
     }
@@ -293,15 +293,16 @@ int main(){
         populateFollowSet(i);
     }
     fill_parse_table();
-    for(int i=0;i<num_nonterminals;i++){
-        printf("%s -> ",nonterminal_str[i]);
-        for(int j=0;j<num_terminals;j++){
-            if(parse_table[i][j]!=NULL){
-                printf("%d ",parse_table[i][j]->val->is_terminal);
-            }
-        }
-        printf("\n");
-    }
+
+    // for(int i=0;i<num_nonterminals;i++){
+    //     printf("%s -> ",nonterminal_str[i]);
+    //     for(int j=0;j<num_terminals;j++){
+    //         if(parse_table[i][j]!=NULL){
+    //             printf("%d ",parse_table[i][j]->val->is_terminal);
+    //         }
+    //     }
+    //     printf("\n");
+    // }
     // for(int i=0;i<num_nonterminals;i++){
     //     printf("%s\n",nonterminal_str[i]);
     //     for(int j=0;j<num_terminals;j++){
@@ -313,4 +314,76 @@ int main(){
     //     printf("\n");
     // }
     // printf("\n%d\n",find_value(terminals,"TK_REAL"));
+    char testcase;
+    printf("Enter no. of testcase you wanna check upon:");
+    scanf("%c",&testcase);
+    char filename[]="./Testcases/Testcase0";
+    filename[20]=testcase;
+    fptr = fopen(filename, "r");
+    if (fptr == NULL)
+    {
+        printf("File not opened\n");
+        return 0;
+    }
+    printf("Tokenization Started\n");
+    lexer_init();
+    start_lexer();
+    //initialise stack
+    // parse_Stack stk;
+    // stk=init_parseStack();
+    // bool is_tk_finish=false;
+    // parseTreeNode root=createTree();
+    // while (!is_tk_finish)
+    // {
+    //     Token current_token = get_next_token();
+    //     // if (current_token.token_type==TK_NUM)
+    //     // {
+    //     //     printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
+    //     // }
+    //     // else if (current_token.token_type==TK_RNUM)
+    //     // {
+    //     //     printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
+    //     // }
+    //     // else
+    //     // {
+    //     //     //  printf("%s\n", current_token.token_type);
+    //     //     printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
+    //     // }
+
+    //     if (current_token.token_type==TK_EOF)
+    //     {
+    //         printf("Tokenization Process Finished\n");
+    //         is_tk_finish=true;
+    //         current_token.token_type=$;
+    //     }
+    //     stackNode s=top(stk);
+    //     if(s->tree_ptr->s->is_terminal){
+    //         if(s->tree_ptr->s->t==current_token.token_type){
+    //             pop(stk);
+    //             continue;
+    //         }
+    //         else{
+    //             //mismatch error
+    //              //handle error 
+    //              printf("mismatch error\n");  
+    //         }
+    //     }
+    //     else if(!s->tree_ptr->s->is_terminal){
+    //         if(parse_table[s->tree_ptr->s->nt][current_token.token_type]!=NULL){
+    //             addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
+    //             push_rule(stk,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
+    //         }
+    //         else{
+    //             //no rule error
+    //             //handle error
+    //             printf("no rule error\n");  
+    //         }
+    //     }
+    // }
+    // if(!isEmpty(stk)){
+    //     //stack not empty and tokens finished
+    //     //handle error
+    //     printf("stack not empty and tokens finished error\n");  
+    // }
+
 }

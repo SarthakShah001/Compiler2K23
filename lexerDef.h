@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+extern FILE *fptr;
 typedef enum TK_TYPE{
     TK_ID,
     TK_NUM,

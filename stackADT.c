@@ -7,17 +7,22 @@
 parse_Stack init_parseStack()
 {
     parse_Stack S = (parse_Stack)(malloc(sizeof(struct stack)));
-    S->size = 0;
-    S->top = NULL;
+    stackNode n = (stackNode)malloc(sizeof(struct node));
+    symbol s = (symbol)malloc(sizeof(struct SYMBOL));
+    n->tree_ptr->s->t = $;
+    n->tree_ptr->s->is_terminal = true;
+    n->next = NULL;
+    S->size = 1;
+    S->top = n;
     return S;
 }
 
 bool isEmpty(parse_Stack S)
 {
-    return S->size == 0;
+    return S->size==0;
 }
 
-void push(parse_Stack S, stackNode x){
+void push_on_stack(parse_Stack S, parseTreeNode x){
 
     stackNode temp = (stackNode)(malloc(sizeof(struct node)));
 
@@ -26,21 +31,21 @@ void push(parse_Stack S, stackNode x){
         return;
     }
 
-    if (x->sym->is_terminal){
-        temp->sym->t = x->sym->t;
-        temp->sym->is_terminal = true;
+    if (x->s->is_terminal){
+        temp->tree_ptr->s->t = x->s->t;
+        temp->tree_ptr->s->is_terminal = true;
     }
 
     else{
-        temp->sym->nt = x->sym->nt;
-        temp->sym->is_terminal = false;
+        temp->tree_ptr->s->nt = x->s->nt;
+        temp->tree_ptr->s->is_terminal = false;
     }
 
     temp->next = S->top;
     S->top = temp;
     S->size++;
 
-    // temp = NULL;
+    return ;
 }
 
 void pop(parse_Stack S){
@@ -70,5 +75,44 @@ stackNode top(parse_Stack S){
     else{
         return S->top;
     }
-    
 }
+
+void push_rule(parse_Stack S, dlinkedlist node){
+    stackNode t = S->top;
+    parseTreeNode p1 = t->tree_ptr;
+    parseTreeNode temp;
+    for(int i = 0; i<p1->childrenCount; i++){
+        if(p1->childrenList[i]->s == node->head->val){
+            temp = p1->childrenList[i];
+            break;
+        }
+    }
+    // parseTreeNode temp2 = temp;
+    while(temp->sibling!=NULL){
+        temp = temp->sibling;
+    }
+    pop(S);
+    while(temp!=NULL){
+        push_on_stack(S,temp);
+        temp = temp->prevSibling;
+    }
+    return ;
+}
+// struct node
+// {
+//     stackNode next;
+//     parseTreeNode tree_ptr;
+// };
+
+// struct stack
+// {
+//     int size;
+//     stackNode top;
+// };
+
+// struct PARSETREENODE{
+//     parseTreeNode parent , sibling , prevSibling ;
+//     int childrenCount ; 
+//     parseTreeNode* childrenList ;
+//     symbol s ;
+// }; 
