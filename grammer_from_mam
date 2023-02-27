@@ -54,10 +54,10 @@
 <sign> -> TK_MINUS
 <sign> -> epsilon
 <moduleReuseStmt> -> <optional> TK_USE TK_MODULE TK_ID TK_WITH TK_PARAMETERS <actual_para_list> TK_SEMICOL
-<actual_para_list> -> <unary_op> <var_print> <N20>
-<actual_para_list> -> <var_print> <N20>
-<N20> -> TK_COMMA <actual_para_list>
-<N20> -> epsilon
+<actual_para_list> -> TK_NUM
+<actual_para_list> -> TK_RNUM
+<actual_para_list> -> <boolConstt>
+<actual_para_list> -> TK_ID <N11>
 <optional> -> TK_SQBO <idList> TK_SQBC TK_ASSIGNOP
 <optional> -> epsilon
 <idList> -> TK_ID <N3>

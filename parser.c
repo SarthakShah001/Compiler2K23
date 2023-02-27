@@ -32,6 +32,7 @@ char *nonterminal_str[]={
 "<sign>",
 "<moduleReuseStmt>",
 "<actual_para_list>",
+"<N20>",
 "<optional>",
 "<idList>",
 "<N3>",
@@ -367,8 +368,8 @@ int main(){
         if (current_token.token_type==TK_EOF)
         {
             printf("Tokenization Process Finished\n");
-            is_tk_finish=true;
             current_token.token_type=$;
+            break;
         }
         stackNode s=top(stk);
         if(!s->tree_ptr->s->is_terminal){
@@ -406,12 +407,26 @@ int main(){
             }
         }
     }
+
     if(!isEmpty(stk)){
+        while(!top(stk)->tree_ptr->s->is_terminal){
+            if(parse_table[top(stk)->tree_ptr->s->nt][epsilon]){
+                pop(stk);
+            }
+            else{
+                break;
+            }
+        }
+        if(top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t==$){
+            pop(stk);
+            printf("Parser Successfully Finished\n");
+        }
         //stack not empty and tokens finished
         //handle error
-        printf("stack not empty and tokens finished error\n");  
+        else{
+        printf("stack not empty and tokens finished error\n"); 
+        }
     }
-
 }
 
 // int main()
