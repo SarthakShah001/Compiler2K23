@@ -55,7 +55,7 @@ int main(){
 
                 case 4:
                 {
-                    break
+                    break;
                 }
 
                 case 5:
