@@ -87,7 +87,6 @@ sign_for_loop
 extern char *nonterminal_str[];
 extern hashtable terminals,nonterminals;
 
-
 struct SYMBOL{
     union
     {

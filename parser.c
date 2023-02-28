@@ -383,7 +383,10 @@ int main(){
             else{
                 // mismatch error
                  printf("In line no.-> %d terminal mismatch error, Expected->%s,In code->%s\n",current_token.line_no,terminal_str[s->tree_ptr->s->t],terminal_str[current_token.token_type]);
-                 pop(stk);  
+                 while(!isEmpty(stk)&&top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t!=current_token.token_type){
+                 pop(stk);
+                  s=top(stk);  
+                 }
                  error_count++;
             }
         }
@@ -400,14 +403,25 @@ int main(){
                 //handle error
                 printf("Line No.->%d no rule error in parse table, non terminal=%s,terminal=%s\n",current_token.line_no,nonterminal_str[s->tree_ptr->s->nt],terminal_str[current_token.token_type]);
                 setNode sync_set=compute_synchro_set(s->tree_ptr->s->nt);
-                while(current_token.token_type!=TK_EOF && !findInSet(sync_set,current_token.token_type)){
-                sync_set=compute_synchro_set(s->tree_ptr->s->nt);
-                current_token = get_next_token();
-                }
-                if(current_token.token_type==TK_SEMICOLON){
+                while(current_token.token_type!=TK_EOF &&current_token.token_type!=TK_SEMICOLON){
                     current_token=get_next_token();
                 }
+                if(current_token.token_type==TK_SEMICOLON){
+                current_token=get_next_token();
+                }
+
+                while(!isEmpty(stk)&&current_token.token_type!=TK_EOF && !findInSet(sync_set,current_token.token_type)){
                 pop(stk);
+                s=top(stk);
+                if(s!=NULL){
+                 sync_set=compute_synchro_set(s->tree_ptr->s->nt);
+                }
+                // current_token = get_next_token();
+                }
+                pop(stk);
+                // if(current_token.token_type==TK_SEMICOLON){
+                //     current_token=get_next_token();
+                // }
                 error_count++;
             }
         }
@@ -422,7 +436,7 @@ int main(){
                 break;
             }
         }
-        if(top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t==$){
+        if(!isEmpty(stk)&&top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t==$){
             pop(stk);
             printf("Parser Successfully Finished\n");
         }

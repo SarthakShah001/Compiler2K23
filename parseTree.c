@@ -12,7 +12,7 @@ parseTreeNode createTree(){
     symbol new_symbol = (symbol) malloc(sizeof(struct SYMBOL));
     new_symbol->is_terminal = false ; 
     new_symbol->nt = program ; 
-    root->s = new_symbol ; 
+    root->s = new_symbol ;
     return root ; 
 }
 
