@@ -1,7 +1,6 @@
 #ifndef _lexer_
 #define _lexer_
 
-
 #include "lexerDef.h"
 // #include "parser.h"
 // initialising lexer variables

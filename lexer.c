@@ -7,6 +7,7 @@ char *begin_ptr, *forward_ptr;
 FILE *fptr;
 int curr_line_no;
 int char_count;
+hashtable reserved_words;
 bool where_begin, where_forward; // 0 indicates buff1, 1 indicates buff2
 bool retract_case;
 char *terminal_str[] = {
@@ -103,9 +104,15 @@ pair reserved[30] = {
     {"default", TK_DEFAULT},
     {"while", TK_WHILE},
 };
-
+void fill_hash_table(){
+    hash_init(reserved_words);
+    for(int i=0;i<num_reserved;i++){
+        hash_insert(reserved_words,reserved[i].first,reserved[i].second);
+    }
+}
 void lexer_init()
 {
+    fill_hash_table();
     is_buffer1_filled = false;
     is_buffer2_filled = false;
     begin_ptr = NULL;
@@ -149,7 +156,6 @@ void fill_buffer()
         where_forward = false;
     }
 }
-
 char get_next_char()
 {
     if (!where_forward)
@@ -378,18 +384,18 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
     }
     if (tokentype == TK_ID)
     {
-        for (int i = 0; i < 30; i++)
-        {
-            if (strcmp(reserved[i].first, str) == 0)
-            {
-                tokentype=reserved[i].second;
-            }
-        }
-        // int x = find_value(terminals, str);
-        // if (x != -1)
+        // for (int i = 0; i < 30; i++)
         // {
-        //     tokentype = x;
+        //     if (strcmp(reserved[i].first, str) == 0)
+        //     {
+        //         tokentype=reserved[i].second;
+        //     }
         // }
+        int x = find_value(reserved_words, str);
+        if (x != -1)
+        {
+            tokentype = x;
+        }
     }
     strcpy(l.value, str);
     if (tokentype == TK_NUM)

@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "hashTable.h"
+#define num_terminals 60
+#define num_nonterminals 72
+#define num_reserved 30
 extern FILE *fptr;
 typedef enum TK_TYPE{
     TK_ID,
