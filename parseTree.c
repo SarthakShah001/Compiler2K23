@@ -78,9 +78,9 @@ void printParseTree(parseTreeNode treeNode){
     // 1
     // printf("%d\n",treeNode->s->is_terminal);
     if(treeNode->child==NULL&&treeNode->tok==NULL){
-        if(treeNode->s->t!=epsilon){
-        printf("%s:",terminal_str[treeNode->s->t]);
-        printf("No token available for this terminal in parse tree\n");
+        if(!treeNode->s->is_terminal||treeNode->s->t!=epsilon){
+        // printf("%s:",terminal_str[treeNode->s->t]);
+        // printf("No token available for this terminal in parse tree\n");
         return;
         }
     }
@@ -99,7 +99,7 @@ void printParseTree(parseTreeNode treeNode){
         // fprintf(fp, "    NON-TERMINAL     ");
         // printf("    NON-TERMINAL     ");
         // fprintf(fp, "\n\n");
-        // printf("\n\n");
+      // printf("\n\n");
 
     if(treeNode->child==NULL&&treeNode->s->t!=epsilon){
         //leaf Node

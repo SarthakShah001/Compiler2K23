@@ -1,0 +1,138 @@
+<program> -> <moduleDeclarations> <otherModules> <driverModule> TK_END <otherModules>
+<moduleDeclarations> -> <moduleDeclaration> TK_SEMICOL <moduleDeclarations>
+<moduleDeclarations> -> epsilon
+<moduleDeclaration> -> TK_DECLARE TK_MODULE TK_ID 
+<otherModules> -> <module> TK_END <otherModules>
+<otherModules> -> epsilon
+<driverModule> -> TK_DRIVERDEF TK_DRIVER TK_PROGRAM TK_DRIVERENDDEF <moduleDef> 
+<module> -> TK_DEF TK_MODULE TK_ID TK_ENDDEF TK_TAKES TK_INPUT TK_SQBO <input_plist> TK_SQBC TK_SEMICOL <ret> <moduleDef> 
+<ret> -> TK_RETURNS TK_SQBO <output_plist> TK_SQBC TK_SEMICOL
+<ret> -> epsilon
+<input_plist> -> TK_ID TK_COLON <dataType> <N1>
+<N1> -> TK_COMMA TK_ID TK_COLON <dataType> <N1>
+<N1> -> epsilon
+<output_plist> -> TK_ID TK_COLON <type> <N2>
+<N2> -> TK_COMMA TK_ID TK_COLON <type> <N2>
+<N2> -> epsilon
+<dataType> -> TK_INTEGER
+<dataType> -> TK_REAL
+<dataType> -> TK_BOOLEAN
+<dataType> -> TK_ARRAY TK_SQBO <range_arrays> TK_SQBC TK_OF <type>
+<range_arrays> -> <index_arr> TK_RANGEOP <index_arr> 
+<type> -> TK_INTEGER
+<type> -> TK_REAL
+<type> -> TK_BOOLEAN
+<moduleDef> -> TK_START <statements>
+<statements> -> <iterativeStmt> TK_END <statements>
+<statements> -> <condionalStmt> TK_END <statements>
+<statements> -> <ioStmt> TK_SEMICOL <statements>
+<statements> -> <declareStmt> TK_SEMICOL <statements>
+<statements> -> <simpleStmt> TK_SEMICOL <statements>
+<statements> -> epsilon
+<ioStmt> -> TK_GET_VALUE TK_BO TK_ID TK_BC
+<ioStmt> -> TK_PRINT TK_BO <var_print> TK_BC
+<boolConstt> -> TK_TRUE
+<boolConstt> -> TK_FALSE
+<var_print> -> TK_ID <P1>
+<var_print> -> TK_NUM
+<var_print> -> TK_RNUM
+<var_print> -> <boolConstt>
+<P1> -> TK_SQBO <index_arr> TK_SQBC
+<P1> -> epsilon
+<simpleStmt> -> <assignmentStmt> 
+<simpleStmt> -> <moduleReuseStmt>
+<assignmentStmt> -> TK_ID <whichStmt>
+<whichStmt> -> <lvalueIDStmt>
+<whichStmt> -> <lvalueARRStmt>
+<lvalueIDStmt> -> TK_ASSIGNOP <expression>
+<lvalueARRStmt> -> TK_SQBO <element_index_with_expressions> TK_SQBC TK_ASSIGNOP <expression>
+<index_arr> -> <sign> <new_index>
+<new_index> -> TK_NUM
+<new_index> -> TK_ID
+<sign> -> TK_PLUS
+<sign> -> TK_MINUS
+<sign> -> epsilon
+<moduleReuseStmt> -> <optional> TK_USE TK_MODULE TK_ID TK_WITH TK_PARAMETERS <actual_para_list>
+<actual_para_list> -> <unary_op> <var_print> <N20>
+<actual_para_list> -> <var_print> <N20>
+<N20> -> TK_COMMA <actual_para_list>
+<N20> -> epsilon
+<optional> -> TK_SQBO <idList> TK_SQBC TK_ASSIGNOP
+<optional> -> epsilon
+<idList> -> TK_ID <N3>
+<N3> -> TK_COMMA TK_ID <N3>
+<N3> -> epsilon
+<expression> -> <arithmeticOrBooleanExpr> 
+<expression> -> <U>
+<U> -> <unary_op> <new_NT>
+<new_NT> -> TK_BO <arithmeticExpr> TK_BC
+<new_NT> -> <var_id_num>
+<var_id_num> -> TK_ID
+<var_id_num> -> TK_NUM
+<var_id_num> -> TK_RNUM
+<unary_op> -> TK_PLUS 
+<unary_op> -> TK_MINUS
+<arithmeticOrBooleanExpr> -> <AnyTerm> <N7>
+<N7> -> <logicalOp> <AnyTerm> <N7>
+<N7> -> epsilon
+<AnyTerm> -> <arithmeticExpr> <N8>
+<AnyTerm> -> <boolConstt>
+<N8> -> <relationalOp> <arithmeticExpr>
+<N8> -> epsilon
+<arithmeticExpr> -> <term> <N4> 
+<N4> -> <op1> <term> <N4>
+<N4> -> epsilon
+<term> -> <factor> <N5>
+<N5> -> <op2> <factor> <N5>
+<N5> -> epsilon
+<factor> -> TK_BO <arithmeticOrBooleanExpr> TK_BC
+<factor> -> TK_NUM
+<factor> -> TK_RNUM
+<factor> -> <boolConstt>
+<factor> -> TK_ID <N11>
+<N11> -> TK_SQBO <element_index_with_expressions> TK_SQBC 
+<N11> -> epsilon
+<arrExpr> -> <arrTerm> <arr_N4>
+<arr_N4> -> <op1> <arrTerm> <arr_N4>
+<arr_N4> -> epsilon
+<arrTerm> -> <arrFactor> <arr_N5>
+<arr_N5> -> <op2> <arrFactor> <arr_N5>
+<arr_N5> -> epsilon
+<arrFactor> -> TK_ID
+<arrFactor> -> TK_NUM
+<arrFactor> -> <boolConstt>
+<arrFactor> -> TK_BO <arrExpr> TK_BC
+<element_index_with_expressions> -> <sign> <N10>
+<element_index_with_expressions> -> <arrExpr>
+<N10> -> <new_index>
+<N10> -> TK_BO <arrExpr> TK_BC
+<op1> -> TK_PLUS
+<op1> -> TK_MINUS
+<op2> -> TK_MUL
+<op2> -> TK_DIV
+<logicalOp> -> TK_AND
+<logicalOp> -> TK_OR
+<relationalOp> -> TK_LT 
+<relationalOp> -> TK_LE 
+<relationalOp> -> TK_GT 
+<relationalOp> -> TK_GE
+<relationalOp> -> TK_EQ
+<relationalOp> -> TK_NE
+<declareStmt> -> TK_DECLARE <idList> TK_COLON <dataType>
+<condionalStmt> -> TK_SWITCH TK_BO TK_ID TK_BC TK_START <caseStmts> <default>
+<caseStmts> -> TK_CASE <value> TK_COLON <statements> TK_BREAK TK_SEMICOL <N9>
+<N9> -> TK_CASE <value> TK_COLON <statements> TK_BREAK TK_SEMICOL <N9>
+<N9> -> epsilon
+<value> -> TK_NUM
+<value> -> TK_TRUE
+<value> -> TK_FALSE
+<default> -> TK_DEFAULT TK_COLON <statements> TK_BREAK TK_SEMICOL 
+<default> -> epsilon
+<iterativeStmt> -> TK_FOR TK_BO TK_ID TK_IN <range_for_loop> TK_BC TK_START <statements>
+<iterativeStmt> -> TK_WHILE TK_BO <arithmeticOrBooleanExpr> TK_BC TK_START <statements>
+<range_for_loop> -> <index_for_loop> TK_RANGEOP <index_for_loop>
+<index_for_loop> -> <sign_for_loop> <new_index_for_loop>
+<new_index_for_loop> -> TK_NUM
+<sign_for_loop> -> TK_PLUS
+<sign_for_loop> -> TK_MINUS
+<sign_for_loop> -> epsilon

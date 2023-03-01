@@ -18,7 +18,7 @@ typedef struct SYMBOL* symbol;
 #include "lexer.h"
 #include "doublyLinkedList.h"
 #define terminal tkType
-#define num_rules 139
+#define num_rules 138
 #define max_rule_length 200
 typedef enum NONTERMINAL{
 program,
@@ -37,7 +37,6 @@ range_arrays,
 type,
 moduleDef,
 statements,
-statement,
 ioStmt,
 boolConstt,
 var_print,

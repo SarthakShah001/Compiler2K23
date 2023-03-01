@@ -60,7 +60,7 @@ bool isSuperset(setNode s1, setNode s2){
 setNode compute_synchro_set(nonterminal nt){
     setNode s=initSet();
     setUnion(s,follow_set[nt],s);
-    // s->arr[TK_SEMICOLON]=true;
+    s->arr[TK_SEMICOLON]=true;
     // s->arr[TK_BC]=true;
     // s->arr[TK_BO]=true;
     // s->arr[TK_SQBC]=true;

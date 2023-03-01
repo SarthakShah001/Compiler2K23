@@ -27,7 +27,6 @@ char *nonterminal_str[]={
 "<type>",
 "<moduleDef>",
 "<statements>",
-"<statement>",
 "<ioStmt>",
 "<boolConstt>",
 "<var_print>",
@@ -102,7 +101,7 @@ void fill_nonterminals(hashtable nonterminals){
     }
 }
 void fill_grammer(){
-    FILE *fp=fopen("./grammar.txt","r");
+    FILE *fp=fopen("./grammar3.txt","r");
     if(fp==NULL){
         "Grammar file not opened";
         return;
@@ -369,8 +368,14 @@ parseTreeNode startParser(FILE *fp,int size){
                 push_rule(stk,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
             }
             else if(parse_table[s->tree_ptr->s->nt][epsilon]!=NULL){
+                if(stk->size==2){
+                    // printf("Line No.->%d no rule error in parse table, non terminal=%s,terminal=%s\n",current_token.line_no,nonterminal_str[s->tree_ptr->s->nt],terminal_str[current_token.token_type]);
+                    current_token=get_next_token();
+                }
+                else{
                 addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][epsilon]);
                 pop(stk);
+                }
             }
             else{
                 //no rule error
@@ -379,20 +384,15 @@ parseTreeNode startParser(FILE *fp,int size){
                 printf("Line No.->%d no rule error in parse table, non terminal=%s,terminal=%s\n",current_token.line_no,nonterminal_str[s->tree_ptr->s->nt],terminal_str[current_token.token_type]);
                 printf("\033[0m");
                 setNode sync_set=compute_synchro_set(s->tree_ptr->s->nt);
-                while(current_token.token_type!=TK_EOF &&current_token.token_type!=TK_SEMICOLON){
-                    current_token=get_next_token();
-                }
-                if(current_token.token_type==TK_SEMICOLON){
-                current_token=get_next_token();
-                }
+                // while(current_token.token_type!=TK_EOF &&current_token.token_type!=TK_SEMICOLON){
+                //     current_token=get_next_token();
+                // }
+                // if(current_token.token_type==TK_SEMICOLON){
+                // current_token=get_next_token();
+                // }
 
                 while(!isEmpty(stk)&&current_token.token_type!=TK_EOF && !findInSet(sync_set,current_token.token_type)){
-                pop(stk);
-                s=top(stk);
-                if(s!=NULL){
-                 sync_set=compute_synchro_set(s->tree_ptr->s->nt);
-                }
-                // current_token = get_next_token();
+                current_token = get_next_token();
                 }
                 pop(stk);
                 // if(current_token.token_type==TK_SEMICOLON){

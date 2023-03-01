@@ -389,7 +389,6 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
         char_count = 0;
         return token;
     }
-
     if (tokentype == TK_ERROR)
     {
         report_error(state, str);
