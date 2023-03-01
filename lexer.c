@@ -1,5 +1,5 @@
 #include "lexer.h"
-#define buff_size 200
+#define buff_size 500
 char buffer1[buff_size + 1];
 char buffer2[buff_size + 1];
 bool is_buffer1_filled, is_buffer2_filled;
@@ -303,53 +303,56 @@ char *get_lexeme()
 
 void report_error(int state, char *lexeme)
 {
+    printf("\033[31m") ; 
     switch (state)
     {
     case -1:
     {
-        printf("\nError at line = %d : CHARACTERS GREATER THAN 20 AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : CHARACTERS GREATER THAN 20 AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
 
     case 0:
     {
-        printf("\nError at line = %d : UNKNOWN IDENTIFIER AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : UNKNOWN IDENTIFIER AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 5:
     {
-        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 8:
     {
-        printf("\nError at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 9:
     {
-        printf("\nError at line = %d : NOT A VALID DECIMALAT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID DECIMALAT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 13:
     {
-        printf("\nError at line = %d : NOT A VALID SYMBOLAT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID SYMBOLAT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 43:
     {
-        printf("\nError at line = %d : NOT A VALID RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 45:
     {
-        printf("\nError at line = %d : NOT A RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
 
     default:
         break;
     }
+
+    printf("\033[0m") ; 
 }
 
 Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, int state, bool *istok)
@@ -692,6 +695,7 @@ Token get_next_token()
                 tokenise(TK_ERROR, 1, false, 13, &is_tokenised);
                 current_state = 0;
             }
+            break;
         }
         case 14:
         {
@@ -1098,16 +1102,16 @@ void print_tokens(FILE *fp){
         // printf("%d\n",current_token.token_type);
         if (current_token.token_type==TK_NUM)
         {
-            printf(" LINE => %-10d | LEXEME => %-20lld | TOKEN TYPE => <%-20s>  \n",current_token.line_no,current_token.lex.integer,terminal_str[current_token.token_type]);
+            printf(" LINE => %-10d  LEXEME => %-20lld  TOKEN TYPE => <%s>  \n",current_token.line_no,current_token.lex.integer,terminal_str[current_token.token_type]);
         }
         else if (current_token.token_type==TK_RNUM)
         {
-            printf(" LINE => %-10d | LEXEME => %-20lf | TOKEN TYPE => <%-20s>  \n", current_token.line_no,current_token.lex.decimal,terminal_str[current_token.token_type]);
+            printf(" LINE => %-10d  LEXEME => %-20lf  TOKEN TYPE => <%s>  \n", current_token.line_no,current_token.lex.decimal,terminal_str[current_token.token_type]);
         }
         else
         {
             //  printf("%s\n", current_token.token_type);
-            printf(" LINE => %-10d | LEXEME => %-20s | TOKEN TYPE => <%-20s>  \n",current_token.line_no,current_token.lex.value,terminal_str[current_token.token_type]);
+            printf(" LINE => %-10d  LEXEME => %-20s  TOKEN TYPE => <%s>  \n",current_token.line_no,current_token.lex.value,terminal_str[current_token.token_type]);
         }
 
         if (current_token.token_type==TK_EOF)

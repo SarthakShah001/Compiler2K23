@@ -61,12 +61,18 @@ int main(){
 
                 case 3:
                 {
+                    startParser();
+                    break;
+                }
+
+                case 4:
+                {
                     clock_t start_time, end_time;
                     double total_CPU_time, total_CPU_time_in_seconds;
                     start_time = clock();
 
                     // PARSER CODE HERE 
-                    startParser(fp) ;
+                    // startParser(fp) ;
 
                     end_time = clock() ;
 
@@ -77,11 +83,6 @@ int main(){
 
                     printf("TOTAL CPU TIME := %f \n" , total_CPU_time)  ;
                     printf("TOTAL CPU TIME IN SECONDS:= %f \n" , total_CPU_time)  ;
-                    break;
-                }
-
-                case 4:
-                {
                     break;
                 }
             }

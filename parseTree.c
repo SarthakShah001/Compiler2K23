@@ -50,7 +50,7 @@ void addTokenTonode(parseTreeNode treeNode,Token currtoken){
     *t=currtoken;
     treeNode->tok=t;
 }
-void printParseTree(parseTreeNode treeNode ){
+void printParseTree(parseTreeNode treeNode){
 
     // TO PRINT THE FOLLOWING 
     // 1. LEXEME -> only if the node is a leaf -> children array = {} else ----
@@ -62,6 +62,7 @@ void printParseTree(parseTreeNode treeNode ){
     // 7. NODE_SYMBOL 
     // CurrLineNo of TreeNode is remaining
     if(treeNode == NULL) return ;
+    printParseTree(treeNode->child) ;
     // 1
     // printf("%d\n",treeNode->s->is_terminal);
     if(treeNode->child==NULL&&treeNode->s->t!=epsilon){
@@ -69,35 +70,35 @@ void printParseTree(parseTreeNode treeNode ){
         TOK currtoken= treeNode->tok;
         if (currtoken->token_type==TK_NUM)
         {
-            printf("LEXEME => %lld",currtoken->lex.integer);
+            printf("LEXEME => %-20lld",currtoken->lex.integer);
         }
         else if (currtoken->token_type==TK_RNUM)
         {
-            printf("LEXEME => %lf",currtoken->lex.decimal);
+            printf("LEXEME => %-20lf",currtoken->lex.decimal);
         }
         else
         {
             //  printf("%s\n", current_token.token_type);
-            printf("LEXEME => %s",currtoken->lex.value);
+            printf("LEXEME => %-20s",currtoken->lex.value);
         }
     }
     else{
-        printf("----");
+        printf("       ----       ");
     }
     // 2 start
     if(treeNode->child==NULL&&treeNode->s->t!=epsilon){
-        printf("Lineno=%d",treeNode->tok->line_no);
+        printf("Line_No=%d",treeNode->tok->line_no);
     }
     else{
-        printf("-");
+        printf("       ----       ");
     }
     // 2 end
     // 3 start
     if(treeNode->s->is_terminal){
-        printf("%s",terminal_str[treeNode->s->t]);
+        printf("%-20s",terminal_str[treeNode->s->t]);
     }
     else{
-        printf("-");
+        printf("       ----       ");
     }
     // //3 end
     // //4 start
@@ -106,33 +107,33 @@ void printParseTree(parseTreeNode treeNode ){
         TOK currtoken= treeNode->tok;
         if (currtoken->token_type==TK_NUM)
         {
-            printf("%d",currtoken->lex.integer);
+            printf("%-8lld",currtoken->lex.integer);
         }
         else if (currtoken->token_type==TK_RNUM)
         {
-            printf("%f",currtoken->lex.decimal);
+            printf("%-8lf",currtoken->lex.decimal);
         }
         else
         {
             //  printf("%s\n", current_token.token_type);
-            printf("-");
+            printf("  ----  ");
         }
     }
     else{
-        printf("-");
+        printf("  ----  ");
     }
      //4 end
     // 5 start
     if(treeNode->parent == NULL){
 
-        printf("PARENT = ROOT ,") ;
+        printf(" PARENT = ROOT                ,") ;
     }
     else{
         if(treeNode->parent->s->is_terminal){
-            printf("PARENT = %s" ,terminal_str[treeNode->parent->s->t]) ; 
+            printf(" PARENT = %-20s" ,terminal_str[treeNode->parent->s->t]) ; 
         }
         else{
-            printf("PARENT = %s" ,nonterminal_str[treeNode->parent->s->nt]); 
+            printf(" PARENT = %-20s" ,nonterminal_str[treeNode->parent->s->nt]); 
         }
     }
     // 5 end
@@ -142,7 +143,7 @@ void printParseTree(parseTreeNode treeNode ){
     }
 
     else{
-        printf("IS LEAF NODE := NO");
+        printf("IS LEAF NODE := NO ");
     }
     if(!treeNode->s->is_terminal){
         printf("%s",nonterminal_str[treeNode->s->nt]);
@@ -151,7 +152,6 @@ void printParseTree(parseTreeNode treeNode ){
         printf("-");
     }
     printf("\n"); 
-    printParseTree(treeNode->child) ;
     parseTreeNode temp = treeNode->child ;
     while(temp!=NULL){
         printParseTree(temp->sibling) ;
