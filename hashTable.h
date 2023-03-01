@@ -11,9 +11,13 @@
 #ifndef _hashtable_
 #define _hashtable_
 #include "hashTabledef.h"
+//calculating hash value for a string
 int hash(char *str);
+// initialising an hash table
 void hash_init(hashtable t);
+
 void hash_insert(hashtable t,char *str,int value);
+//searching in the hash table
 int find_value(hashtable t,char *str);
 bool is_str_present(hashtable t,char*str);
 #endif

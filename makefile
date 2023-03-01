@@ -6,7 +6,7 @@
 # // 2020A7PS1675P BHANUPRATAP RATHORE
 
 final:
-	gcc hashTable.c lexer.c parser.c stackADT.c doublyLinkedList.c setADT.c parseTree.c remove_comments.c driver.c -o exe
+	gcc hashTable.c lexer.c parser.c stackADT.c doublyLinkedList.c setADT.c parseTree.c remove_comments.c driver.c -o stage1exe
 
 
 # clean:

@@ -18,16 +18,11 @@ parse_Stack init_parseStack()
 {
     parse_Stack S = (parse_Stack)(malloc(sizeof(struct stack)));
     stackNode n = (stackNode)malloc(sizeof(struct node));
-    parseTreeNode tnode=createTree();
+    parseTreeNode tnode = createTree();
     symbol s1 = (symbol)malloc(sizeof(struct SYMBOL));
     s1->is_terminal = true;
     s1->t = $;
     tnode->s = s1;
-    // tnode->childrenCount = 0;
-    // tnode->parent = NULL;
-    // tnode->prevSibling = NULL;
-    // tnode->sibling = NULL;
-    // memset(tnode->childrenList,NULL,20);
     n->tree_ptr = tnode;
     n->next = NULL;
     S->size = 1;
@@ -37,33 +32,38 @@ parse_Stack init_parseStack()
 
 bool isEmpty(parse_Stack S)
 {
-    return S->size==0;
+    return S->size == 0;
 }
 
-void push_on_stack(parse_Stack S, parseTreeNode x){
+void push_on_stack(parse_Stack S, parseTreeNode x)
+{
 
     stackNode temp = (stackNode)(malloc(sizeof(struct node)));
 
-    if (temp == NULL){
+    if (temp == NULL)
+    {
         printf("temp Malloc function failed\n");
         return;
     }
-    
+
     temp->tree_ptr = x;
     temp->next = S->top;
     S->top = temp;
     S->size++;
 
-    return ;
+    return;
 }
 
-void pop(parse_Stack S){
+void pop(parse_Stack S)
+{
 
-    if (isEmpty(S)){
+    if (isEmpty(S))
+    {
         printf("Stack is empty.\n");
     }
 
-    else{
+    else
+    {
         stackNode temp = S->top;
         S->top = S->top->next;
         temp->next = NULL;
@@ -74,58 +74,47 @@ void pop(parse_Stack S){
     return;
 }
 
-stackNode top(parse_Stack S){
+stackNode top(parse_Stack S)
+{
 
-    if (isEmpty(S)){
+    if (isEmpty(S))
+    {
         printf("Stack is empty.\n");
         return NULL;
     }
 
-    else{
+    else
+    {
         return S->top;
     }
 }
 
-void push_rule(parse_Stack S, dlinkedlist dlist){
+void push_rule(parse_Stack S, dlinkedlist dlist)
+{
     stackNode t = S->top;
     parseTreeNode p1 = t->tree_ptr;
     parseTreeNode temp = NULL;
-    if(p1==NULL){
+    if (p1 == NULL)
+    {
         printf("p1 null hogya\n");
-        return ;
+        return;
     }
-    
+
     temp = p1->child;
-    // parseTreeNode temp2 = temp;
-    if(temp==NULL){
+    if (temp == NULL)
+    {
         printf("No matching rule found\n");
-        return ;
+        return;
     }
-    while(temp->sibling!=NULL){
+    while (temp->sibling != NULL)
+    {
         temp = temp->sibling;
     }
     pop(S);
-    while(temp!=NULL){
-        push_on_stack(S,temp);
+    while (temp != NULL)
+    {
+        push_on_stack(S, temp);
         temp = temp->prevSibling;
     }
-    return ;
+    return;
 }
-// struct node
-// {
-//     stackNode next;
-//     parseTreeNode tree_ptr;
-// };
-
-// struct stack
-// {
-//     int size;
-//     stackNode top;
-// };
-
-// struct PARSETREENODE{
-//     parseTreeNode parent , sibling , prevSibling ;
-//     int childrenCount ; 
-//     parseTreeNode* childrenList ;
-//     symbol s ;
-// }; 

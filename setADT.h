@@ -21,12 +21,6 @@ struct SETNODE{
 }; 
 
 
-
-// typedef struct {
-//     SetNode s;
-//     nonterminal nt;
-// }set;
-
 extern setNode first_set[num_nonterminals];
 extern setNode follow_set[num_nonterminals];
 

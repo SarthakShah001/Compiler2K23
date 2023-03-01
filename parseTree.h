@@ -19,12 +19,6 @@ typedef struct PARSETREENODE* parseTreeNode ;
 
 struct PARSETREENODE{
     parseTreeNode parent , sibling , prevSibling ;
-
-    // childrenList is an array containing all first child node of the parent
-    // X -> ABC
-    // X -> DEF 
-
-    // X->childrenList = [A->D] 
     TOK tok;
     parseTreeNode child;
     symbol s ;
@@ -36,12 +30,13 @@ struct PARSETREENODE{
 // add rule
 
 parseTreeNode createTree() ; 
-
+// add rules from grammar
 void addRuleInTree(parseTreeNode treeNode , dlinkedlist node) ; 
 void openparsetreefile(FILE *f);
 
-// outfile will add later 
+// prints parse tree into the file open from previous function
 void printParseTree(parseTreeNode treeNode) ; 
+// add tokens to terminals in parsetree (logic implemented in parse tree)
 void addTokenTonode(parseTreeNode treeNode,Token currtoken);
 #endif
 

@@ -14,7 +14,7 @@
 
 dlinkedlist createDLinkedList()
 {
-    struct DLinkedList *list=(dlinkedlist)malloc(sizeof(struct DLinkedList));
+    struct DLinkedList *list = (dlinkedlist)malloc(sizeof(struct DLinkedList));
     list->head = NULL;
     list->tail = NULL;
     list->listSize = 0;
@@ -46,8 +46,6 @@ void insertBegin(struct DLinkedList *list, symbol val)
     new_node->prev = NULL;
     list->head = new_node;
     list->listSize++;
-
-    // print(list);
     printRev(list);
 }
 
@@ -75,9 +73,6 @@ void insertEnd(struct DLinkedList *list, symbol val)
     new_node->prev = list->tail;
     list->tail = new_node;
     list->listSize++;
-
-    // print(list);
-    // printRev(list);
 }
 
 void print(struct DLinkedList *list)
@@ -101,24 +96,3 @@ void printRev(struct DLinkedList *list)
 
     printf("\n");
 }
-
-// int main()
-// {
-//     struct DLinkedList list = createDLinkedList();
-
-//     insertBegin(&list, 10);
-//     insertBegin(&list, 20);
-//     insertBegin(&list, 30);
-//     insertBegin(&list, 40);
-//     insertBegin(&list, 50);
-//     insertBegin(&list, 60);
-
-//     insertEnd(&list, 1);
-//     insertEnd(&list, 2);
-//     insertEnd(&list, 3);
-//     insertEnd(&list, 4);
-//     insertEnd(&list, 5);
-//     insertEnd(&list, 6);
-
-//     return 0;
-// }

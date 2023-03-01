@@ -1,11 +1,11 @@
-<program> -> <moduleDeclarations> <otherModules> <driverModule> <otherModules>
-<moduleDeclarations> -> <moduleDeclaration> <moduleDeclarations>
+<program> -> <moduleDeclarations> <otherModules> <driverModule> TK_END <otherModules>
+<moduleDeclarations> -> <moduleDeclaration> TK_SEMICOL <moduleDeclarations>
 <moduleDeclarations> -> epsilon
-<moduleDeclaration> -> TK_DECLARE TK_MODULE TK_ID TK_SEMICOL
-<otherModules> -> <module> <otherModules>
+<moduleDeclaration> -> TK_DECLARE TK_MODULE TK_ID 
+<otherModules> -> <module> TK_END <otherModules>
 <otherModules> -> epsilon
-<driverModule> -> TK_DRIVERDEF TK_DRIVER TK_PROGRAM TK_DRIVERENDDEF <moduleDef>
-<module> -> TK_DEF TK_MODULE TK_ID TK_ENDDEF TK_TAKES TK_INPUT TK_SQBO <input_plist> TK_SQBC TK_SEMICOL <ret> <moduleDef>
+<driverModule> -> TK_DRIVERDEF TK_DRIVER TK_PROGRAM TK_DRIVERENDDEF <moduleDef> 
+<module> -> TK_DEF TK_MODULE TK_ID TK_ENDDEF TK_TAKES TK_INPUT TK_SQBO <input_plist> TK_SQBC TK_SEMICOL <ret> <moduleDef> 
 <ret> -> TK_RETURNS TK_SQBO <output_plist> TK_SQBC TK_SEMICOL
 <ret> -> epsilon
 <input_plist> -> TK_ID TK_COLON <dataType> <N1>
@@ -22,16 +22,15 @@
 <type> -> TK_INTEGER
 <type> -> TK_REAL
 <type> -> TK_BOOLEAN
-<moduleDef> -> TK_START <statements> TK_END
-<statements> -> <statement> <statements>
+<moduleDef> -> TK_START <statements>
+<statements> -> <iterativeStmt> TK_END <statements>
+<statements> -> <condionalStmt> TK_END <statements>
+<statements> -> <ioStmt> TK_SEMICOL <statements>
+<statements> -> <declareStmt> TK_SEMICOL <statements>
+<statements> -> <simpleStmt> TK_SEMICOL <statements>
 <statements> -> epsilon
-<statement> -> <ioStmt>
-<statement> -> <simpleStmt>
-<statement> -> <declareStmt>
-<statement> -> <condionalStmt>
-<statement> -> <iterativeStmt>
-<ioStmt> -> TK_GET_VALUE TK_BO TK_ID TK_BC TK_SEMICOL
-<ioStmt> -> TK_PRINT TK_BO <var_print> TK_BC TK_SEMICOL
+<ioStmt> -> TK_GET_VALUE TK_BO TK_ID TK_BC
+<ioStmt> -> TK_PRINT TK_BO <var_print> TK_BC
 <boolConstt> -> TK_TRUE
 <boolConstt> -> TK_FALSE
 <var_print> -> TK_ID <P1>
@@ -45,15 +44,15 @@
 <assignmentStmt> -> TK_ID <whichStmt>
 <whichStmt> -> <lvalueIDStmt>
 <whichStmt> -> <lvalueARRStmt>
-<lvalueIDStmt> -> TK_ASSIGNOP <expression> TK_SEMICOL
-<lvalueARRStmt> -> TK_SQBO <element_index_with_expressions> TK_SQBC TK_ASSIGNOP <expression> TK_SEMICOL
+<lvalueIDStmt> -> TK_ASSIGNOP <expression>
+<lvalueARRStmt> -> TK_SQBO <element_index_with_expressions> TK_SQBC TK_ASSIGNOP <expression>
 <index_arr> -> <sign> <new_index>
 <new_index> -> TK_NUM
 <new_index> -> TK_ID
 <sign> -> TK_PLUS
 <sign> -> TK_MINUS
 <sign> -> epsilon
-<moduleReuseStmt> -> <optional> TK_USE TK_MODULE TK_ID TK_WITH TK_PARAMETERS <actual_para_list> TK_SEMICOL
+<moduleReuseStmt> -> <optional> TK_USE TK_MODULE TK_ID TK_WITH TK_PARAMETERS <actual_para_list>
 <actual_para_list> -> <unary_op> <var_print> <N20>
 <actual_para_list> -> <var_print> <N20>
 <N20> -> TK_COMMA <actual_para_list>
@@ -119,8 +118,8 @@
 <relationalOp> -> TK_GE
 <relationalOp> -> TK_EQ
 <relationalOp> -> TK_NE
-<declareStmt> -> TK_DECLARE <idList> TK_COLON <dataType> TK_SEMICOL
-<condionalStmt> -> TK_SWITCH TK_BO TK_ID TK_BC TK_START <caseStmts> <default> TK_END
+<declareStmt> -> TK_DECLARE <idList> TK_COLON <dataType>
+<condionalStmt> -> TK_SWITCH TK_BO TK_ID TK_BC TK_START <caseStmts> <default>
 <caseStmts> -> TK_CASE <value> TK_COLON <statements> TK_BREAK TK_SEMICOL <N9>
 <N9> -> TK_CASE <value> TK_COLON <statements> TK_BREAK TK_SEMICOL <N9>
 <N9> -> epsilon
@@ -129,8 +128,8 @@
 <value> -> TK_FALSE
 <default> -> TK_DEFAULT TK_COLON <statements> TK_BREAK TK_SEMICOL 
 <default> -> epsilon
-<iterativeStmt> -> TK_FOR TK_BO TK_ID TK_IN <range_for_loop> TK_BC TK_START <statements> TK_END
-<iterativeStmt> -> TK_WHILE TK_BO <arithmeticOrBooleanExpr> TK_BC TK_START <statements> TK_END
+<iterativeStmt> -> TK_FOR TK_BO TK_ID TK_IN <range_for_loop> TK_BC TK_START <statements>
+<iterativeStmt> -> TK_WHILE TK_BO <arithmeticOrBooleanExpr> TK_BC TK_START <statements>
 <range_for_loop> -> <index_for_loop> TK_RANGEOP <index_for_loop>
 <index_for_loop> -> <sign_for_loop> <new_index_for_loop>
 <new_index_for_loop> -> TK_NUM
