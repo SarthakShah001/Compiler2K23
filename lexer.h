@@ -1,3 +1,13 @@
+/*
+                    *****  Group No. - 9  *****
+        Name : Sarthak Shah                 ID : 2020A7PS0092P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
+
+*/
+
 #ifndef _lexer_
 #define _lexer_
 
@@ -30,7 +40,7 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
 //returns next token
 Token get_next_token();
 
-void print_tokens(FILE *fptr);
+void print_tokens(FILE *fptr, int buffsize);
 
 
 #endif

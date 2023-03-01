@@ -1,3 +1,13 @@
+/*
+                    *****  Group No. - 9  *****
+        Name : Sarthak Shah                 ID : 2020A7PS0092P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
+
+*/
+
 #include "parser.h"
 #include "setADT.h"
 char *nonterminal_str[]={
@@ -284,12 +294,7 @@ void fill_parse_table(){
     }
 }
 
-void startParser(FILE* fp){
-
-}
-
-
-int main(){
+parseTreeNode startParser(FILE *fp,int size){
     fill_hash_tables();
     fill_grammer();
     for(int i=0;i<num_nonterminals;i++){
@@ -306,44 +311,15 @@ int main(){
         populateFollowSet(i);
     }
     fill_parse_table();
-    // for(int i=0;i<num_terminals;i++){
-    // printf("%s ->%d\n",terminal_str[i],first_set[moduleReuseStmt]->arr[i]);
-    // }
-    // for(int i=0;i<num_nonterminals;i++){
-    //     printf("%s -> ",nonterminal_str[i]);
-    //     for(int j=0;j<num_terminals;j++){
-    //         if(parse_table[i][j]!=NULL){
-    //             printf("%d ",parse_table[i][j]->head->val->is_terminal);
-    //         }
-    //     }
-    //     printf("\n");
-    // }
-    // for(int i=0;i<num_nonterminals;i++){
-    //     printf("%s\n",nonterminal_str[i]);
-    //     for(int j=0;j<num_terminals;j++){
-    //         // printf("%d ",first_set[0]->arr[j]);
-    //         if(first_set[i]->arr[j]){
-    //             printf("%s ",terminal_str[j]);
-    //         }
-    //     }
-    //     printf("\n");
-    // }
-    // // printf("\n%d\n",find_value(terminals,"TK_REAL"));
-    char testcase;
-    printf("Enter no. of testcase you wanna check upon:");
-    scanf("%c",&testcase);
-    char filename[]="./TestcasesFromMam/Testcase0";
-    filename[27]=testcase;
-    fptr = fopen(filename, "r");
+    fptr=fp;
     if (fptr == NULL)
     {
         printf("File not opened\n");
         return 0;
     }
     printf("Tokenization Started\n");
-    lexer_init();
+    lexer_init(size);
     start_lexer();
-    // initialise stack
     parse_Stack stk;
     stk=init_parseStack();
     bool is_tk_finish=false;
@@ -353,33 +329,21 @@ int main(){
     int error_count =0;
     while (!is_tk_finish&&!isEmpty(stk))
     {
-        // if (current_token.token_type==TK_NUM)
-        // {
-        //     printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
-        // }
-        // else if (current_token.token_type==TK_RNUM)
-        // {
-        //     printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
-        // }
-        // else
-        // {
-        //     //  printf("%s\n", current_token.token_type);
-        //     printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
-        // }
-
         if (current_token.token_type==TK_EOF)
         {
+            printf("\033[32m");
             printf("Tokenization Process Finished\n");
+            printf("\033[0m");
             current_token.token_type=$;
             break;
         }
         stackNode s=top(stk);
-        if(!s->tree_ptr->s->is_terminal){
-        printf("%s\n",nonterminal_str[s->tree_ptr->s->nt]);
-        }
-        else{
-            printf("%s\n",terminal_str[s->tree_ptr->s->t]);
-        }
+        // if(!s->tree_ptr->s->is_terminal){
+        // printf("%s\n",nonterminal_str[s->tree_ptr->s->nt]);
+        // }
+        // else{
+        //     printf("%s\n",terminal_str[s->tree_ptr->s->t]);
+        // }
         if(s->tree_ptr->s->is_terminal){
             if(s->tree_ptr->s->t==current_token.token_type){
                 addTokenTonode(top(stk)->tree_ptr,current_token);
@@ -389,12 +353,14 @@ int main(){
             }
             else{
                 // mismatch error
-                 printf("In line no.-> %d terminal mismatch error, Expected->%s,In code->%s\n",current_token.line_no,terminal_str[s->tree_ptr->s->t],terminal_str[current_token.token_type]);
-                 while(!isEmpty(stk)&&top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t!=current_token.token_type){
-                 pop(stk);
+                printf("\033[31m");
+                printf("In line no.-> %d terminal mismatch error, Expected->%s,In code->%s\n",current_token.line_no,terminal_str[s->tree_ptr->s->t],terminal_str[current_token.token_type]);
+                printf("\033[0m");
+                while(!isEmpty(stk)&&top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t!=current_token.token_type){
+                pop(stk);
                   s=top(stk);  
-                 }
-                 error_count++;
+                }
+                error_count++;
             }
         }
         else if(!s->tree_ptr->s->is_terminal){
@@ -409,7 +375,9 @@ int main(){
             else{
                 //no rule error
                 //handle error
+                printf("\033[31m");
                 printf("Line No.->%d no rule error in parse table, non terminal=%s,terminal=%s\n",current_token.line_no,nonterminal_str[s->tree_ptr->s->nt],terminal_str[current_token.token_type]);
+                printf("\033[0m");
                 setNode sync_set=compute_synchro_set(s->tree_ptr->s->nt);
                 while(current_token.token_type!=TK_EOF &&current_token.token_type!=TK_SEMICOLON){
                     current_token=get_next_token();
@@ -447,18 +415,198 @@ int main(){
         }
         if(!isEmpty(stk)&&top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t==$){
             pop(stk);
+            printf("\033[32m");
             printf("Parser Successfully Finished\n");
+            printf("\033[0m");
         }
         //stack not empty and tokens finished
         //handle error
         else{
-        printf("stack not empty and tokens finished error\n");
-        error_count++; 
+            printf("\033[31m");
+            printf("stack not empty and tokens finished error\n");
+            printf("\033[0m");
+            error_count++; 
         }
     }
-    printf("no. of errors=%d\n",error_count);
-    printParseTree(root);
+    printf("No. of errors=%d\n",error_count);
+    fptr=NULL;
+    return root;
 }
+
+// int main(){
+//     fill_hash_tables();
+//     fill_grammer();
+//     for(int i=0;i<num_nonterminals;i++){
+//         first_set[i]=initSet();
+//     }
+//     for(int i=0;i<num_nonterminals;i++){
+//         follow_set[i]=initSet();
+//     }
+//     follow_set[0]->arr[$]=true;
+//     for(int i=0;i<num_nonterminals;i++){
+//         populateFirstSet(i);
+//     }
+//     for(int i=0;i<num_nonterminals;i++){
+//         populateFollowSet(i);
+//     }
+//     fill_parse_table();
+//     // for(int i=0;i<num_terminals;i++){
+//     // printf("%s ->%d\n",terminal_str[i],first_set[moduleReuseStmt]->arr[i]);
+//     // }
+//     // for(int i=0;i<num_nonterminals;i++){
+//     //     printf("%s -> ",nonterminal_str[i]);
+//     //     for(int j=0;j<num_terminals;j++){
+//     //         if(parse_table[i][j]!=NULL){
+//     //             printf("%d ",parse_table[i][j]->head->val->is_terminal);
+//     //         }
+//     //     }
+//     //     printf("\n");
+//     // }
+//     // for(int i=0;i<num_nonterminals;i++){
+//     //     printf("%s\n",nonterminal_str[i]);
+//     //     for(int j=0;j<num_terminals;j++){
+//     //         // printf("%d ",first_set[0]->arr[j]);
+//     //         if(first_set[i]->arr[j]){
+//     //             printf("%s ",terminal_str[j]);
+//     //         }
+//     //     }
+//     //     printf("\n");
+//     // }
+//     // // printf("\n%d\n",find_value(terminals,"TK_REAL"));
+//     char testcase;
+//     printf("Enter no. of testcase you wanna check upon:");
+//     scanf("%c",&testcase);
+//     char filename[]="./TestcasesFromMam/Testcase0";
+//     filename[27]=testcase;
+//     fptr = fopen(filename, "r");
+//     if (fptr == NULL)
+//     {
+//         printf("File not opened\n");
+//         return 0;
+//     }
+//     printf("Tokenization Started\n");
+//     lexer_init();
+//     start_lexer();
+//     // initialise stack
+//     parse_Stack stk;
+//     stk=init_parseStack();
+//     bool is_tk_finish=false;
+//     parseTreeNode root=createTree();
+//     push_on_stack(stk,root);
+//     Token current_token = get_next_token();
+//     int error_count =0;
+//     while (!is_tk_finish&&!isEmpty(stk))
+//     {
+//         // if (current_token.token_type==TK_NUM)
+//         // {
+//         //     printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
+//         // }
+//         // else if (current_token.token_type==TK_RNUM)
+//         // {
+//         //     printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
+//         // }
+//         // else
+//         // {
+//         //     //  printf("%s\n", current_token.token_type);
+//         //     printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
+//         // }
+
+//         if (current_token.token_type==TK_EOF)
+//         {
+//             printf("Tokenization Process Finished\n");
+//             current_token.token_type=$;
+//             break;
+//         }
+//         stackNode s=top(stk);
+//         if(!s->tree_ptr->s->is_terminal){
+//         printf("%s\n",nonterminal_str[s->tree_ptr->s->nt]);
+//         }
+//         else{
+//             printf("%s\n",terminal_str[s->tree_ptr->s->t]);
+//         }
+//         if(s->tree_ptr->s->is_terminal){
+//             if(s->tree_ptr->s->t==current_token.token_type){
+//                 addTokenTonode(top(stk)->tree_ptr,current_token);
+//                 pop(stk);
+//                 current_token = get_next_token();
+//                 continue;
+//             }
+//             else{
+//                 // mismatch error
+//                  printf("\033[31m");
+//                  printf("In line no.-> %d terminal mismatch error, Expected->%s,In code->%s\n",current_token.line_no,terminal_str[s->tree_ptr->s->t],terminal_str[current_token.token_type]);
+//                  printf("\033[0m");
+//                  while(!isEmpty(stk)&&top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t!=current_token.token_type){
+//                  pop(stk);
+//                   s=top(stk);
+//                  }
+//                  error_count++;
+//             }
+//         }
+//         else if(!s->tree_ptr->s->is_terminal){
+//             if(parse_table[s->tree_ptr->s->nt][current_token.token_type]!=NULL){
+//                 addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
+//                 push_rule(stk,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
+//             }
+//             else if(parse_table[s->tree_ptr->s->nt][epsilon]!=NULL){
+//                 addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][epsilon]);
+//                 pop(stk);
+//             }
+//             else{
+//                 //no rule error
+//                 //handle error
+//                 printf("\033[31m");
+//                 printf("Line No.->%d no rule error in parse table, non terminal=%s,terminal=%s\n",current_token.line_no,nonterminal_str[s->tree_ptr->s->nt],terminal_str[current_token.token_type]);
+//                 printf("\033[0m");
+//                 setNode sync_set=compute_synchro_set(s->tree_ptr->s->nt);
+//                 while(current_token.token_type!=TK_EOF &&current_token.token_type!=TK_SEMICOLON){
+//                     current_token=get_next_token();
+//                 }
+//                 if(current_token.token_type==TK_SEMICOLON){
+//                 current_token=get_next_token();
+//                 }
+
+//                 while(!isEmpty(stk)&&current_token.token_type!=TK_EOF && !findInSet(sync_set,current_token.token_type)){
+//                 pop(stk);
+//                 s=top(stk);
+//                 if(s!=NULL){
+//                  sync_set=compute_synchro_set(s->tree_ptr->s->nt);
+//                 }
+//                 // current_token = get_next_token();
+//                 }
+//                 pop(stk);
+//                 // if(current_token.token_type==TK_SEMICOLON){
+//                 //     current_token=get_next_token();
+//                 // }
+//                 error_count++;
+//             }
+//         }
+//     }
+
+//     if(!isEmpty(stk)){
+//         while(!top(stk)->tree_ptr->s->is_terminal){
+//             if(parse_table[top(stk)->tree_ptr->s->nt][epsilon]){
+//             addRuleInTree(top(stk)->tree_ptr,parse_table[top(stk)->tree_ptr->s->nt][epsilon]);
+//                 pop(stk);
+//             }
+//             else{
+//                 break;
+//             }
+//         }
+//         if(!isEmpty(stk)&&top(stk)->tree_ptr->s->is_terminal&&top(stk)->tree_ptr->s->t==$){
+//             pop(stk);
+//             printf("Parser Successfully Finished\n");
+//         }
+//         //stack not empty and tokens finished
+//         //handle error
+//         else{
+//         printf("stack not empty and tokens finished error\n");
+//         error_count++; 
+//         }
+//     }
+//     printf("no. of errors=%d\n",error_count);
+//     printParseTree(root);
+// }
 // int main()
 // {
 //     char testcase;

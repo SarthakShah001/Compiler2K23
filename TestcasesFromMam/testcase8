@@ -1,0 +1,5 @@
+declare module mod1;
+<<<driver program>>>
+start
+a =5
+end;

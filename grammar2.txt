@@ -23,15 +23,12 @@
 <type> -> TK_REAL
 <type> -> TK_BOOLEAN
 <moduleDef> -> TK_START <statements> TK_END
-<statements> -> <statement> <stmtend> <statements>
-<stmtend> -> TK_SEMICOL
-<stmtend> -> TK_END
+<statements> -> <iterativeStmt> TK_END <statements>
+<statements> -> <condionalStmt> TK_END <statements>
+<statements> -> <ioStmt> TK_SEMICOL <statements>
+<statements> -> <declareStmt> TK_SEMICOL <statements>
+<statements> -> <simpleStmt> TK_SEMICOL <statements>
 <statements> -> epsilon
-<statement> -> <ioStmt>
-<statement> -> <simpleStmt>
-<statement> -> <declareStmt>
-<statement> -> <condionalStmt>
-<statement> -> <iterativeStmt>
 <ioStmt> -> TK_GET_VALUE TK_BO TK_ID TK_BC
 <ioStmt> -> TK_PRINT TK_BO <var_print> TK_BC
 <boolConstt> -> TK_TRUE

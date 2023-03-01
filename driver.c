@@ -1,3 +1,13 @@
+/*
+                    *****  Group No. - 9  *****
+        Name : Sarthak Shah                 ID : 2020A7PS0092P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
+
+*/
+
 #include<stdlib.h>
 #include<stdio.h>
 #include<stdbool.h>
@@ -8,7 +18,7 @@
 #include "lexer.h"
 #include "parser.h"
 
-#define BUFF_SIZE 1000 
+#define BUFF_SIZE 5000 
 
 void printMenu(){
     printf("\t Select the option you want to see\n ");
@@ -21,18 +31,22 @@ void printMenu(){
 }
 
 
-int main(){
+int main(int argc, char *argv[]){
+    if(argc<4){
+            printf("very few arguments\n");
+            exit(0);
+    }
         FILE* fp = NULL;
-        char Fname[50];
-        printf("please give the path for the file you want to test\n");
-        scanf("%[^\n]s" , Fname);
-        fp = fopen(Fname,"r");
+        // printf("please give the path for the file you want to test\n");
+        // scanf("%[^\n]s" , Fname);
+        fp = fopen(argv[1],"r");
         if(fp == NULL){
             printf("error in opening file\n");
         }
-        
+        FILE *fp1 =  NULL;
+        fp1 = fopen(argv[2],"w");
         while(true){
-            fp = fopen(Fname,"r");
+            fp = fopen(argv[1],"r");
             printMenu();
             printf("Please Enter the Choice\n");
             int x;
@@ -49,19 +63,43 @@ int main(){
                     fread(buffer , sizeof(char) , BUFF_SIZE , fp); 
                     char *testCaseFile = buffer ;
                     removeComments(testCaseFile , cleanFile) ;
-                    puts(cleanFile); 
+                    puts(cleanFile);
                     break;
                 }
 
                 case 2:
                 {
-                    print_tokens(fp) ;
+                    print_tokens(fp,atoi(argv[3])) ;
                     break;
                 }
 
                 case 3:
                 {
-                    startParser();
+                    fp1 = fopen(argv[2],"w");
+                    setbuf(fp1, NULL);
+                    parseTreeNode root= startParser(fp,atoi(argv[3]));
+                    openparsetreefile(fp1);
+
+                    fprintf(fp1, "       LEXEME       ");
+                    // printf("       LEXEME       ");
+                    fprintf(fp1, "  LINE_NO  ");
+                    // printf("  LINE_NO  ");
+                    fprintf(fp1, "     TOKEN-TYPE      ");
+                    // printf("     TOKEN-TYPE      ");
+                    fprintf(fp1, "  VALUE if NUM/RNUM  ");
+                    // printf("  VALUE if NUM/RNUM  ");
+                    fprintf(fp1, "       PARENT       ");
+                    // printf("       PARENT       ");
+                    fprintf(fp1, "   IS A LEAF NODE  ");
+                    // printf("   IS A LEAF NODE  ");
+                    fprintf(fp1, "    NON-TERMINAL     ");
+                    // printf("    NON-TERMINAL     ");
+
+                    fprintf(fp1, "\n\n");
+                    // printf("\n\n");
+                    
+                    printParseTree(root);
+                    // fclose(fp1);
                     break;
                 }
 
@@ -72,7 +110,7 @@ int main(){
                     start_time = clock();
 
                     // PARSER CODE HERE 
-                    // startParser(fp) ;
+                    startParser(fp,atoi(argv[3])) ;
 
                     end_time = clock() ;
 
@@ -81,11 +119,11 @@ int main(){
                     total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
 
 
-                    printf("TOTAL CPU TIME := %f \n" , total_CPU_time)  ;
-                    printf("TOTAL CPU TIME IN SECONDS:= %f \n" , total_CPU_time)  ;
+                    printf("TOTAL CPU CLOCK TICKS := %lf \n" , total_CPU_time)  ;
+                    printf("TOTAL CPU TIME IN SECONDS := %lf \n" , total_CPU_time_in_seconds)  ;
                     break;
                 }
             }
-            fclose(fp);
+            // fclose(fp);
         }
 }

@@ -1,7 +1,18 @@
+/*
+                    *****  Group No. - 9  *****
+        Name : Sarthak Shah                 ID : 2020A7PS0092P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
+
+*/
+
 #include "lexer.h"
-#define buff_size 500
-char buffer1[buff_size + 1];
-char buffer2[buff_size + 1];
+int buff_size=500;
+// char buffer1[buff_size + 1];
+// char buffer2[buff_size + 1];
+char *buffer1,*buffer2;
 bool is_buffer1_filled, is_buffer2_filled;
 char *begin_ptr, *forward_ptr;
 FILE *fptr;
@@ -110,7 +121,7 @@ void fill_hash_table(){
         hash_insert(reserved_words,reserved[i].first,reserved[i].second);
     }
 }
-void lexer_init()
+void lexer_init(int size)
 {
     fill_hash_table();
     is_buffer1_filled = false;
@@ -122,6 +133,10 @@ void lexer_init()
     where_begin = false;
     where_forward = false;
     char_count = 0;
+    buff_size=size;
+    // printf("%d\n",buff_size);
+    buffer1=(char*)malloc(buff_size+1);
+    buffer2=(char*)malloc(buff_size+1);
 }
 void start_lexer()
 {
@@ -334,7 +349,7 @@ void report_error(int state, char *lexeme)
     }
     case 13:
     {
-        printf("\n Error at line = %d : NOT A VALID SYMBOLAT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID SYMBOL AT => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 43:
@@ -1084,17 +1099,17 @@ Token get_next_token()
     return currtoken;
 }
 
-void print_tokens(FILE *fp){
+void print_tokens(FILE *fp, int size){
 
     fptr = fp ;
-
+    // printf("%d\n",size);
     if (fptr == NULL)
     {
         printf("File not opened\n");
         return ;
     }
     printf("Tokenization Started\n");
-    lexer_init();
+    lexer_init(size);
     start_lexer();
     Token current_token = get_next_token();
      while (true)
@@ -1113,7 +1128,7 @@ void print_tokens(FILE *fp){
             //  printf("%s\n", current_token.token_type);
             printf(" LINE => %-10d  LEXEME => %-20s  TOKEN TYPE => <%s>  \n",current_token.line_no,current_token.lex.value,terminal_str[current_token.token_type]);
         }
-
+        
         if (current_token.token_type==TK_EOF)
         {
             printf("Tokenization Process Finished\n");

@@ -3,10 +3,14 @@
 start
 	declare v_1_2_3:integer;
 	get_value(v_1_2_3);
+	x:=5;
 	declare result_:integer;
 	[result_]:=use module square with parameters 1.2, A[k], -2, - j, -A[v], _1_2_3; 
         ** Modify rule for <actual_para_list>**
 	print(result);
+	x:=6;
+	x:=7;
+
 end
 
 <<module square>>

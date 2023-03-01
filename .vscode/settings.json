@@ -7,6 +7,7 @@
         "lexerdef.h": "c",
         "parser.h": "c",
         "setadt.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "string.h": "c"
     }
 }
