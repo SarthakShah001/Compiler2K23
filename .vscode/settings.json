@@ -4,6 +4,9 @@
         "doublylinkedlist.h": "c",
         "*.tcc": "c",
         "hashtabledef.h": "c",
-        "lexerdef.h": "c"
+        "lexerdef.h": "c",
+        "parser.h": "c",
+        "setadt.h": "c",
+        "stdbool.h": "c"
     }
 }

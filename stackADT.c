@@ -84,12 +84,8 @@ void push_rule(parse_Stack S, dlinkedlist dlist){
         printf("p1 null hogya\n");
         return ;
     }
-    for(int i = 0; i<p1->childrenCount; i++){
-        if(p1->childrenList[i]->s == dlist->head->val){
-            temp = p1->childrenList[i];
-            break;
-        }
-    }
+    
+    temp = p1->child;
     // parseTreeNode temp2 = temp;
     if(temp==NULL){
         printf("No matching rule found\n");

@@ -14,9 +14,9 @@ struct PARSETREENODE{
     // X -> ABC
     // X -> DEF 
 
-    // X->childrenList = [A->D]
-    int childrenCount ; 
-    parseTreeNode childrenList[20] ;
+    // X->childrenList = [A->D] 
+    TOK tok;
+    parseTreeNode child;
     symbol s ;
 }; 
 
@@ -32,6 +32,6 @@ void addRuleInTree(parseTreeNode treeNode , dlinkedlist node) ;
 
 // outfile will add later 
 void printParseTree(parseTreeNode treeNode) ; 
-
+void addTokenTonode(parseTreeNode treeNode,Token currtoken);
 #endif
 

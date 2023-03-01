@@ -5,6 +5,8 @@
 #include "doublyLinkedList.h"
 #include "stackADT.h"
 
+
+void startParser(FILE* fp); 
 void fill_terminals(hashtable terminals);
 void fill_nonterminals(hashtable nonterminals);
 void fill_grammer();

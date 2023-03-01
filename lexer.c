@@ -400,7 +400,7 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
     strcpy(l.value, str);
     if (tokentype == TK_NUM)
     {
-        int x = atoi(l.value);
+        long long x = atoll(l.value);
         l.integer = x;
     }
     else if (tokentype == TK_RNUM)
@@ -1078,4 +1078,43 @@ Token get_next_token()
         }
     }
     return currtoken;
+}
+
+void print_tokens(FILE *fp){
+
+    fptr = fp ;
+
+    if (fptr == NULL)
+    {
+        printf("File not opened\n");
+        return ;
+    }
+    printf("Tokenization Started\n");
+    lexer_init();
+    start_lexer();
+    Token current_token = get_next_token();
+     while (true)
+    {
+        // printf("%d\n",current_token.token_type);
+        if (current_token.token_type==TK_NUM)
+        {
+            printf(" LINE => %-10d | LEXEME => %-20lld | TOKEN TYPE => <%-20s>  \n",current_token.line_no,current_token.lex.integer,terminal_str[current_token.token_type]);
+        }
+        else if (current_token.token_type==TK_RNUM)
+        {
+            printf(" LINE => %-10d | LEXEME => %-20lf | TOKEN TYPE => <%-20s>  \n", current_token.line_no,current_token.lex.decimal,terminal_str[current_token.token_type]);
+        }
+        else
+        {
+            //  printf("%s\n", current_token.token_type);
+            printf(" LINE => %-10d | LEXEME => %-20s | TOKEN TYPE => <%-20s>  \n",current_token.line_no,current_token.lex.value,terminal_str[current_token.token_type]);
+        }
+
+        if (current_token.token_type==TK_EOF)
+        {
+            printf("Tokenization Process Finished\n");
+            break;
+        }
+        current_token=get_next_token();
+    }
 }

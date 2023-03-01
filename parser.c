@@ -283,6 +283,12 @@ void fill_parse_table(){
         }
     }
 }
+
+void startParser(FILE* fp){
+
+}
+
+
 int main(){
     fill_hash_tables();
     fill_grammer();
@@ -300,29 +306,29 @@ int main(){
         populateFollowSet(i);
     }
     fill_parse_table();
-    for(int i=0;i<num_terminals;i++){
-    printf("%s ->%d\n",terminal_str[i],first_set[moduleReuseStmt]->arr[i]);
-    }
-    for(int i=0;i<num_nonterminals;i++){
-        printf("%s -> ",nonterminal_str[i]);
-        for(int j=0;j<num_terminals;j++){
-            if(parse_table[i][j]!=NULL){
-                printf("%d ",parse_table[i][j]->head->val->is_terminal);
-            }
-        }
-        printf("\n");
-    }
-    for(int i=0;i<num_nonterminals;i++){
-        printf("%s\n",nonterminal_str[i]);
-        for(int j=0;j<num_terminals;j++){
-            // printf("%d ",first_set[0]->arr[j]);
-            if(first_set[i]->arr[j]){
-                printf("%s ",terminal_str[j]);
-            }
-        }
-        printf("\n");
-    }
-    // printf("\n%d\n",find_value(terminals,"TK_REAL"));
+    // for(int i=0;i<num_terminals;i++){
+    // printf("%s ->%d\n",terminal_str[i],first_set[moduleReuseStmt]->arr[i]);
+    // }
+    // for(int i=0;i<num_nonterminals;i++){
+    //     printf("%s -> ",nonterminal_str[i]);
+    //     for(int j=0;j<num_terminals;j++){
+    //         if(parse_table[i][j]!=NULL){
+    //             printf("%d ",parse_table[i][j]->head->val->is_terminal);
+    //         }
+    //     }
+    //     printf("\n");
+    // }
+    // for(int i=0;i<num_nonterminals;i++){
+    //     printf("%s\n",nonterminal_str[i]);
+    //     for(int j=0;j<num_terminals;j++){
+    //         // printf("%d ",first_set[0]->arr[j]);
+    //         if(first_set[i]->arr[j]){
+    //             printf("%s ",terminal_str[j]);
+    //         }
+    //     }
+    //     printf("\n");
+    // }
+    // // printf("\n%d\n",find_value(terminals,"TK_REAL"));
     char testcase;
     printf("Enter no. of testcase you wanna check upon:");
     scanf("%c",&testcase);
@@ -347,19 +353,19 @@ int main(){
     int error_count =0;
     while (!is_tk_finish&&!isEmpty(stk))
     {
-        if (current_token.token_type==TK_NUM)
-        {
-            printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
-        }
-        else if (current_token.token_type==TK_RNUM)
-        {
-            printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
-        }
-        else
-        {
-            //  printf("%s\n", current_token.token_type);
-            printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
-        }
+        // if (current_token.token_type==TK_NUM)
+        // {
+        //     printf("TOKEN TYPE => <%s>  LEXEME => %d   LINE => %d\n", terminal_str[current_token.token_type], current_token.lex.integer, current_token.line_no);
+        // }
+        // else if (current_token.token_type==TK_RNUM)
+        // {
+        //     printf("TOKEN TYPE => <%s>  LEXEME => %f   LINE=>%d\n", terminal_str[current_token.token_type], current_token.lex.decimal, current_token.line_no);
+        // }
+        // else
+        // {
+        //     //  printf("%s\n", current_token.token_type);
+        //     printf("TOKEN TYPE => <%s>  LEXEME => %s   LINE => %d\n",terminal_str[current_token.token_type], current_token.lex.value, current_token.line_no);
+        // }
 
         if (current_token.token_type==TK_EOF)
         {
@@ -376,6 +382,7 @@ int main(){
         }
         if(s->tree_ptr->s->is_terminal){
             if(s->tree_ptr->s->t==current_token.token_type){
+                addTokenTonode(top(stk)->tree_ptr,current_token);
                 pop(stk);
                 current_token = get_next_token();
                 continue;
@@ -396,6 +403,7 @@ int main(){
                 push_rule(stk,parse_table[s->tree_ptr->s->nt][current_token.token_type]);
             }
             else if(parse_table[s->tree_ptr->s->nt][epsilon]!=NULL){
+                addRuleInTree(top(stk)->tree_ptr,parse_table[s->tree_ptr->s->nt][epsilon]);
                 pop(stk);
             }
             else{
@@ -430,6 +438,7 @@ int main(){
     if(!isEmpty(stk)){
         while(!top(stk)->tree_ptr->s->is_terminal){
             if(parse_table[top(stk)->tree_ptr->s->nt][epsilon]){
+            addRuleInTree(top(stk)->tree_ptr,parse_table[top(stk)->tree_ptr->s->nt][epsilon]);
                 pop(stk);
             }
             else{
@@ -448,7 +457,7 @@ int main(){
         }
     }
     printf("no. of errors=%d\n",error_count);
-    // printParseTree(root);
+    printParseTree(root);
 }
 // int main()
 // {

@@ -29,6 +29,10 @@ Token tokenise(tkType tokenincoming, int retract_length, bool is_final_state, in
 
 //returns next token
 Token get_next_token();
+
+void print_tokens(FILE *fptr);
+
+
 #endif
 
 

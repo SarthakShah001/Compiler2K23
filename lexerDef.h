@@ -83,8 +83,8 @@ typedef struct PAIR{
 
 typedef union u
 {
-    int integer;
-    float decimal;
+    long long integer;
+    double decimal;
     char value[20];
 } lexeme;
 
@@ -94,5 +94,7 @@ typedef struct token
     int line_no;
     tkType token_type;
 } Token;
+typedef Token* TOK;
+
 // enum for TOKEN_ID
 #endif
