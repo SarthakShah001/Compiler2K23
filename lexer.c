@@ -321,43 +321,43 @@ void report_error(int state, char *lexeme)
     {
     case -1:
     {
-        printf("\n Error at line = %d : CHARACTERS GREATER THAN 20 AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : CHARACTERS GREATER THAN 20  => %s\n\n", curr_line_no, lexeme);
         break;
     }
 
     case 0:
     {
-        printf("\n Error at line = %d : UNKNOWN IDENTIFIER AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : UNKNOWN IDENTIFIER  => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 5:
     {
-        printf("\n Error at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID DECIMAL  => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 8:
     {
-        printf("\n Error at line = %d : NOT A VALID DECIMAL AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID REAL NUMBER  => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 9:
     {
-        printf("\n Error at line = %d : NOT A VALID DECIMALAT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID REAL NUMBER => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 13:
     {
-        printf("\n Error at line = %d : NOT A VALID SYMBOL AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID SYMBOL => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 43:
     {
-        printf("\n Error at line = %d : NOT A VALID RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID OPERATOR  => %s\n\n", curr_line_no, lexeme);
         break;
     }
     case 45:
     {
-        printf("\n Error at line = %d : NOT A RELATIONAL OPERATOR AT => %s\n\n", curr_line_no, lexeme);
+        printf("\n Error at line = %d : NOT A VALID  OPERATOR  => %s\n\n", curr_line_no, lexeme);
         break;
     }
 
