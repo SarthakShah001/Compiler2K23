@@ -1,0 +1,19 @@
+       LEXEME         LINE_NO       TOKEN-TYPE        VALUE if NUM/RNUM         PARENT          IS A LEAF NODE      NON-TERMINAL     
+
+       ----            -          epsilon                   -          <moduleDeclarations>        YES              -          
+       ----            -               -                    -          <program>                     NO           <moduleDeclarations> 
+       ----            -               -                    -                ROOT                   NO           <program>            
+       ----            -          epsilon                   -          <otherModules>              YES              -          
+       ----            -               -                    -          <program>                     NO           <otherModules>       
+     <<<              1             TK_DRIVERDEF              -          <driverModule>              YES              -          
+       ----            -               -                    -          <program>                     NO           <driverModule>       
+     driver           1             TK_DRIVER                 -          <driverModule>              YES              -          
+     program          1             TK_PROGRAM                -          <driverModule>              YES              -          
+     >>>              1             TK_DRIVERENDDEF           -          <driverModule>              YES              -          
+     start            2             TK_START                  -          <moduleDef>                 YES              -          
+       ----            -               -                    -          <driverModule>                NO           <moduleDef>          
+       ----            -          epsilon                   -          <statements>                YES              -          
+       ----            -               -                    -          <moduleDef>                   NO           <statements>         
+     end              4             TK_END                    -          <program>                   YES              -          
+       ----            -          epsilon                   -          <otherModules>              YES              -          
+       ----            -               -                    -          <program>                     NO           <otherModules>       
