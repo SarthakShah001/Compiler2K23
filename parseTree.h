@@ -22,6 +22,9 @@ struct PARSETREENODE{
     TOK tok;
     parseTreeNode child;
     symbol s ;
+    parseTreeNode syn_node;
+    parseTreeNode inh_node;
+    bool is_visited;
 }; 
 
 
@@ -38,5 +41,6 @@ void openparsetreefile(FILE *f);
 void printParseTree(parseTreeNode treeNode) ; 
 // add tokens to terminals in parsetree (logic implemented in parse tree)
 void addTokenTonode(parseTreeNode treeNode,Token currtoken);
+
 #endif
 

@@ -17,6 +17,7 @@
 #include "removeComments.h"
 #include "lexer.h"
 #include "parser.h"
+#include "ast.h"
 
 #define BUFF_SIZE 5000
 
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
     }
     FILE *fp1 = NULL;
     fp1 = fopen(argv[2], "w");
+    parseTreeNode root;
     while (true)
     {
         fp = fopen(argv[1], "r");
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
         {
             fp1 = fopen(argv[2], "w");
             setbuf(fp1, NULL);
-            parseTreeNode root = startParser(fp, atoi(argv[3]));
+            root = startParser(fp, atoi(argv[3]));
             openparsetreefile(fp1);
 
             fprintf(fp1, "       LEXEME       ");
@@ -126,6 +128,11 @@ int main(int argc, char *argv[])
             printf("TOTAL CPU CLOCK TICKS := %lf \n", total_CPU_time);
             printf("TOTAL CPU TIME IN SECONDS := %lf \n", total_CPU_time_in_seconds);
             break;
+        }
+        case 5:
+        {
+        
+        parseTreeNode ast_root=generate_ast(root);
         }
         }
         printf("\n\n");
