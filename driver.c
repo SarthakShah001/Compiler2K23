@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         case 5:
         {
         
-        parseTreeNode ast_root=generate_ast(root);
+        // parseTreeNode ast_root=generate_ast(root);
         }
         }
         printf("\n\n");

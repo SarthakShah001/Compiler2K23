@@ -14,7 +14,8 @@
 2. <moduleDeclarations> -> <moduleDeclaration> TK_SEMICOL <moduleDeclarations1>
 {
     1. MODULEDECLARATIONS.list_head_syn = insert_at_head(MODULEDECLARATIONS1.list_head_syn, MODULEDECLARATION.node_syn)
-    2. free(MODULEDECLARATION)
+    2
+    . free(MODULEDECLARATION)
     3. free(TK_SEMICOL)
     3. free(MODULEDECLARATIONS1)
 }
@@ -644,7 +645,7 @@
 92 <factor> -> TK_ID <N11>{
    N11.node_inh = id
    factor.node_syn = N11.node_syn
-   free(N1)
+   free(N11)
 
 }
 93. <N11> -> TK_SQBO <element_index_with_expressions> TK_SQBC {
@@ -805,6 +806,7 @@
      1. CASESTMT.list_head_syn = insert_at_head(N9.list_head_syn,make_node(  "CASE", VALUE.node_syn,
                                                                                     make_node("STATEMENTS", STATEMENTS.list_head_syn)
                                                                                 )
+     )
      2. free(case)
      3. free(VALUE)
      4. free(colon)
@@ -836,7 +838,7 @@
     value.node_syn = true.addr
 }
 128 <value> -> TK_FALSE{
-    value.node_syn = false
+    value.node_syn = false.addr
 }
 129. <default> -> TK_DEFAULT TK_COLON <statements> TK_BREAK TK_SEMICOL {
      default.node_syn = make_node("DEFAULTCASE",make_node("STATEMENTS",STATEMENTS.list_head_syn))

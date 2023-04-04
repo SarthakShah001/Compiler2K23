@@ -13,7 +13,7 @@
 
 #include "parserDef.h"
 #include "doublyLinkedList.h"
-
+#include "astdef.h"
 
 typedef struct PARSETREENODE* parseTreeNode ;
 

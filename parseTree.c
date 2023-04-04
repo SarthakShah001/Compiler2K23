@@ -25,8 +25,9 @@ parseTreeNode createTree()
     new_symbol->nt = program;
     root->s = new_symbol;
     root->tok = NULL;
-    root->inh_node=NULL;
+    root->is_visited=false;
     root->syn_node=NULL;
+    root->inh_node=NULL;
     return root;
 }
 void addRuleInTree(parseTreeNode treeNode, dlinkedlist list)
