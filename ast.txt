@@ -4,7 +4,41 @@
 AST_MODULEDECLARATIONS
 AST_PROGRAM
 AST_MODULEDEFINITIONS
+     integer          6             TK_INTEGER                -          <program>                   YES              -          
+AST_DECLARE_STMT
+     var_1_           6             TK_ID                     -          <program>                   YES              -          
+     var_2_           6             TK_ID                     -                ROOT                 YES              -          
+     var_3_           6             TK_ID                     -                ROOT                 YES              -          
+AST_STATEMENTS
+     boolean          7             TK_BOOLEAN                -          <program>                   YES              -          
+AST_DECLARE_STMT
+     R1_abc           7             TK_ID                     -          <program>                   YES              -          
+     integer          8             TK_INTEGER                -          <program>                   YES              -          
+AST_DECLARE_STMT
+     r2_ABC           8             TK_ID                     -          <program>                   YES              -          
+     real             9             TK_REAL                   -          <program>                   YES              -          
+AST_DECLARE_STMT
+     R3_abc           9             TK_ID                     -          <program>                   YES              -          
+     var_1_           10            TK_ID                     -          <program>                   YES              -          
 AST_GET_VALUE
+     var_2_           11            TK_ID                     -          <program>                   YES              -          
+AST_ID_ASSIGN
+    10               11            TK_NUM               10             <program>                   YES              -          
+     var_3_           12            TK_ID                     -          <program>                   YES              -          
+AST_ID_ASSIGN
+     -                12            TK_MINUS                  -          <program>                   YES              -          
+AST_UNARYEXPR
+    6                12            TK_NUM               6              <program>                   YES              -          
+     compute          13            TK_ID                     -          <program>                   YES              -          
+AST_MODULE_REUSE
+     R1_abc           13            TK_ID                     -          <program>                   YES              -          
+AST_PARAMETER_LIST1
+     r2_ABC           13            TK_ID                     -                ROOT                 YES              -          
+     R3_abc           13            TK_ID                     -                ROOT                 YES              -          
+     var_1_           13            TK_ID                     -          <program>                   YES              -          
+AST_PARAMETER_LIST2
+     var_2_           13            TK_ID                     -                ROOT                 YES              -          
+     var_34           13            TK_ID                     -                ROOT                 YES              -          
 AST_DRIVER
      compute          16            TK_ID                     -          <program>                   YES              -          
 AST_MODULE
@@ -12,8 +46,97 @@ AST_MODULE
 AST_INP_PARAMETER
      integer          17            TK_INTEGER                -          <program>                   YES              -          
 AST_INPUT_PARAMETER_LIST
+     b                17            TK_ID                     -          <program>                   YES              -          
 AST_INP_PARAMETER
-     integer          17            TK_INTEGER                -                ROOT                 YES              -          
+     integer          17            TK_INTEGER                -          <program>                   YES              -          
+     c                17            TK_ID                     -          <program>                   YES              -          
+AST_INP_PARAMETER
+     integer          17            TK_INTEGER                -          <program>                   YES              -          
+     res_1            18            TK_ID                     -          <program>                   YES              -          
+AST_OUT_PARAMETER
+     boolean          18            TK_BOOLEAN                -          <program>                   YES              -          
 AST_OUTPUT_PARAMETER_LIST
-AST_GET_VALUE
+     res_2_a          18            TK_ID                     -          <program>                   YES              -          
+AST_OUT_PARAMETER
+     integer          18            TK_INTEGER                -          <program>                   YES              -          
+     res_2__b         18            TK_ID                     -          <program>                   YES              -          
+AST_OUT_PARAMETER
+     real             18            TK_REAL                   -          <program>                   YES              -          
+     boolean          20            TK_BOOLEAN                -          <program>                   YES              -          
+AST_DECLARE_STMT
+     b                20            TK_ID                     -          <program>                   YES              -          
+AST_STATEMENTS
+     res_2_a          21            TK_ID                     -          <program>                   YES              -          
+AST_ID_ASSIGN
+     -                21            TK_MINUS                  -          <program>                   YES              -          
+AST_UNARYEXPR
+     a                21            TK_ID                     -          <program>                   YES              -          
+AST_MUL
+     *                21            TK_MUL                    -          <program>                   YES              -          
+     b                21            TK_ID                     -          <program>                   YES              -          
+AST_MINUS
+     -                21            TK_MINUS                  -          <program>                   YES              -          
+     c                21            TK_ID                     -          <program>                   YES              -          
+AST_DIV
+     /                21            TK_DIV                    -          <program>                   YES              -          
+    5                21            TK_NUM               5              <program>                   YES              -          
+     res_2__b         22            TK_ID                     -          <program>                   YES              -          
+AST_ID_ASSIGN
+     res_2_a          22            TK_ID                     -          <program>                   YES              -          
+AST_PLUS
+     +                22            TK_PLUS                   -          <program>                   YES              -          
+     a                22            TK_ID                     -          <program>                   YES              -          
+AST_MUL
+     *                22            TK_MUL                    -          <program>                   YES              -          
+    12               22            TK_NUM               12             <program>                   YES              -          
+AST_PLUS
+     +                22            TK_PLUS                   -          <program>                   YES              -          
+    0.223400         22            TK_RNUM              0.223400       <program>                   YES              -          
+AST_DIV
+     /                22            TK_DIV                    -          <program>                   YES              -          
+    13               22            TK_NUM               13             <program>                   YES              -          
+     b                23            TK_ID                     -          <program>                   YES              -          
+AST_ID_ASSIGN
+     a                23            TK_ID                     -          <program>                   YES              -          
+AST_RELATIONAL_OP
+     <=               23            TK_LE                     -          <program>                   YES              -          
+     b                23            TK_ID                     -          <program>                   YES              -          
+AST_LOGICAL_OP
+     AND              23            TK_AND                    -          <program>                   YES              -          
+     c                23            TK_ID                     -          <program>                   YES              -          
+AST_RELATIONAL_OP
+     >=               23            TK_GE                     -          <program>                   YES              -          
+     a                23            TK_ID                     -          <program>                   YES              -          
+AST_LOGICAL_OP
+     OR               23            TK_OR                     -          <program>                   YES              -          
+     a                23            TK_ID                     -          <program>                   YES              -          
+AST_RELATIONAL_OP
+     <                23            TK_LT                     -          <program>                   YES              -          
+    0                23            TK_NUM               0              <program>                   YES              -          
+AST_LOGICAL_OP
+     AND              23            TK_AND                    -          <program>                   YES              -          
+     false            23            TK_FALSE                  -          <program>                   YES              -          
+     res_1            24            TK_ID                     -          <program>                   YES              -          
+AST_ID_ASSIGN
+     true             24            TK_TRUE                   -          <program>                   YES              -          
+AST_LOGICAL_OP
+     AND              24            TK_AND                    -          <program>                   YES              -          
+     c                24            TK_ID                     -          <program>                   YES              -          
+AST_RELATIONAL_OP
+     ==               24            TK_EQ                     -          <program>                   YES              -          
+     b                24            TK_ID                     -          <program>                   YES              -          
+AST_LOGICAL_OP
+     OR               24            TK_OR                     -          <program>                   YES              -          
+     b                24            TK_ID                     -          <program>                   YES              -          
+AST_RELATIONAL_OP
+     >                24            TK_GT                     -          <program>                   YES              -          
+     p                24            TK_ID                     -          <program>                   YES              -          
+AST_LOGICAL_OP
+     AND              24            TK_AND                    -          <program>                   YES              -          
+     a                24            TK_ID                     -          <program>                   YES              -          
+AST_RELATIONAL_OP
+     <=               24            TK_LE                     -          <program>                   YES              -          
+     c                24            TK_ID                     -          <program>                   YES              -          
+     res_1            26            TK_ID                     -          <program>                   YES              -          
+AST_PRINT
 AST_MODULEDEFINITIONS

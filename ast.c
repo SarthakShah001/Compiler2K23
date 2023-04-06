@@ -10,7 +10,7 @@ char *ast_strings[] = {
     "AST_OUTPUT_PARAMETER_LIST",
     "AST_INP_PARAMETER",
     "AST_OUT_PARAMETER",
-    "AST_ARRAY"
+    "AST_ARRAY",
     "AST_RANGE_ARRAYS",
     "AST_STATEMENTS",
     "AST_GET_VALUE",
@@ -22,7 +22,24 @@ char *ast_strings[] = {
     "AST_MODULE_REUSE",
     "AST_PARAMETER_LIST1",
     "AST_PARAMETER_LIST2",
-    "AST_ACTUAL_PARA"
+    "AST_ACTUAL_PARA",
+    "AST_UNARYEXPR",
+    "AST_RELATIONAL_OP",
+    "AST_LOGICAL_OP",
+    "AST_PLUS",
+    "AST_MINUS",
+    "AST_MUL",
+    "AST_DIV",
+    "AST_ARRAY_FACTOR",
+    "AST_UNARY_INDEX_EXPR",
+    "AST_DECLARE_STMT",
+    "AST_SWITCH",
+    "AST_CASES",
+    "AST_CASE",
+    "AST_FORLOOP",
+    "AST_WHILELOOP",
+    "AST_INDEX_FOR_LOOP",
+    "AST_DEFAULT",
 };
 
 bool is_important_terminal(parseTreeNode node)
@@ -291,7 +308,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             // 9,10
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_OUTPUT_PARAMETER_LIST;
-            if (currnode->s->is_terminal && currnode->s->t != epsilon)
+            if (currchild->s->is_terminal && currchild->s->t != epsilon)
             {
                 add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
             }
@@ -325,6 +342,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             }
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_INP_PARAMETER;
+            currchild = currchild->sibling;
             add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
             add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
             currnode->syn_node->sibling = generate_ast(currchild->sibling->sibling->sibling)->syn_node;
@@ -351,6 +369,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             }
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_OUT_PARAMETER;
+            currchild = currchild->sibling;
             add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
             add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
             currnode->syn_node->sibling = generate_ast(currchild->sibling->sibling->sibling)->syn_node;
@@ -608,26 +627,41 @@ parseTreeNode generate_ast(parseTreeNode root)
                 add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
                 add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
                 parseTreeNode temp = currnode->inh_node;
-                while (temp->sibling != NULL)
-                {
-                    temp = temp->sibling;
-                }
-                temp->sibling = currnode->syn_node;
 
+                if (temp == NULL)
+                {
+                    currnode->inh_node = currnode->syn_node;
+                }
+                else
+                {
+                    while (temp->sibling != NULL)
+                    {
+                        temp = temp->sibling;
+                    }
+
+                    temp->sibling = currnode->syn_node;
+                }
                 currchild->sibling->sibling->inh_node = currnode->inh_node;
                 currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
             }
             else
             {
                 parseTreeNode temp = currnode->inh_node;
-                while (temp->sibling != NULL)
+                if (temp == NULL)
                 {
-                    temp = temp->sibling;
+                    currnode->inh_node = generate_ast(currchild)->syn_node;
                 }
-                temp->sibling = generate_ast(currchild)->syn_node;
-                currchild->inh_node = currnode->inh_node;
+                else
+                {
+                    while (temp->sibling != NULL)
+                    {
+                        temp = temp->sibling;
+                    }
+
+                    temp->sibling = generate_ast(currchild)->syn_node;
+                }
+                currchild->sibling->inh_node = currnode->inh_node;
                 currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-                
             }
             break;
         }
@@ -664,399 +698,479 @@ parseTreeNode generate_ast(parseTreeNode root)
             currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
             break;
         }
-        // case N3:{
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     parseTreeNode temp = currnode->inh_node;
-        //     while(temp->sibling!=NULL){
-        //         temp = temp->sibling;
-        //     }
-        //     temp->sibling = currchild->sibling;
+        case N3:
+        {
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            parseTreeNode temp = currnode->inh_node;
+            if (temp == NULL)
+            {
+                currnode->inh_node = generate_ast(currchild->sibling)->syn_node;
+            }
+            else
+            {
+                while (temp->sibling != NULL)
+                {
+                    temp = temp->sibling;
+                }
+                temp->sibling = generate_ast(currchild->sibling)->syn_node;
+            }
+            currchild->sibling->sibling->inh_node = currnode->inh_node;
 
-        //     currchild->sibling->sibling->inh_node = currnode->inh_node;
+            currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
 
-        //     break;
-        // }
+            break;
+        }
 
-        //     case expression:
-        // {
-        //     // 65,66
-        //     currnode->syn_node = generate_ast(currchild)->syn_node;
-        //     break;
-        // }
-        // case U:
-        // { // 67
-        //     currnode->syn_node = deep_copy(currnode);
-        //     currnode->syn_node->parent = NULL;
-        //     while (currchild != NULL)
-        //     {
-        //         add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //         currchild->is_visited = true;
-        //         currchild = currchild->sibling;
-        //     }
-        //     break;
-        // }
-        // case new_NT:
-        // { // 68,69
-        //     if (currchild->sibling != NULL)
-        //     {
-        //         currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     }
-        //     else
-        //     {
-        //         currnode->syn_node = generate_ast(currchild)->syn_node;
-        //     }
-        //     break;
-        // }
-        // case var_id_num:
-        // { // 70,71,72
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
+        case expression:
+        {
+            // 65,66
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case U:
+        { // 67
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_UNARYEXPR;
+            while (currchild != NULL)
+            {
+                add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+                currchild = currchild->sibling;
+            }
+            break;
+        }
+        case new_NT:
+        { // 68,69
+            if (currchild->sibling != NULL)
+            {
+                currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            }
+            else
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            break;
+        }
+        case var_id_num:
+        { // 70,71,72
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
 
-        // case unary_op:
-        // { // 73,74
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
-        // case arithmeticOrBooleanExpr:
-        // { // 75
-        //     currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
-        //     currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     break;
-        // }
-        // case N7:
-        // { // 76,77
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     currchild->sibling->sibling->inh_node = deep_copy(currchild->sibling->sibling);
-        //     currchild->sibling->sibling->inh_node->parent = NULL;
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild)->syn_node);
-        //     add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
-        //     currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
-        //     break;
-        // }
-        // case AnyTerm:
-        // { // 78,79
-        //     if (currchild->sibling == NULL)
-        //     {
-        //         currnode->syn_node = generate_ast(currchild)->syn_node;
-        //     }
-        //     else
-        //     {
-        //         currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
-        //         currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     }
-        //     break;
-        // }
-        // case N8:
-        // { // 80,81
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, currnode->inh_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
-        //     break;
-        // }
-        // case arithmeticExpr:
-        // { // 82
-        //     currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
-        //     currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     break;
-        // }
-        // case N4:
-        // { // 83,84
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     currchild->sibling->sibling->inh_node = deep_copy(currchild->sibling->sibling);
-        //     currchild->sibling->sibling->inh_node->parent = NULL;
-        //     add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild)->syn_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
-        //     currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
-        //     break;
-        // }
+        case unary_op:
+        { // 73,74
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case arithmeticOrBooleanExpr:
+        { // 75
+            currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
+            currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            printf("from pos 2\n");
+            break;
+        }
+        case N7:
+        { // 76,77
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                printf("from pos1\n");
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            currchild->sibling->sibling->inh_node = createTree();
 
-        // case term:
-        // { // 85
-        //     currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
-        //     currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     break;
-        // }
-        // case N5:
-        // { // 86,87
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     currchild->sibling->sibling->inh_node = deep_copy(currchild->sibling->sibling);
-        //     currchild->sibling->sibling->inh_node->parent = NULL;
-        //     add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild)->syn_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
-        //     currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
-        //     break;
-        // }
+            currchild->sibling->sibling->inh_node->ast_name = AST_LOGICAL_OP;
+            add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
+            add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild)->syn_node);
 
-        // case factor:
-        // { // 88,89,90,91,92
-        //     if (currchild->sibling != NULL && currchild->sibling->sibling != NULL)
-        //     {
-        //         currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     }
-        //     else if (currchild->sibling != NULL && currchild->sibling->sibling == NULL)
-        //     {
-        //         currchild->sibling->inh_node = currchild;
-        //         currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     }
-        //     else if (currchild->s->is_terminal)
-        //     {
-        //         currnode->syn_node = currchild;
-        //     }
-        //     else
-        //     {
-        //         currnode->syn_node = generate_ast(currchild)->syn_node;
-        //     }
-        //     break;
-        // }
-        // case N11:
-        // { // 93,94
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, currnode->inh_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
-        //     break;
-        // }
-        // case arrExpr:
-        // { // 95
-        //     currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
-        //     currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     break;
-        // }
-        // case arr_N4:
-        // { // 96,97
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     currchild->sibling->sibling->inh_node = deep_copy(currchild->sibling->sibling);
-        //     currchild->sibling->sibling->inh_node->parent = NULL;
-        //     add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild)->syn_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
-        //     currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
-        //     break;
-        // }
-        // case arrTerm:
-        // { // 98
-        //     currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
-        //     currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     break;
-        // }
-        // case arr_N5:
-        // { // 99,100
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = currnode->inh_node;
-        //         break;
-        //     }
-        //     currchild->sibling->sibling->inh_node = deep_copy(currchild->sibling->sibling);
-        //     currchild->sibling->sibling->inh_node->parent = NULL;
-        //     add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild)->syn_node);
-        //     add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
-        //     currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
-        //     break;
-        // }
-        // case arrFactor:
-        // { // 101 to 104
-        //     if (currchild->s->is_terminal && currchild->sibling == NULL)
-        //     {
-        //         currnode->syn_node = currchild;
-        //     }
-        //     else if (!currchild->s->is_terminal)
-        //     {
-        //         currnode->syn_node = generate_ast(currchild)->syn_node;
-        //     }
-        //     else
-        //     {
-        //         currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     }
-        //     break;
-        // }
-        // case element_index_with_expressions:
-        // { // 105,106
-        //     if (currchild->sibling != NULL)
-        //     {
-        //         currnode->syn_node = deep_copy(currnode);
-        //         add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //         add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
-        //     }
-        //     else
-        //     {
-        //         currnode->syn_node = generate_ast(currchild)->syn_node;
-        //     }
-        //     break;
-        // }
-        // case N10:
-        // { // 107,108
-        //     if (!currchild->s->is_terminal)
-        //     {
-        //         currnode->syn_node = generate_ast(currchild)->syn_node;
-        //     }
-        //     else
-        //     {
-        //         currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-        //     }
-        //     break;
-        // }
-        // case op1:
-        // { // 109,110
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
-        // case op2:
-        // { // 111,112
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
-        // case logicalOp:
-        // { // 113,114
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
-        // case relationalOp:
-        // { // 115to120
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
-        // case declareStmt:
-        // {
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+            add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
+            currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
+            printf("from pos3\n");
+            break;
+        }
+        case AnyTerm:
+        { // 78,79
+            if (currchild->sibling == NULL)
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            else
+            {
+                currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
+                currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            }
+            break;
+        }
+        case N8:
+        { // 80,81
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_RELATIONAL_OP;
+            add_child(currnode->syn_node, currnode->inh_node);
+            add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+            add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+            break;
+        }
+        case arithmeticExpr:
+        { // 82
+            currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
+            currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            break;
+        }
+        case N4:
+        { // 83,84
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            parseTreeNode temp1 = generate_ast(currchild)->syn_node;
+            parseTreeNode temp2 = createTree();
+            if (temp1->s->t == TK_PLUS)
+            {
+                temp2->ast_name = AST_PLUS;
+            }
+            else
+            {
+                temp2->ast_name = AST_MINUS;
+            }
+            add_child(temp2, currnode->inh_node);
+            add_child(temp2, temp1);
+            add_child(temp2, generate_ast(currchild->sibling)->syn_node);
+            currchild->sibling->sibling->inh_node = temp2;
+            currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
+            break;
+        }
 
-        //     break;
-        // }
-        // case condionalStmt:
-        // {
-        //     currnode->syn_node = deep_copy(currnode);
-        //     currchild = currchild->sibling->sibling;
-        //     add_child(currnode->syn_node, currchild);
-        //     currchild = currchild->sibling->sibling->sibling;
-        //     add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+        case term:
+        { // 85
+            currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
+            currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            break;
+        }
+        case N5:
+        { // 86,87
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            currchild->sibling->sibling->inh_node = createTree();
+            add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
+            parseTreeNode temp = generate_ast(currchild)->syn_node;
+            if (temp->s->t == TK_MUL)
+            {
+                currchild->sibling->sibling->inh_node->ast_name = AST_MUL;
+            }
+            else
+            {
+                currchild->sibling->sibling->inh_node->ast_name = AST_DIV;
+            }
+            add_child(currchild->sibling->sibling->inh_node, temp);
+            add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
+            currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
+            break;
+        }
 
-        //     break;
-        // }
-        // case caseStmts:
-        // {
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
-        //     currchild = currchild->sibling->sibling->sibling;
-        //     // add_child(currnode->syn_node,generate_ast(currchild->sibling->sibling->sibling)->syn_node);
-        //     currnode->syn_node->sibling = generate_ast(currchild->sibling->sibling->sibling)->syn_node;
-        //     break;
-        // }
+        case factor:
+        { // 88,89,90,91,92
+            if (currchild->sibling != NULL && currchild->sibling->sibling != NULL)
+            {
+                currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            }
+            else if (currchild->sibling != NULL && currchild->sibling->sibling == NULL)
+            {
+                currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
+                currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            }
+            else if (currchild->s->is_terminal)
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            else
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            break;
+        }
+        case N11:
+        { // 93,94
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_ARRAY_FACTOR;
+            add_child(currnode->syn_node, currnode->inh_node);
+            add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+            break;
+        }
+        case arrExpr:
+        { // 95
+            currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
+            currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            break;
+        }
+        case arr_N4:
+        { // 96,97
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            currchild->sibling->sibling->inh_node = createTree();
+            parseTreeNode temp = generate_ast(currchild)->syn_node;
+            if (temp->s->t == TK_PLUS)
+            {
+                currchild->sibling->sibling->inh_node->ast_name = AST_PLUS;
+            }
+            else
+            {
+                currchild->sibling->sibling->inh_node->ast_name = AST_MINUS;
+            }
+            add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
+            add_child(currchild->sibling->sibling->inh_node, temp);
+            add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
+            currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
+            break;
+        }
+        case arrTerm:
+        { // 98
+            currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
+            currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            break;
+        }
+        case arr_N5:
+        { // 99,100
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = currnode->inh_node;
+                break;
+            }
+            currchild->sibling->sibling->inh_node = createTree();
+            parseTreeNode temp = generate_ast(currchild)->syn_node;
+            if (temp->s->t == TK_MUL)
+            {
+                currchild->sibling->sibling->inh_node->ast_name = AST_MUL;
+            }
+            else
+            {
+                currchild->sibling->sibling->inh_node->ast_name = AST_DIV;
+            }
+            add_child(currchild->sibling->sibling->inh_node, currnode->inh_node);
+            add_child(currchild->sibling->sibling->inh_node, temp);
+            add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
+            currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
+            break;
+        }
+        case arrFactor:
+        { // 101 to 104
+            if (currchild->s->is_terminal && currchild->sibling == NULL)
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            else if (!currchild->s->is_terminal)
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            else
+            {
+                currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            }
+            break;
+        }
+        case element_index_with_expressions:
+        { // 105,106
+            if (currchild->sibling != NULL)
+            {
+                currnode->syn_node = createTree();
+                currnode->syn_node->ast_name = AST_UNARY_INDEX_EXPR;
+                add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+                add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+            }
+            else
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            break;
+        }
+        case N10:
+        { // 107,108
+            if (!currchild->s->is_terminal)
+            {
+                currnode->syn_node = generate_ast(currchild)->syn_node;
+            }
+            else
+            {
+                currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
+            }
+            break;
+        }
+        case op1:
+        { // 109,110
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case op2:
+        { // 111,112
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case logicalOp:
+        { // 113,114
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case relationalOp:
+        { // 115to120
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case declareStmt:
+        {
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_DECLARE_STMT;
 
-        // case N9:
-        // {
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = NULL;
-        //         break;
-        //     }
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
-        //     currchild = currchild->sibling->sibling->sibling;
-        //     // add_child(currnode->syn_node,generate_ast(currchild->sibling->sibling->sibling)->syn_node);
-        //     currnode->syn_node->sibling = generate_ast(currchild->sibling->sibling->sibling)->syn_node;
-        //     break;
-        // }
-        // case value:
-        // {
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
-        // case DEFAULT:
-        // {
-        //     if (currchild->s->is_terminal && currchild->s->t == epsilon)
-        //     {
-        //         currnode->syn_node = NULL;
-        //         break;
-        //     }
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
-        //     break;
-        // }
-        // case iterativeStmt:
-        // {
-        //     if (currchild->s->t == TK_FOR)
-        //     {
-        //         currnode->syn_node = deep_copy(currnode);
-        //         add_child(currnode->syn_node, currchild->sibling->sibling);
-        //         currchild = currchild->sibling->sibling->sibling->sibling;
-        //         add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //         add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
-        //         break;
-        //     }
-        //     else
-        //     {
-        //         currnode->syn_node = deep_copy(currnode);
-        //         add_child(currchild->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
-        //         currchild = currchild->sibling->sibling->sibling->sibling->sibling;
-        //         add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //         break;
-        //     }
-        // }
-        // case range_for_loop:
-        // {
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
-        //     break;
-        // }
+            add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
+            add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
 
-        // case index_for_loop:
-        // {
-        //     currnode->syn_node = deep_copy(currnode);
-        //     add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
-        //     add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
-        //     break;
-        // }
-        // case new_index_for_loop:
-        // {
-        //     currnode->syn_node = currchild;
-        //     break;
-        // }
-        // case sign_for_loop:
-        // {
-        //     currnode->syn_node = currchild;
+            break;
+        }
+        case condionalStmt:
+        {
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_SWITCH;
 
-        //     break;
-        // }
+            currchild = currchild->sibling->sibling;
+            add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+            parseTreeNode temp = createTree();
+            temp->ast_name = AST_CASES;
+            currchild = currchild->sibling->sibling->sibling;
+            add_child(temp, generate_ast(currchild)->syn_node);
+            add_child(currnode->syn_node, temp);
+            add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+
+            break;
+        }
+        case caseStmts:
+        {
+            parseTreeNode temp = createTree();
+            temp->ast_name = AST_CASE;
+            add_child(temp, generate_ast(currchild->sibling)->syn_node);
+            parseTreeNode temp2 = createTree();
+            temp2->ast_name = AST_STATEMENTS;
+            add_child(temp2, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
+            add_child(temp, temp2);
+            currchild = currchild->sibling->sibling->sibling->sibling->sibling->sibling;
+            temp->sibling = generate_ast(currchild)->syn_node;
+            currnode->syn_node = temp;
+            break;
+        }
+
+        case N9:
+        {
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = NULL;
+                break;
+            }
+            parseTreeNode temp = createTree();
+            temp->ast_name = AST_CASE;
+            add_child(temp, generate_ast(currchild->sibling)->syn_node);
+            parseTreeNode temp2 = createTree();
+            temp2->ast_name = AST_STATEMENTS;
+            add_child(temp2, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
+            add_child(temp, temp2);
+            currchild = currchild->sibling->sibling->sibling->sibling->sibling->sibling;
+            temp->sibling = generate_ast(currchild)->syn_node;
+
+            currnode->syn_node = temp;
+            break;
+        }
+        case value:
+        {
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case DEFAULT:
+        {
+            if (currchild->s->is_terminal && currchild->s->t == epsilon)
+            {
+                currnode->syn_node = NULL;
+                break;
+            }
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_DEFAULT;
+            parseTreeNode temp = createTree();
+            temp->ast_name = AST_STATEMENTS;
+            add_child(temp, generate_ast(currchild->sibling->sibling)->syn_node);
+            add_child(currnode->syn_node, temp);
+            break;
+        }
+        case iterativeStmt:
+        {
+            if (currchild->s->t == TK_FOR)
+            {
+                currnode->syn_node = createTree();
+                currnode->syn_node->ast_name = AST_FORLOOP;
+                add_child(currnode->syn_node, currchild->sibling->sibling);
+                currchild = currchild->sibling->sibling->sibling->sibling;
+                add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+                parseTreeNode temp = createTree();
+                temp->ast_name = AST_STATEMENTS;
+                add_child(temp, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
+                add_child(currnode->syn_node, temp);
+                break;
+            }
+            else
+            {
+                currnode->syn_node = createTree();
+                currnode->syn_node->ast_name = AST_WHILELOOP;
+                add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
+                currchild = currchild->sibling->sibling->sibling->sibling->sibling;
+                parseTreeNode temp = createTree();
+                temp->ast_name = AST_STATEMENTS;
+                add_child(temp, generate_ast(currchild)->syn_node);
+                add_child(currnode->syn_node, temp);
+                break;
+            }
+        }
+        case range_for_loop:
+        {
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_RANGE_ARRAYS;
+            add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+            add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
+            break;
+        }
+
+        case index_for_loop:
+        {
+            currnode->syn_node = createTree();
+            currnode->syn_node->ast_name = AST_INDEX_FOR_LOOP;
+            add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+            add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+            break;
+        }
+        case new_index_for_loop:
+        {
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+            break;
+        }
+        case sign_for_loop:
+        {
+            currnode->syn_node = generate_ast(currchild)->syn_node;
+
+            break;
+        }
         default:
         {
             break;
