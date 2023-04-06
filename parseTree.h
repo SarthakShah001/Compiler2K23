@@ -15,6 +15,12 @@
 #include "doublyLinkedList.h"
 #include "astdef.h"
 
+typedef enum {
+AST_PROGRAM,
+AST_MODULEDECLARATIONS,
+AST_MODULEDEFINITIONS
+}astToken;
+
 typedef struct PARSETREENODE* parseTreeNode ;
 
 struct PARSETREENODE{
@@ -24,6 +30,7 @@ struct PARSETREENODE{
     symbol s ;
     parseTreeNode syn_node;
     parseTreeNode inh_node;
+    astToken ast_name;
     bool is_visited;
 }; 
 

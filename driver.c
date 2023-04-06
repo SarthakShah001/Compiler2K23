@@ -131,8 +131,28 @@ int main(int argc, char *argv[])
         }
         case 5:
         {
-        
-        // parseTreeNode ast_root=generate_ast(root);
+            fp1 = fopen(argv[4], "w");
+            setbuf(fp1, NULL);
+        root = startParser(fp, atoi(argv[3]));
+        parseTreeNode ast_root=generate_ast(root);
+        openparsetreefile(fp1);
+
+            fprintf(fp1, "       LEXEME       ");
+            fprintf(fp1, "  LINE_NO  ");
+            fprintf(fp1, "     TOKEN-TYPE      ");
+            fprintf(fp1, "  VALUE if NUM/RNUM  ");
+            fprintf(fp1, "       PARENT       ");
+            fprintf(fp1, "   IS A LEAF NODE  ");
+            fprintf(fp1, "    NON-TERMINAL     ");
+            fprintf(fp1, "\n\n");
+        if(ast_root->syn_node->tok==NULL){
+        printf("YES NULL\n"
+        );}
+        else{
+        printf("NO NULL %s\n",ast_root->syn_node->tok->lex.value);
+        }
+        printf("ast_root=%s\n",nonterminal_str[ast_root->syn_node->s->nt]);
+        printParseTree(ast_root->syn_node);
         }
         }
         printf("\n\n");

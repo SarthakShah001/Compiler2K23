@@ -1,0 +1,3 @@
+       LEXEME         LINE_NO       TOKEN-TYPE        VALUE if NUM/RNUM         PARENT          IS A LEAF NODE      NON-TERMINAL     
+
+       ----            -               -                    -                ROOT                   NO           <program>            
