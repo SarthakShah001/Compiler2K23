@@ -145,14 +145,16 @@ int main(int argc, char *argv[])
             fprintf(fp1, "   IS A LEAF NODE  ");
             fprintf(fp1, "    NON-TERMINAL     ");
             fprintf(fp1, "\n\n");
-        if(ast_root->syn_node->tok==NULL){
+        ast_root=ast_root->syn_node;
+        if(ast_root->child==NULL){
         printf("YES NULL\n"
         );}
         else{
-        printf("NO NULL %s\n",ast_root->syn_node->tok->lex.value);
+        printf("NO NULL %s\n",ast_strings[ast_root->child->ast_name]);
         }
-        printf("ast_root=%s\n",nonterminal_str[ast_root->syn_node->s->nt]);
-        printParseTree(ast_root->syn_node);
+        
+        printf("ast_root=%s\n",nonterminal_str[ast_root->s->nt]);
+        printAST(ast_root);
         }
         }
         printf("\n\n");

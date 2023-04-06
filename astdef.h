@@ -7,7 +7,5 @@
 #include "hashTable.h"
 #include "parseTree.h"
 
-
-
-
+extern char *ast_strings[];
 #endif

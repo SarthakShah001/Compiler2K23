@@ -375,7 +375,7 @@
 
 47. <lvalueIDStmt> -> TK_ASSIGNOP <expression>
 {
-    1. LVALUEIDSTMT.node_syn = make_node("ASSIGN", LVALUEIDSTMT.node_inh, EXPRESSION.node_syn)
+    1. LVALUEIDSTMT.node_syn = make_node("ID_ASSIGN", LVALUEIDSTMT.node_inh, EXPRESSION.node_syn)
     2. free(assignop)
     3. free(EXPRESSION)
 }
@@ -383,7 +383,7 @@
 
 48.<lvalueARRStmt> -> TK_SQBO <element_index_with_expressions> TK_SQBC TK_ASSIGNOP <expression>
 {
-    1. LVALUEARRSTMT.node_syn = make_node("ASSIGN", 
+    1. LVALUEARRSTMT.node_syn = make_node("ARRAY_ASSIGN", 
                                            make_node("ARRAY_ACCESS", LVALUEARRSTMT.node_inh, INDEX_with_expressions.node_syn), 
                                            EXPRESSION.node_syn
                                          )

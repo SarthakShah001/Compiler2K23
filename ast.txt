@@ -1,3 +1,19 @@
        LEXEME         LINE_NO       TOKEN-TYPE        VALUE if NUM/RNUM         PARENT          IS A LEAF NODE      NON-TERMINAL     
 
-       ----            -               -                    -                ROOT                   NO           <program>            
+     compute          3             TK_ID                     -          <program>                   YES              -          
+AST_MODULEDECLARATIONS
+AST_PROGRAM
+AST_MODULEDEFINITIONS
+AST_GET_VALUE
+AST_DRIVER
+     compute          16            TK_ID                     -          <program>                   YES              -          
+AST_MODULE
+     a                17            TK_ID                     -          <program>                   YES              -          
+AST_INP_PARAMETER
+     integer          17            TK_INTEGER                -          <program>                   YES              -          
+AST_INPUT_PARAMETER_LIST
+AST_INP_PARAMETER
+     integer          17            TK_INTEGER                -                ROOT                 YES              -          
+AST_OUTPUT_PARAMETER_LIST
+AST_GET_VALUE
+AST_MODULEDEFINITIONS

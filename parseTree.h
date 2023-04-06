@@ -18,7 +18,26 @@
 typedef enum {
 AST_PROGRAM,
 AST_MODULEDECLARATIONS,
-AST_MODULEDEFINITIONS
+AST_MODULEDEFINITIONS,
+AST_DRIVER,
+AST_MODULE,
+AST_INPUT_PARAMETER_LIST,
+AST_OUTPUT_PARAMETER_LIST,
+AST_INP_PARAMETER,
+AST_OUT_PARAMETER,
+AST_ARRAY,
+AST_RANGE_ARRAYS,
+AST_STATEMENTS,
+AST_GET_VALUE,
+AST_PRINT,
+AST_ARRAY_ACCESS,
+AST_ID_ASSIGN,
+AST_ARRAY_ASSIGN,
+AST_INDEX_ARR,
+AST_MODULE_REUSE,
+AST_PARAMETER_LIST1,
+AST_PARAMETER_LIST2,
+AST_ACTUAL_PARA
 }astToken;
 
 typedef struct PARSETREENODE* parseTreeNode ;
@@ -48,6 +67,7 @@ void openparsetreefile(FILE *f);
 void printParseTree(parseTreeNode treeNode) ; 
 // add tokens to terminals in parsetree (logic implemented in parse tree)
 void addTokenTonode(parseTreeNode treeNode,Token currtoken);
+void printAST(parseTreeNode treeNode) ; 
 
 #endif
 
