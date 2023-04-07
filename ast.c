@@ -42,98 +42,41 @@ char *ast_strings[] = {
     "AST_DEFAULT",
 };
 
+
 bool is_important_terminal(parseTreeNode node)
 {
-    parseTreeNode temp = node;
     bool flag = true;
 
-    switch (temp->s->t)
+    switch (node->s->t)
     {
-    case TK_ID:
-    {
-        break;
-    }
-    case TK_NUM:
-    {
-        break;
-    }
-    case TK_RNUM:
-    {
-        break;
-    }
-    case TK_PLUS:
-    {
-        break;
-    }
-    case TK_MINUS:
-    {
-        break;
-    }
-    case TK_MUL:
-    {
-        break;
-    }
-    case TK_DIVIDE:
-    {
-        break;
-    }
-    case TK_AND:
-    {
-        break;
-    }
-    case TK_OR:
-    {
-        break;
-    }
-    case TK_LT:
-    {
-        break;
-    }
-    case TK_LE:
-    {
-        break;
-    }
-    case TK_GT:
-    {
-        break;
-    }
-    case TK_GE:
-    {
-        break;
-    }
-    case TK_EQ:
-    {
-        break;
-    }
-    case TK_NE:
-    {
-        break;
-    }
-    case TK_TRUE:
-    {
-        break;
-    }
-    case TK_FALSE:
-    {
-        break;
-    }
-    case TK_BOOLEAN:
-    {
-        break;
-    }
-    case TK_REAL:
-    {
-        break;
-    }
-    case TK_INTEGER:
-    {
-        break;
-    }
-    default:
-    {
-        flag = false;
-        break;
-    }
+        case TK_ID:
+        case TK_NUM:
+        case TK_RNUM:
+        case TK_PLUS:
+        case TK_MINUS:
+        case TK_MUL:
+        case TK_DIVIDE:
+        case TK_AND:
+        case TK_OR:
+        case TK_LT:
+        case TK_LE:
+        case TK_GT:
+        case TK_GE:
+        case TK_EQ:
+        case TK_NE:
+        case TK_TRUE:
+        case TK_FALSE:
+        case TK_BOOLEAN:
+        case TK_REAL:
+        case TK_INTEGER:
+        {
+            break;
+        }
+        default:
+        {
+            flag = false;
+            break;
+        }
     }
     return flag;
 }
@@ -646,10 +589,14 @@ parseTreeNode generate_ast(parseTreeNode root)
             }
             else
             {
+
+                currnode->syn_node = createTree();
+                currnode->syn_node->ast_name = AST_ACTUAL_PARA;
+                add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
                 parseTreeNode temp = currnode->inh_node;
                 if (temp == NULL)
                 {
-                    currnode->inh_node = generate_ast(currchild)->syn_node;
+                    currnode->inh_node = currnode->syn_node;
                 }
                 else
                 {
@@ -658,7 +605,7 @@ parseTreeNode generate_ast(parseTreeNode root)
                         temp = temp->sibling;
                     }
 
-                    temp->sibling = generate_ast(currchild)->syn_node;
+                    temp->sibling = currnode->syn_node;
                 }
                 currchild->sibling->inh_node = currnode->inh_node;
                 currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
@@ -1121,7 +1068,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             {
                 currnode->syn_node = createTree();
                 currnode->syn_node->ast_name = AST_FORLOOP;
-                add_child(currnode->syn_node, currchild->sibling->sibling);
+                add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
                 currchild = currchild->sibling->sibling->sibling->sibling;
                 add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
                 parseTreeNode temp = createTree();

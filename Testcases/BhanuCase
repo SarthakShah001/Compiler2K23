@@ -1,0 +1,127 @@
+declare module module1; 
+declare module module2; 
+declare module module3;
+
+<<module module1>>
+takes input [a:integer , b:real];
+returns [c:real];
+start
+    declare c:real ;
+    c := 0.69 ;
+
+    declare i : integer ; 
+    i := 95;
+
+    while(i<=100)
+        start
+            c:=c+0.193; 
+            i:=i+1 ; 
+        end
+
+    c:= a*c + b ;
+    print(c);
+end 
+
+<<module module3>>
+takes input [a:integer];
+returns [c:real];
+start
+    declare c:real ; 
+
+    c := a+0.99;
+    print(c) ;
+end
+
+<<<driver program>>>
+start
+    declare a,b:integer;
+    declare c:boolean;
+
+    get_value(a) ;
+    get_value(b) ; 
+    print(a) ; 
+    print(b) ; 
+
+    declare A : array[a..b] of integer ; 
+
+    declare B : array[-a..+b] of real ; 
+
+
+    declare flag : boolean ; 
+
+    flag := b>a ; 
+
+    switch (flag)
+    start
+        case true :
+            declare k , i : integer;
+            for(k in 2..16) 
+                start
+                    A[k] := 10 ;
+                    print(A[k]) ; 
+                end
+
+            i := 2*a ;  
+
+            while(i<b)
+                start
+                    declare temp : integer ; 
+                    get_value(temp) ; 
+                    B[i] := temp ; 
+                    i := i+1; 
+                end
+
+
+        break  ;
+
+        case false :
+            declare k ,i : integer;
+
+            for(k in 12..2) 
+                start   
+                    A[k] := -1 ; 
+                    print(A[k]) ;
+
+                end
+
+            i := 2*b ;
+
+            while(i<a)
+                start
+                    print(B[i]) ; 
+                    i := i+1; 
+                end
+
+        break ; 
+    end
+
+
+    declare op1 , op2 : real ; 
+
+    [op1] := use module module1 with parameters a , 0.2 ;
+    [op2] := use module module3 with parameters b ;
+
+    print(op1) ; 
+    print(op2) ; 
+
+
+end
+
+
+<<module module2>>
+takes input [a:integer , b:real];
+returns [c:real];
+start
+    declare c:real ; 
+
+    declare i : integer; 
+    i:=0;
+
+    while(i<=100)
+        start
+            c:=c+0.193; 
+            i:=i+1 ; 
+        end
+
+    c:= a*c + b ; 
+end 

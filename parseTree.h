@@ -85,6 +85,7 @@ void printParseTree(parseTreeNode treeNode) ;
 // add tokens to terminals in parsetree (logic implemented in parse tree)
 void addTokenTonode(parseTreeNode treeNode,Token currtoken);
 void printAST(parseTreeNode treeNode) ; 
+void freeParseTree(parseTreeNode treeNode) ;
 
 #endif
 

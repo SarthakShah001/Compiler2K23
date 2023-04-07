@@ -49,6 +49,7 @@ void hash_insert(hashtable t, char *str, int value)
     t[hash_val].value = value;
     strcpy(t[hash_val].lexeme, str);
 }
+
 int find_value(hashtable t, char *str)
 {
     int hash_val = hash(str);

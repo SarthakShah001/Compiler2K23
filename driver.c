@@ -107,6 +107,9 @@ int main(int argc, char *argv[])
             fprintf(fp1, "\n\n");
 
             printParseTree(root);
+            freeParseTree(root) ; 
+            // printParseTree(root) ;
+            root=NULL;
             break;
         }
 

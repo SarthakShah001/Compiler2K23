@@ -8,6 +8,10 @@
         "parser.h": "c",
         "setadt.h": "c",
         "stdbool.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "ast.h": "c",
+        "parserdef.h": "c",
+        "parsetree.h": "c",
+        "symbol_table_def.h": "c"
     }
 }

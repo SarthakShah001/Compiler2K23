@@ -446,7 +446,9 @@
 
 57. ACTUAL_PARA_LIST => VAR_PRINT N20
 {
-    1. N20.list_head_inh = insert_at_end(ACTUAL_PARA_LIST.list_head_inh, VAR_PRINT.node_syn)
+    
+    1. ACTUAL_PARA_LIST.list_head = make_node("ACTUAL_PARA", VAR_PRINT.node_syn)
+    2. N20.list_head_inh = insert_at_end(ACTUAL_PARA_LIST.list_head_inh, ACTUAL_PARA_LIST.list_head)
     2. ACTUAL_PARA_LIST.list_head_syn = N20.list_head_syn
     3. free(VAR_PRINT)
     4. free(N20)

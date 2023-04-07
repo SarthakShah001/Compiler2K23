@@ -324,3 +324,18 @@ void openparsetreefile(FILE *f)
 {
     fp = f;
 }
+
+
+void freeParseTree(parseTreeNode treeNode){
+    if(treeNode == NULL){
+        return ; 
+    }
+    parseTreeNode child = treeNode->child ; 
+    parseTreeNode sibling = treeNode->sibling ;
+
+    freeParseTree(child) ; 
+    freeParseTree(sibling) ; 
+    child=NULL;
+    sibling=NULL;
+    free(treeNode) ; 
+}
