@@ -6,6 +6,7 @@
 // mod global_symbol_table[500];
 int no_of_modules = 0;
 FILE *fs; // ye driver file me lena h
+
 int find_width(tkType t)
 {
     if (t == TK_BOOLEAN)
@@ -424,26 +425,27 @@ void print_symbol_table(mod sym_module)
             fprintf(fs, "  ARRAY   ");
             if (in->curr->is_dynamic)
             {
-                fprintf(fs, " DYNAMIC    ");
+                fprintf(fs, "    DYNAMIC   ");
                 fprintf(fs, "   [%s-%s]   ", in->curr->array_range[0].value, in->curr->array_range[1].value);
+                // for dynamic array range can be integer or lexeme
             }
             else
             {
-                fprintf(fs, "  STATIC   ");
+                fprintf(fs, "   STATIC   ");
                 fprintf(fs, "  [%d-%d]  ", in->curr->array_range[0].integer, in->curr->array_range[1].integer);
             }
         }
         else
         {
             fprintf(fs, "    **    ");
-            fprintf(fs, "    **    ");
-            fprintf(fs, "    **    ");
+            fprintf(fs, "     **     ");
+            fprintf(fs, "     **     ");
         }
         
 
-        fprintf(fs, "%7d", in->curr->width);
-        fprintf(fs, "%8d", in->curr->offset);
-        fprintf(fs, "%9d", in->curr->nesting_level);
+        fprintf(fs, "%4d   ", in->curr->width);
+        fprintf(fs, "%5d   ", in->curr->offset);
+        fprintf(fs, "%5d    ", in->curr->nesting_level);
         in = in->next;
     }
 
@@ -461,27 +463,32 @@ void print_symbol_table(mod sym_module)
             fprintf(fs, "  ARRAY   ");
             if (out->curr->is_dynamic)
             {
-                fprintf(fs, " DYNAMIC    ");
-                fprintf(fs, "   [%s-%s]   ", out->curr->array_range[0].value, out->curr->array_range[1].value);
+                fprintf(fs, "   DYNAMIC   ");
+                fprintf(fs, "  [%s-%s]   ", out->curr->array_range[0].value, out->curr->array_range[1].value);
+                // for dynamic array range can be integer or lexeme
             }
             else
             {
-                fprintf(fs, "  STATIC   ");
+                fprintf(fs, "   STATIC   ");
                 fprintf(fs, "  [%d-%d]  ", out->curr->array_range[0].integer, out->curr->array_range[1].integer);
             }
         }
         else
         {
             fprintf(fs, "    **    ");
-            fprintf(fs, "    **    ");
-            fprintf(fs, "    **    ");
+            fprintf(fs, "     **     ");
+            fprintf(fs, "     **     ");
         }
 
-        fprintf(fs, "%7d", out->curr->width);
-        fprintf(fs, "%8d", out->curr->offset);
-        fprintf(fs, "%9d", out->curr->nesting_level);
+        fprintf(fs, "%4d   ", out->curr->width);
+        fprintf(fs, "%5d   ", out->curr->offset);
+        fprintf(fs, "%5d    ", out->curr->nesting_level);
         out = out->next;
     }
+
+    // symbol table variables
+
+
 }
 
 void print_global_symbol_table()
@@ -490,13 +497,13 @@ void print_global_symbol_table()
     fs = fopen("./symbol.txt", "w");
     if (fs == NULL)
     {
-        printf("File opening failed.\n");
+        printf("File opening of symbol.txt failed.\n");
         return;
     }
     fprintf(fs, "    VARIABLE NAME       ");
     fprintf(fs, "   SCOPE/MODULE NAME    ");
-    fprintf(fs, " SCOPE(LINE NO) ");
-    fprintf(fs, "  VARIABLE TYPE ");
+    fprintf(fs, " SCOPE(LINE NO)  ");
+    fprintf(fs, "  VARIABLE TYPE  ");
     fprintf(fs, " IS_ARRAY ");
     fprintf(fs, "  IS_DYNAMIC ");
     fprintf(fs, "  RANGE_IF_ARR ");
