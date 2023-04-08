@@ -66,7 +66,7 @@
 {
     1. MODULE.node_syn = make_node("MODULE",
                                     id.addr, 
-                                     make_node("PARAMETERS_LIST", INPUT_PLIST.list_head_syn), 
+                                     make_node("INPUT_PARAMETERS_LIST", INPUT_PLIST.list_head_syn), 
                                      RET.node_syn, 
                                      MODULEDEF.node_syn)
     2. free(def)
@@ -88,7 +88,7 @@
 
 9.  <ret> -> TK_RETURNS TK_SQBO <output_plist> TK_SQBC TK_SEMICOL
 {
-    1. RET.node_syn = make_node("PARAMETERS_LIST", OUTPUT_PLIST.list_head_syn)
+    1. RET.node_syn = make_node("OUTPUT_PARAMETERS_LIST", OUTPUT_PLIST.list_head_syn)
     2. free(returns)
     3. free(sqbo)
     4. free(OUTPUT_PLIST)
@@ -99,7 +99,7 @@
 
 10. <ret> -> epsilon
 {
-    1. RET.node_syn = make_node("PARAMETERS_LIST", NULL)
+    1. RET.node_syn = make_node("OUTPUT_PARAMETERS_LIST", NULL)
 }
 
 
