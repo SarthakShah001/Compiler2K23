@@ -2,89 +2,505 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-symbol_table global_symbol_table ;
-void s_hash_init(s_hashtable t){
-    for(int i=0;i<HASHSIZE;i++){
-    t[i].is_present=false;
-    t[i].s=NULL;
+
+// mod global_symbol_table[500];
+int no_of_modules = 0;
+FILE *fs; // ye driver file me lena h
+int find_width(tkType t)
+{
+    if (t == TK_BOOLEAN)
+    {
+        return 1;
+    }
+    else if (t == TK_INTEGER)
+    {
+        return 2;
+    }
+    else
+    {
+        return 4;
     }
 }
-void s_hash_insert(s_hashtable t, ast_symbol s){
+symbol_table symbol_table_init()
+{
+    symbol_table temp = (symbol_table)malloc(sizeof(struct SYMBOL_TABLE));
+    temp->parent = NULL;
+    for (int i = 0; i < 1000; i++)
+    {
+        temp->sym[i] = NULL;
+    }
+    for (int i = 0; i < 1000; i++)
+    {
+        temp->child[i] = NULL;
+    }
+    temp->no_child = 0;
+    return temp;
+}
+
+ast_symbol ast_symbol_init()
+{
+    ast_symbol temp = (ast_symbol)malloc(sizeof(struct AST_SYMBOL));
+    temp->is_array = false;
+    temp->is_dynamic = false;
+    temp->scope[0] = 0;
+    temp->scope[1] = 0;
+    return temp;
+}
+
+void insert_symbol_table(symbol_table table, ast_symbol s)
+{
     int prob = 0;
-    int hash_val = hash(s->name);
-    while (t[hash_val].is_present)
+    int hash_val = hash(s->var_name);
+    while (table->sym[hash_val] != NULL)
     {
         prob++;
-        hash_val = (hash_val + prob) % HASHSIZE;
+        hash_val = (hash_val + prob) % 1000;
     }
-    t[hash_val].is_present = true;
-    t->s=s;
+    table->sym[hash_val] = s;
 }
-bool is_symbol_present(s_hashtable t, ast_symbol s){
-    int hash_val = hash(s->name);
+
+void add_child_symbol_table(symbol_table parent, symbol_table child)
+{
+    parent->child[parent->no_child] = child;
+    parent->no_child++;
+    child->parent = parent;
+}
+
+ast_symbol find_symbol(symbol_table table, char *str)
+{
     int prob = 0;
-    while (t[hash_val].is_present == true)
-    {
-        if (strcmp(t[hash_val].s->name, s->name) == 0)
-        {
-            return true;
-        }
-        prob++;
-        hash_val = (hash_val + prob) % HASHSIZE;
-    }
-    return false;
-}
-ast_symbol s_find_value(s_hashtable t, char* str){
     int hash_val = hash(str);
-    int prob = 0;
-    while (t[hash_val].is_present == true)
+    while (table->child[hash_val] != NULL)
     {
-        if (strcmp(t[hash_val].s->name, str) == 0)
+        if (strcmp(table->sym[hash_val]->var_name, str) == 0)
         {
-            return t[hash_val].s;
+            return table->sym[hash_val];
         }
         prob++;
-        hash_val = (hash_val + prob) % HASHSIZE;
+        hash_val = (hash_val + prob) % 1000;
     }
     return NULL;
 }
-symbol_table symbol_table_init(){
-symbol_table t=(symbol_table)malloc(sizeof(struct SYMBOL_TABLE));
-t->parent=NULL;
-t->head=NULL;
-return t;
-}
-void insert_symbol(symbol_table t, ast_symbol s)
+
+bool is_present_var(symbol_table table, char *str)
 {
-    if(t!=NULL){
-        ast_symbol temp = t->head;
-        if(temp == NULL){
-            t->head = s;
-            return;
+    int prob = 0;
+    int hash_val = hash(str);
+    while (table->child[hash_val] != NULL)
+    {
+        if (strcmp(table->sym[hash_val]->var_name, str) == 0)
+        {
+            return table->sym[hash_val];
         }
-        while(temp->next!=NULL){
-            temp = temp->next;
-        }
-        temp->next = s;
-        return;
+        prob++;
+        hash_val = (hash_val + prob) % 1000;
     }
-    else{
-        return;
+    return NULL;
+}
+
+int find_mod_no(char *str)
+{
+    for (int i = 0; i < no_of_modules; i++)
+    {
+        if (global_symbol_table[i].mod_name != NULL)
+        {
+            if (strcmp(global_symbol_table[i].mod_name, str) == 0)
+            {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, int curr_offset, ast_symbol curr_symbol)
+{
+
+    parseTreeNode currchild = root->child;
+    int offset = curr_offset;
+    switch (root->ast_name)
+    {
+
+    case AST_PROGRAM:
+    {
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        currchild = currchild->sibling;
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        currchild = currchild->sibling;
+        strcpy(global_symbol_table[no_of_modules].mod_name, "driver");
+        symbol_table temp = symbol_table_init();
+        global_symbol_table[no_of_modules].table = temp;
+        global_symbol_table[no_of_modules].table->modulewrapper = global_symbol_table[no_of_modules];
+        no_of_modules++;
+        generate_symbol_table(currchild, temp, 1, 0, curr_symbol);
+        currchild = currchild->sibling;
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        break;
+    }
+    case AST_MODULEDECLARATIONS:
+    {
+        while (currchild != NULL)
+        {
+            if (find_mod_no(currchild->tok->lex.value) != -1)
+            {
+                // throw error, change colour
+                printf("In line no. -> %d module already declared\n", currchild->tok->line_no);
+            }
+            else
+            {
+                strcpy(global_symbol_table[no_of_modules].mod_name, currchild->tok->lex.value);
+                no_of_modules++;
+            }
+            currchild = currchild->sibling;
+        }
+        break;
+    }
+    case AST_MODULEDEFINITIONS:
+    {
+        while (currchild != NULL)
+        {
+            generate_symbol_table(currchild, table, 0, 0, curr_symbol);
+            currchild = currchild->sibling;
+        }
+        break;
+    }
+    case AST_DRIVER:
+    {
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        break;
+    }
+    case AST_MODULE:
+    {
+        symbol_table temp = symbol_table_init();
+        int mod_no = find_mod_no(currchild->tok->lex.value);
+        if (mod_no == -1)
+        {
+            strcpy(global_symbol_table[no_of_modules].mod_name, currchild->tok->lex.value);
+            global_symbol_table[no_of_modules].table = temp;
+            temp->modulewrapper = global_symbol_table[no_of_modules];
+            no_of_modules++;
+        }
+        else
+        {
+            if (global_symbol_table[mod_no].table != NULL)
+            {
+                printf("In line no-> %d module already defined before\n", currchild->tok->line_no);
+                break;
+            }
+            else
+            {
+                temp->modulewrapper = global_symbol_table[mod_no];
+                global_symbol_table[mod_no].table = temp;
+            }
+        }
+        currchild = currchild->sibling;
+        offset = generate_symbol_table(currchild, temp, 0, 0, curr_symbol);
+        currchild = currchild->sibling;
+        offset = generate_symbol_table(currchild, temp, 0, offset, curr_symbol);
+        currchild = currchild->sibling;
+        offset = generate_symbol_table(currchild, temp, 1, offset, curr_symbol);
+        break;
+    }
+    case AST_INPUT_PARAMETER_LIST:
+    {
+        while (currchild != NULL)
+        {
+            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol);
+            currchild = currchild->sibling;
+        }
+        break;
+    }
+    case AST_OUTPUT_PARAMETER_LIST:
+    {
+        while (currchild != NULL)
+        {
+            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol);
+            currchild = currchild->sibling;
+        }
+        break;
+    }
+    case AST_INP_PARAMETER:
+    {
+        ast_symbol new_symbol = ast_symbol_init();
+        strcpy(new_symbol->var_name, currchild->tok->lex.value);
+        if (currchild->sibling->tok != NULL)
+        {
+            new_symbol->type = currchild->sibling->tok->token_type;
+            new_symbol->width = find_width(new_symbol->type);
+            new_symbol->offset = offset;
+            offset += new_symbol->width;
+            new_symbol->nesting_level = 0;
+        }
+        else
+        {
+
+            new_symbol->is_array = true;
+            new_symbol->offset = offset;
+            offset = generate_symbol_table(currchild->sibling, table, 0, offset, new_symbol);
+        }
+        mod currmodule = table->modulewrapper;
+        symbol_list_node child = currmodule.inlist;
+        while (child != NULL)
+        {
+            child = child->next;
+        }
+        child = (symbol_list_node)malloc(sizeof(struct Symbol_List_Node));
+        child->next = NULL;
+        child->curr = new_symbol;
+        break;
+    }
+    case AST_OUT_PARAMETER:
+    {
+        ast_symbol new_symbol = ast_symbol_init();
+        strcpy(new_symbol->var_name, currchild->tok->lex.value);
+        new_symbol->type = currchild->sibling->tok->token_type;
+        new_symbol->width = find_width(new_symbol->type);
+        new_symbol->offset = offset;
+        offset += new_symbol->width;
+        new_symbol->nesting_level = 0;
+        mod currmodule = table->modulewrapper;
+        symbol_list_node child = currmodule.inlist;
+        while (child != NULL)
+        {
+            child = child->next;
+        }
+        child = (symbol_list_node)malloc(sizeof(struct Symbol_List_Node));
+        child->next = NULL;
+        child->curr = new_symbol;
+        break;
+    }
+    case AST_ARRAY:
+    {
+        offset=generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol);
+        curr_symbol->type =currchild->sibling->tok->token_type;
+        break;
+    }
+    case AST_RANGE_ARRAYS:
+    {
+        generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol);
+        generate_symbol_table(currchild->sibling,table,nesting,curr_offset,curr_symbol);
+        break;
+    }
+    case AST_STATEMENTS:
+    {
+        break;
+    }
+    case AST_GET_VALUE:
+    {
+        break;
+    }
+    case AST_PRINT:
+    {
+        break;
+    }
+    case AST_ARRAY_ACCESS:
+    {
+        break;
+    }
+    case AST_ID_ASSIGN:
+    {
+        break;
+    }
+    case AST_ARRAY_ASSIGN:
+    {
+        break;
+    }
+    case AST_INDEX_ARR:
+    {
+    
+        break;
+    }
+    case AST_MODULE_REUSE:
+    {
+        break;
+    }
+    case AST_PARAMETER_LIST1:
+    {
+        break;
+    }
+    case AST_PARAMETER_LIST2:
+    {
+        break;
+    }
+    case AST_ACTUAL_PARA:
+    {
+        break;
+    }
+    case AST_UNARYEXPR:
+    {
+        break;
+    }
+    case AST_RELATIONAL_OP:
+    {
+        break;
+    }
+    case AST_LOGICAL_OP:
+    {
+        break;
+    }
+    case AST_PLUS:
+    {
+        break;
+    }
+    case AST_MINUS:
+    {
+        break;
+    }
+    case AST_MUL:
+    {
+        break;
+    }
+    case AST_DIV:
+    {
+        break;
+    }
+    case AST_ARRAY_FACTOR:
+    {
+        break;
+    }
+    case AST_UNARY_INDEX_EXPR:
+    {
+        break;
+    }
+    case AST_DECLARE_STMT:
+    {
+        break;
+    }
+    case AST_SWITCH:
+    {
+        break;
+    }
+    case AST_CASES:
+    {
+        break;
+    }
+    case AST_CASE:
+    {
+        break;
+    }
+    case AST_FORLOOP:
+    {
+        break;
+    }
+    case AST_WHILELOOP:
+    {
+        break;
+    }
+    case AST_INDEX_FOR_LOOP:
+    {
+        break;
+    }
+    default:
+    {
+        break;
+    }
     }
 }
-ast_symbol find_symbol(symbol_table t,char *str){
-    return s_find_value(t->t,str);
+
+void print_symbol_table(mod sym_module)
+{
+    // print inlist var
+    symbol_list_node in = sym_module.inlist;
+    while (in != NULL)
+    {
+        // print variables
+        fprintf(fs, "%-25s", in->curr->var_name);
+        fprintf(fs, "%-25s", sym_module.table->mod_name);
+        fprintf(fs, "     [%d-%d]     ", in->curr->scope[0], in->curr->scope[1]);
+        fprintf(fs, "%-18s", in->curr->type);
+        if (in->curr->is_array)
+        {
+            fprintf(fs, "  ARRAY   ");
+        }
+        else
+        {
+            fprintf(fs, "    **  9 ========================================V                                                                                                                                                                         =================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================  ");
+        }
+        if (in->curr->is_dynamic)
+        {
+            fprintf(fs, "   YES    ");
+        }
+        else
+        {
+            fprintf(fs, "    NO    ");
+        }
+        // array range
+        if (in->curr->array_range.)
+
+            fprintf(fs, "%7d", in->curr->width);
+        fprintf(fs, "%8d", in->curr->offset);
+        fprintf(fs, "%9d", in->curr->nesting_level);
+        in = in->next;
+    }
+
+    // print outlist var
+    symbol_list_node out = sym_module.outlist;
+    while (out != NULL)
+    {
+        // print variables
+        fprintf(fs, "%-25s", out->curr->var_name);
+        fprintf(fs, "%-25s", sym_module.table->mod_name);
+        fprintf(fs, "     [%d-%d]     ", out->curr->scope[0], out->curr->scope[1]);
+        fprintf(fs, "%-18s", out->curr->type);
+        if (out->curr->is_array)
+        {
+            fprintf(fs, "  YES   ");
+        }
+        else
+        {
+            fprintf(fs, "   NO   ");
+        }
+        if (out->curr->is_dynamic)
+        {
+            fprintf(fs, "   YES    ");
+        }
+        else
+        {
+            fprintf(fs, "    NO    ");
+        }
+        // array range
+
+        fprintf(fs, "%7d", out->curr->width);
+        fprintf(fs, "%8d", out->curr->offset);
+        fprintf(fs, "%9d", out->curr->nesting_level);
+        out = out->next;
+    }
 }
-// void delete_symbol(symbol_table t, ast_symbol s){
-//     ast_symbol temp= find_symbol(t,s);
-//     if(temp==NULL){
-//     return;
-//     }
-//     else{
-    
-    
-//     }
 
-// }
+void print_global_symbol_table()
+{
+    // ye sab driver file me
+    fs = fopen("./symbol.txt", "w");
+    if (fs == NULL)
+    {
+        printf("File opening failed.\n");
+        return;
+    }
+    fprintf(fs, "    VARIABLE NAME       ");
+    fprintf(fs, "   SCOPE/MODULE NAME    ");
+    fprintf(fs, " SCOPE(LINE NO) ");
+    fprintf(fs, "  VARIABLE TYPE ");
+    fprintf(fs, " IS_ARRAY ");
+    fprintf(fs, "  IS_DYNAMIC ");
+    fprintf(fs, "  RANGE_IF_ARR ");
+    fprintf(fs, " WIDTH ");
+    fprintf(fs, " OFFSET ");
+    fprintf(fs, " NESTING ");
+    fprintf(fs, "\n\n");
+    // ye sab driver file me
 
-
+    for (int i = 0; i < no_of_modules; i++)
+    {
+        if (global_symbol_table[i].table == NULL)
+        {
+            // table is not present
+            fprintf(fs, "\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i].mod_name);
+        }
+        else
+        {
+            print_symbol_table(global_symbol_table[i]);
+        }
+    }
+    fclose(fs);
+    return;
+}
