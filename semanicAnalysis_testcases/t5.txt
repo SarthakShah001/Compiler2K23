@@ -99,7 +99,11 @@ start
 	k:= true AND false OR q;		**ERROR: type mismatch error**
 	u1:= a<=b;
 	declare w: integer;			 
-	w:= 23+B[6];                                  
+	w:= 23+B[6];  
+	print(C[1]);                    **ERROR:element of array C is out of bound** 
+	print(p[2]);                    
+	print(C[q]);
+	print(true);
 	b:= a*25+100*C[1];		        **ERROR:element of array C is out of bound** 
 	declare D: array[20..40] of integer;			 
 	D:= value-q+r;				**ERROR: type mismatch error**

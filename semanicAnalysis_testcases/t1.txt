@@ -9,6 +9,8 @@ start
 	declare a,b:integer;
 	a:= 5;
 	get_value(b);
+	get_value(m);
+	get_value(x);
 	declare value, q, r: real;
 	get_value(q);
 	r:= 23.67e+2;

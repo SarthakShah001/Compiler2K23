@@ -11,7 +11,7 @@
 #ifndef _hashtabledef_
 #define _hashtabledef_
 
-#define HASHSIZE 200
+#define HASHSIZE 1000
 struct ELEMENT{
     char lexeme[40];
     bool is_present;

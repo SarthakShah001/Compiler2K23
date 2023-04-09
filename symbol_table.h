@@ -8,6 +8,8 @@ ast_symbol ast_symbol_init();
 void insert_symbol_table(symbol_table table,ast_symbol s);
 void add_child_symbol_table(symbol_table parent, symbol_table child);
 ast_symbol find_symbol(symbol_table table, char *str);
+ast_symbol f_s(symbol_table table, char *str);
+ast_symbol find_in_list(symbol_list_node l, char *str);
 bool is_present_var(symbol_table table, char *str);
 int find_mod_no(char *str);
 
