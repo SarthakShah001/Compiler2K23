@@ -8,8 +8,8 @@
 // emit function 
 // 
 
-void createQuadruple() ; 
-void generateIR() ; 
+qNode createQuadruple() ; 
+void generateIR(qNode curr ,parseTreeNode root, char* modname) ; 
 
 
 #endif
