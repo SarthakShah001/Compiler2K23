@@ -134,7 +134,7 @@ parseTreeNode generate_ast(parseTreeNode root)
     parseTreeNode prev = NULL;
     if (!root->s->is_terminal)
     {
-        printf("currnode=%s\n", nonterminal_str[currnode->s->nt]);
+        // printf("currnode=%s\n", nonterminal_str[currnode->s->nt]);
         switch (root->s->nt)
         {
         case program:
@@ -340,10 +340,10 @@ parseTreeNode generate_ast(parseTreeNode root)
             else
             {
                 currnode->syn_node = generate_ast(currchild)->syn_node;
-                if (currnode->syn_node != NULL && currnode->syn_node->s->is_terminal)
-                {
-                    printf("currchild=%s\n", terminal_str[currnode->syn_node->s->t]);
-                }
+                // if (currnode->syn_node != NULL && currnode->syn_node->s->is_terminal)
+                // {
+                //     printf("currchild=%s\n", terminal_str[currnode->syn_node->s->t]);
+                // }
             }
             break;
         }
@@ -716,14 +716,14 @@ parseTreeNode generate_ast(parseTreeNode root)
         { // 75
             currchild->sibling->inh_node = generate_ast(currchild)->syn_node;
             currnode->syn_node = generate_ast(currchild->sibling)->syn_node;
-            printf("from pos 2\n");
+            // printf("from pos 2\n");
             break;
         }
         case N7:
         { // 76,77
             if (currchild->s->is_terminal && currchild->s->t == epsilon)
             {
-                printf("from pos1\n");
+                // printf("from pos1\n");
                 currnode->syn_node = currnode->inh_node;
                 break;
             }
@@ -735,7 +735,7 @@ parseTreeNode generate_ast(parseTreeNode root)
 
             add_child(currchild->sibling->sibling->inh_node, generate_ast(currchild->sibling)->syn_node);
             currnode->syn_node = generate_ast(currchild->sibling->sibling)->syn_node;
-            printf("from pos3\n");
+            // printf("from pos3\n");
             break;
         }
         case AnyTerm:

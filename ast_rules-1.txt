@@ -266,7 +266,6 @@
     STATEMENTS.list_head_syn = NULL
 }
 
-
 32. <ioStmt> -> TK_GET_VALUE TK_BO TK_ID TK_BC
 {
     1. IOSTMT.node_syn = make_node("GET_VALUE",id.addr);

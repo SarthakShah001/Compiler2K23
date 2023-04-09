@@ -2,6 +2,7 @@
 #define _intermediateCodeGen_
 
 #include "intermediateCodeGenDef.h"
+#include "symbol_table.h"
 #include "parseTree.h"
 
 // new label func

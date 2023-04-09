@@ -2,6 +2,7 @@
 #define _symbol_table_
 #include "symbol_table_def.h"
 
+void global_symbol_table_init();
 symbol_table symbol_table_init();
 ast_symbol ast_symbol_init();
 void insert_symbol_table(symbol_table table,ast_symbol s);
@@ -13,8 +14,10 @@ int find_mod_no(char *str);
 int generate_symbol_table(parseTreeNode root, symbol_table curr, int nesting, int curr_offset,ast_symbol curr_symbol);
 // returns offset
 
-void print_global_symbol_table();
-void print_symbol_table(mod sym_table);
+// void print_global_symbol_table();
+
+void print_symbol_module(FILE* fs, mod sym_module);
+void print_symbol_table(FILE* fs, symbol_table tab);
 
 
 #endif

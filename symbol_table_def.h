@@ -12,28 +12,28 @@
 typedef struct SYMBOL_TABLE* symbol_table;
 typedef struct AST_SYMBOL* ast_symbol;
 typedef struct Symbol_List_Node* symbol_list_node;
-
+typedef struct MODULE* mod;
 struct Symbol_List_Node{
     ast_symbol curr;
     symbol_list_node next;
 };
 
-typedef struct MODULE{
+struct MODULE{
     char mod_name[25];
     symbol_table table;
     symbol_list_node inlist;
     symbol_list_node outlist;
-}mod;
+};
 
-extern mod global_symbol_table[100];
-
+extern mod global_symbol_table[500];
+extern int no_of_modules;
 struct AST_SYMBOL{
     char var_name[25];
     int scope[2];
     tkType type;
     bool is_array;
     bool is_dynamic;
-    lexeme array_range[2];
+    lexeme array_range[4];
     int width;
     int offset;
     int nesting_level;
