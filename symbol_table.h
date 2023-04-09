@@ -11,7 +11,7 @@ ast_symbol find_symbol(symbol_table table, char *str);
 bool is_present_var(symbol_table table, char *str);
 int find_mod_no(char *str);
 
-int generate_symbol_table(parseTreeNode root, symbol_table curr, int nesting, int curr_offset,ast_symbol curr_symbol);
+int generate_symbol_table(parseTreeNode root, symbol_table curr, int nesting, int curr_offset,ast_symbol curr_symbol,int currscope[2]);
 // returns offset
 
 // void print_global_symbol_table();

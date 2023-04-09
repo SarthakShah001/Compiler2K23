@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
             fprintf(fp1, "\n\n");
 
             printParseTree(root);
-            freeParseTree(root) ; 
+            // freeParseTree(root) ; 
             // printParseTree(root) ;
             root=NULL;
             break;
@@ -139,12 +139,11 @@ int main(int argc, char *argv[])
         }
         case 5:
         {
-            fp1 = fopen(argv[4], "w");
-            setbuf(fp1, NULL);
+        fp1 = fopen(argv[4], "w");
+        setbuf(fp1, NULL);
         root = startParser(fp, atoi(argv[3]));
         parseTreeNode ast_root=generate_ast(root);
         openparsetreefile(fp1);
-
             fprintf(fp1, "       LEXEME       ");
             fprintf(fp1, "  LINE_NO  ");
             fprintf(fp1, "     TOKEN-TYPE      ");
@@ -155,14 +154,16 @@ int main(int argc, char *argv[])
             fprintf(fp1, "\n\n");
         ast_root=ast_root->syn_node;
         if(ast_root->child==NULL){
-        printf("YES NULL\n"
-        );}
+        printf("YES NULL\n");
+        }
         else{
         printf("NO NULL %s\n",ast_strings[ast_root->child->ast_name]);
         }
         
         printf("ast_root=%s\n",nonterminal_str[ast_root->s->nt]);
         printAST(ast_root);
+        // freeParseTree(root) ; 
+        break;
         }
         case 6:
         {
@@ -177,7 +178,8 @@ int main(int argc, char *argv[])
         root = startParser(fp, atoi(argv[3]));
         parseTreeNode ast_root=generate_ast(root);
         ast_root=ast_root->syn_node;
-        generate_symbol_table(ast_root,NULL,0,0,NULL);
+        int t[2]={0,0};
+        generate_symbol_table(ast_root,NULL,0,0,NULL,t);
         setbuf(fs, NULL);
         fprintf(fs, "VARIABLE NAME       ");
         fprintf(fs, "   SCOPE/MODULE NAME    ");
@@ -185,7 +187,7 @@ int main(int argc, char *argv[])
         fprintf(fs, "  VARIABLE TYPE    ");
         fprintf(fs, "  IS_ARRAY ");
         fprintf(fs, "  IS_DYNAMIC ");
-        fprintf(fs, "  RANGE_IF_ARR ");
+        fprintf(fs, " RANGE_IF_ARR ");
         fprintf(fs, "  WIDTH  ");
         fprintf(fs, "  OFFSET  ");
         fprintf(fs, "  NESTING  ");
@@ -202,7 +204,7 @@ int main(int argc, char *argv[])
             }
             else print_symbol_module(fs,global_symbol_table[i]);
         }
-        fclose(fs);
+        // fclose(fs);
         break;
         }
         default:

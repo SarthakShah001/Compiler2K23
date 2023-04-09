@@ -28,6 +28,8 @@ parseTreeNode createTree()
     root->is_visited=false;
     root->syn_node=NULL;
     root->inh_node=NULL;
+    root->scope[0]=0;
+    root->scope[1]=0;
     return root;
 }
 void addRuleInTree(parseTreeNode treeNode, dlinkedlist list)

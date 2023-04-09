@@ -158,6 +158,7 @@ parseTreeNode generate_ast(parseTreeNode root)
 
             currchild = currchild->sibling;
             add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+            currchild->syn_node->scope[1]=currchild->sibling->tok->line_no;
             currchild = currchild->sibling->sibling;
 
             parseTreeNode temp3 = createTree();
@@ -201,8 +202,10 @@ parseTreeNode generate_ast(parseTreeNode root)
                 break;
             }
             currnode->syn_node = generate_ast(currchild)->syn_node;
-            if (currnode->syn_node != NULL)
+            if (currnode->syn_node != NULL){
                 currnode->syn_node->sibling = generate_ast(currchild->sibling->sibling)->syn_node;
+                currchild->syn_node->scope[1]=currnode->child->sibling->tok->line_no;
+            }
             break;
         }
         case driverModule:
@@ -210,12 +213,15 @@ parseTreeNode generate_ast(parseTreeNode root)
             // 7
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_DRIVER;
-            while (currchild != NULL)
+            currnode->syn_node->scope[0]=currchild->tok->line_no;
+            while (currchild!= NULL)
             {
                 add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
                 currchild->is_visited = true;
                 currchild = currchild->sibling;
             }
+            
+            // currnode->syn_node->scope[1]=currnode->child->sibling->sibling->sibling->sibling->syn_node->scope[1];
             break;
         }
 
@@ -224,6 +230,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             // 8
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_MODULE;
+            currnode->syn_node->scope[0]=currchild->tok->line_no;
             currchild = currchild->sibling->sibling;
 
             add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
@@ -238,6 +245,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
             currchild = currchild->sibling;
             add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
+            currnode->syn_node->scope[1]=currchild->syn_node->scope[1];
             // while (currchild != NULL)
             // {
             //     add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
@@ -369,6 +377,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_STATEMENTS;
             add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
+            currnode->syn_node->scope[1]=currchild->sibling->syn_node->scope[1];
             // while (currchild != NULL)
             // {
             //     add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
@@ -387,8 +396,10 @@ parseTreeNode generate_ast(parseTreeNode root)
             }
 
             currnode->syn_node = generate_ast(currchild)->syn_node;
-            if (currnode->syn_node != NULL)
+            if (currnode->syn_node != NULL){
                 currnode->syn_node->sibling = generate_ast(currchild->sibling->sibling)->syn_node;
+                currnode->syn_node->scope[1]=currchild->sibling->tok->line_no;
+            }
             break;
         }
         case ioStmt:
@@ -1011,6 +1022,7 @@ parseTreeNode generate_ast(parseTreeNode root)
         {
             parseTreeNode temp = createTree();
             temp->ast_name = AST_CASE;
+            temp->scope[0]=currchild->tok->line_no;
             add_child(temp, generate_ast(currchild->sibling)->syn_node);
             parseTreeNode temp2 = createTree();
             temp2->ast_name = AST_STATEMENTS;
@@ -1019,6 +1031,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             currchild = currchild->sibling->sibling->sibling->sibling->sibling->sibling;
             temp->sibling = generate_ast(currchild)->syn_node;
             currnode->syn_node = temp;
+            currnode->syn_node->scope[1]=currnode->child->sibling->sibling->sibling->sibling->tok->line_no;
             break;
         }
 
@@ -1031,6 +1044,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             }
             parseTreeNode temp = createTree();
             temp->ast_name = AST_CASE;
+            temp->scope[0]=currchild->tok->line_no;
             add_child(temp, generate_ast(currchild->sibling)->syn_node);
             parseTreeNode temp2 = createTree();
             temp2->ast_name = AST_STATEMENTS;
@@ -1038,8 +1052,9 @@ parseTreeNode generate_ast(parseTreeNode root)
             add_child(temp, temp2);
             currchild = currchild->sibling->sibling->sibling->sibling->sibling->sibling;
             temp->sibling = generate_ast(currchild)->syn_node;
-
             currnode->syn_node = temp;
+            currnode->syn_node->scope[1]=currnode->child->sibling->sibling->sibling->sibling->tok->line_no;
+            
             break;
         }
         case value:
@@ -1056,6 +1071,8 @@ parseTreeNode generate_ast(parseTreeNode root)
             }
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_DEFAULT;
+            currnode->syn_node->scope[0]=currchild->tok->line_no;
+            currnode->syn_node->scope[1]=currchild->sibling->sibling->sibling->tok->line_no;
             parseTreeNode temp = createTree();
             temp->ast_name = AST_STATEMENTS;
             add_child(temp, generate_ast(currchild->sibling->sibling)->syn_node);
@@ -1068,6 +1085,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             {
                 currnode->syn_node = createTree();
                 currnode->syn_node->ast_name = AST_FORLOOP;
+                currnode->syn_node->scope[0]=currchild->tok->line_no;
                 add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
                 currchild = currchild->sibling->sibling->sibling->sibling;
                 add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
@@ -1075,18 +1093,21 @@ parseTreeNode generate_ast(parseTreeNode root)
                 temp->ast_name = AST_STATEMENTS;
                 add_child(temp, generate_ast(currchild->sibling->sibling->sibling)->syn_node);
                 add_child(currnode->syn_node, temp);
+                currnode->syn_node->scope[1]=currchild->sibling->sibling->sibling->syn_node->scope[1];
                 break;
             }
             else
             {
                 currnode->syn_node = createTree();
                 currnode->syn_node->ast_name = AST_WHILELOOP;
+                currnode->syn_node->scope[0]=currchild->tok->line_no;
                 add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
                 currchild = currchild->sibling->sibling->sibling->sibling->sibling;
                 parseTreeNode temp = createTree();
                 temp->ast_name = AST_STATEMENTS;
                 add_child(temp, generate_ast(currchild)->syn_node);
                 add_child(currnode->syn_node, temp);
+                currnode->syn_node->scope[1]=currchild->syn_node->scope[1];
                 break;
             }
         }

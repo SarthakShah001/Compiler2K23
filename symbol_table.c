@@ -9,7 +9,7 @@ void global_symbol_table_init(){
     global_symbol_table[i]=(mod)malloc(sizeof(struct MODULE));
     }
 }
-int no_of_modules = 0; // ye driver file me lena h
+int no_of_modules = 0; 
 int find_width(tkType t)
 {
     if (t == TK_BOOLEAN)
@@ -117,9 +117,9 @@ int find_mod_no(char *str)
     return -1;
 }
 
-int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, int curr_offset, ast_symbol curr_symbol)
+int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, int curr_offset, ast_symbol curr_symbol,int currscope[2])
 {
-    printf("Currently in %s\n",ast_strings[root->ast_name]);
+    printf("Currently in %s with scope -> %d to %d\n",ast_strings[root->ast_name],root->scope[0],root->scope[1]);
     parseTreeNode currchild = root->child;
     int offset = curr_offset;
     switch (root->ast_name)
@@ -127,9 +127,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
 
     case AST_PROGRAM:
     {
-        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol,currscope);
         currchild = currchild->sibling;
-        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol,currscope);
         currchild = currchild->sibling;
         strcpy(global_symbol_table[no_of_modules]->mod_name, "driver");
         symbol_table temp = symbol_table_init();
@@ -137,9 +137,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         global_symbol_table[no_of_modules]->table = temp;
         global_symbol_table[no_of_modules]->table->modulewrapper = global_symbol_table[no_of_modules];
         no_of_modules++;
-        generate_symbol_table(currchild, temp, 1, 0, curr_symbol);
+        generate_symbol_table(currchild, temp, 1, 0, curr_symbol,currchild->scope);
         currchild = currchild->sibling;
-        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol,currscope);
         break;
     }
     case AST_MODULEDECLARATIONS:
@@ -149,7 +149,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             if (find_mod_no(currchild->tok->lex.value) != -1)
             {
                 // throw error, change colour
+                printf("\033[31m");
                 printf("In line no. -> %d module already declared\n", currchild->tok->line_no);
+                printf("\033[0m");
             }
             else
             {
@@ -164,14 +166,14 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     {
         while (currchild != NULL)
         {
-            generate_symbol_table(currchild, table, 0, 0, curr_symbol);
+            generate_symbol_table(currchild, table, 0, 0, curr_symbol,currscope);
             currchild = currchild->sibling;
         }
         break;
     }
     case AST_DRIVER:
     {
-        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol,currscope);
         break;
     }
     case AST_MODULE:
@@ -190,7 +192,10 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         {
             if (global_symbol_table[mod_no]->table != NULL)
             {
+                // throw error change colour
+                printf("\033[31m");
                 printf("In line no-> %d module already defined before\n", currchild->tok->line_no);
+                printf("\033[0m");
                 break;
             }
             else
@@ -201,18 +206,18 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             }
         }
         currchild = currchild->sibling;
-        offset = generate_symbol_table(currchild, temp, 0, 0, curr_symbol);
+        offset = generate_symbol_table(currchild, temp, 0, 0, curr_symbol,root->scope);
         currchild = currchild->sibling;
-        offset = generate_symbol_table(currchild, temp, 0, offset, curr_symbol);
+        offset = generate_symbol_table(currchild, temp, 0, offset, curr_symbol,root->scope);
         currchild = currchild->sibling;
-        offset = generate_symbol_table(currchild, temp, 1, offset, curr_symbol);
+        offset = generate_symbol_table(currchild, temp, 1, offset, curr_symbol,root->scope);
         break;
     }
     case AST_INPUT_PARAMETER_LIST:
     {
         while (currchild != NULL)
         {
-            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol);
+            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol,currscope);
             currchild = currchild->sibling;
         }
         break;
@@ -221,7 +226,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     {
         while (currchild != NULL)
         {
-            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol);
+            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol,currscope);
             currchild = currchild->sibling;
         }
         break;
@@ -229,6 +234,8 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     case AST_INP_PARAMETER:
     {
         ast_symbol new_symbol = ast_symbol_init();
+        new_symbol->scope[0]=currscope[0];
+        new_symbol->scope[1]=currscope[1];
         strcpy(new_symbol->var_name, currchild->tok->lex.value);
         if (currchild->sibling->tok != NULL)
         {
@@ -243,14 +250,14 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
 
             new_symbol->is_array = true;
             new_symbol->offset = offset;
-            offset = generate_symbol_table(currchild->sibling, table, 0, offset, new_symbol);
+            offset = generate_symbol_table(currchild->sibling, table, 0, offset, new_symbol,currscope);
         }
         mod currmodule = table->modulewrapper;
         
-        printf("\ncurrmodule=%s\n",currmodule->mod_name);
+        // printf("\ncurrmodule=%s\n",currmodule->mod_name);
         symbol_list_node child = currmodule->inlist;
         if(child==NULL){
-        printf("\ninlist was null\n");
+        // printf("\ninlist was null\n");
         currmodule->inlist = (symbol_list_node)malloc(sizeof(struct Symbol_List_Node));
         currmodule->inlist->next = NULL;
         currmodule->inlist->curr = new_symbol;
@@ -269,6 +276,8 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     case AST_OUT_PARAMETER:
     {
         ast_symbol new_symbol = ast_symbol_init();
+        new_symbol->scope[0]=currscope[0];
+        new_symbol->scope[1]=currscope[1];
         strcpy(new_symbol->var_name, currchild->tok->lex.value);
         new_symbol->type = currchild->sibling->tok->token_type;
         new_symbol->width = find_width(new_symbol->type);
@@ -278,7 +287,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         mod currmodule = table->modulewrapper;
         symbol_list_node child = currmodule->outlist;
         if(child==NULL){
-        printf("\noutlist was null\n");
+        // printf("\noutlist was null\n");
         currmodule->outlist = (symbol_list_node)malloc(sizeof(struct Symbol_List_Node));
         currmodule->outlist->next = NULL;
         currmodule->outlist->curr = new_symbol;
@@ -304,7 +313,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     case AST_ARRAY:
     {
         curr_symbol->type = currchild->sibling->tok->token_type;
-        offset = generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol);
+        offset = generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol,currscope);
         if (!curr_symbol->is_dynamic)
         {
             int len_array = curr_symbol->array_range[3].integer - curr_symbol->array_range[1].integer;
@@ -368,7 +377,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     {
         while (currchild != NULL)
         {
-            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol);
+            offset = generate_symbol_table(currchild, table, nesting, offset, curr_symbol,currscope);
             currchild=currchild->sibling;
         }
         break;
@@ -407,7 +416,10 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     {
         if (find_mod_no(currchild->tok->lex.value) == -1)
         {
+            // throw error change colour
+            printf("\033[31m");
             printf("In Line no.-> %d Module needs to be declared first before use\n", currchild->tok->line_no);
+            printf("\033[0m");
         }
         break;
     }
@@ -485,6 +497,8 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                 new_symbol->offset=offset;
                 new_symbol->width=find_width(t);
                 new_symbol->type=t;
+                new_symbol->scope[0]=currscope[0];
+                new_symbol->scope[1]=currscope[1];
                 insert_symbol_table(table,new_symbol);
                 currchild=currchild->sibling;
             }
@@ -497,7 +511,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                 new_symbol->nesting_level=nesting;
                 strcpy(new_symbol->var_name,currchild->tok->lex.value);
                 new_symbol->offset=offset;
-                offset=generate_symbol_table(root->child,table,nesting,offset,new_symbol);
+                offset=generate_symbol_table(root->child,table,nesting,offset,new_symbol,currscope);
+                new_symbol->scope[0]=currscope[0];
+                new_symbol->scope[1]=currscope[1];
                 insert_symbol_table(table,new_symbol);
                 currchild=currchild->sibling;
             }
@@ -507,10 +523,10 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     case AST_SWITCH:
     {
         currchild=currchild->sibling;
-        generate_symbol_table(currchild,table,nesting,offset,curr_symbol);
+        generate_symbol_table(currchild,table,nesting,offset,curr_symbol,currscope);
         currchild=currchild->sibling;
         if(currchild!=NULL){
-        generate_symbol_table(currchild,table,nesting,offset,curr_symbol);
+        generate_symbol_table(currchild,table,nesting,offset,curr_symbol,currscope);
         }
         break;
     }
@@ -522,7 +538,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             strcpy(new_table->mod_name,table->mod_name);
             table->child[table->no_child]=new_table;
             table->no_child++;
-            generate_symbol_table(currchild,new_table,nesting+1,0, NULL);
+            generate_symbol_table(currchild,new_table,nesting+1,0, NULL,root->scope);
             currchild=currchild->sibling;
         }
         break;
@@ -530,7 +546,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     case AST_CASE:
     {
         currchild=currchild->sibling;
-        generate_symbol_table(currchild,table,nesting,0, NULL);
+        generate_symbol_table(currchild,table,nesting,0, NULL,root->scope);
         break;
     }
     case AST_FORLOOP:
@@ -541,7 +557,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         strcpy(new_table->mod_name,table->mod_name);
         table->child[table->no_child]=new_table;
         table->no_child++;
-        generate_symbol_table(currchild,new_table,nesting+1,0, NULL);
+        generate_symbol_table(currchild,new_table,nesting+1,0, NULL,root->scope);
         break;
     }
     case AST_WHILELOOP:
@@ -552,7 +568,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         strcpy(new_table->mod_name,table->mod_name);
         table->child[table->no_child]=new_table;
         table->no_child++;
-        generate_symbol_table(currchild,new_table,nesting+1,0, NULL);
+        generate_symbol_table(currchild,new_table,nesting+1,0, NULL,root->scope);
         break;
     }
     case AST_INDEX_FOR_LOOP:
@@ -567,7 +583,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         strcpy(new_table->mod_name,table->mod_name);
         table->child[table->no_child]=new_table;
         table->no_child++;
-        generate_symbol_table(currchild,new_table,nesting+1,0, NULL);
+        generate_symbol_table(currchild,new_table,nesting+1,0, NULL,root->scope);
     break;
     }
     default:
@@ -584,20 +600,20 @@ void print_symbol_table(FILE* fs, symbol_table tab){
             // print symbols
             fprintf(fs, "%-25s", tab->sym[i]->var_name);
             fprintf(fs, "%-25s", tab->mod_name);
-            fprintf(fs, "     [%d-%d]     ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
+            fprintf(fs, "   [%d-%d]       ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
             fprintf(fs, "%-18s", terminal_str[tab->sym[i]->type]);
             if (tab->sym[i]->is_array)
             {
-                fprintf(fs, "  ARRAY   ");
+                fprintf(fs, "   YES    ");
                 if (tab->sym[i]->is_dynamic)
                 {
-                    fprintf(fs, "   DYNAMIC   ");
-                    fprintf(fs, "   [%s%s-%s%s]   ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].value, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].value);
+                    fprintf(fs, "     YES     ");
+                    fprintf(fs, "   [%s%s-%s%s]    ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].value, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].value);
                 }
                 else
                 {
-                    fprintf(fs, "   STATIC  ");
-                    fprintf(fs, "  [%s%lld-%s%lld]  ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].integer, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].value);
+                    fprintf(fs, "     NO    ");
+                    fprintf(fs, "   [%s%lld-%s%lld]   ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].integer, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].integer);
                 }
             }
             else
@@ -607,7 +623,7 @@ void print_symbol_table(FILE* fs, symbol_table tab){
                 fprintf(fs, "     **     ");
             }
 
-            fprintf(fs, "  %4d   ", tab->sym[i]->width);
+            fprintf(fs, "   %4d   ", tab->sym[i]->width);
             fprintf(fs, "   %5d   ", tab->sym[i]->offset);
             fprintf(fs, "    %5d    ", tab->sym[i]->nesting_level);
             fprintf(fs, "\n");
@@ -630,35 +646,35 @@ void print_symbol_module(FILE* fs, mod sym_module)
     printf("module not present\n");
     return;
     }
-    printf("current module=%s\n",sym_module->mod_name);
+    // printf("current module=%s\n",sym_module->mod_name);
     symbol_list_node in = sym_module->inlist;
-    if(in==NULL) printf("\nin is NULL\n");
+    // if(in==NULL) printf("\nin is NULL\n");
     while (in != NULL)
     {
         // print variables
     if(in->curr == NULL)
-    {printf("curr was null");
-    printf("\n");
-    continue;
+    {
+        printf("curr was null\n");
+        continue;
     }
     // printf("%-25s", in->curr->var_name);
     fprintf(fs, "%-25s", in->curr->var_name);
-    printf("%-25s", sym_module->table->mod_name);
+    // printf("%-25s", sym_module->table->mod_name);
     fprintf(fs, "%-25s", sym_module->table->mod_name);
-    fprintf(fs, "     [%d-%d]     ", in->curr->scope[0], in->curr->scope[1]);
+    fprintf(fs, "   [%d-%d]       ", in->curr->scope[0], in->curr->scope[1]);
     fprintf(fs, "%-18s", terminal_str[in->curr->type]);
     if (in->curr->is_array)
     {
-            fprintf(fs, "  ARRAY   ");
+            fprintf(fs, "   YES    ");
             if (in->curr->is_dynamic)
             {
-                fprintf(fs, "   DYNAMIC   ");
-                fprintf(fs, "   [%s%s-%s%s]   ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
+                fprintf(fs, "     YES     ");
+                fprintf(fs, "   [%s%s-%s%s]    ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
             }
             else
             {
-                fprintf(fs, "   STATIC  ");
-                fprintf(fs, "  [%s%lld-%s%lld]  ",in->curr->array_range[0].value, in->curr->array_range[1].integer, in->curr->array_range[2].value,in->curr->array_range[3].integer);
+                fprintf(fs, "     NO    ");
+                fprintf(fs, "   [%s%lld-%s%lld]   ",in->curr->array_range[0].value, in->curr->array_range[1].integer, in->curr->array_range[2].value,in->curr->array_range[3].integer);
             }
         }
         else
@@ -666,24 +682,24 @@ void print_symbol_module(FILE* fs, mod sym_module)
             fprintf(fs, "    **    ");
             fprintf(fs, "     **     ");
             fprintf(fs, "     **     ");
-        } 
+        }
 
         fprintf(fs, "   %4d   ", in->curr->width);
-        fprintf(fs, "    %5d   ", in->curr->offset);
-        fprintf(fs, "     %5d    ", in->curr->nesting_level);
+        fprintf(fs, "   %5d   ", in->curr->offset);
+        fprintf(fs, "    %5d    ", in->curr->nesting_level);
         fprintf(fs, "\n");
         in = in->next;
     }
 
     // // print outlist var
     symbol_list_node out = sym_module->outlist;
-    if (out == NULL) printf("\nout is NULL\n");
+    // if (out == NULL) printf("\nout is NULL\n");
     while (out != NULL)
     {
         // print variables
         fprintf(fs, "%-25s", out->curr->var_name);
         fprintf(fs, "%-25s", sym_module->table->mod_name);
-        fprintf(fs, "     [%d-%d]     ", out->curr->scope[0], out->curr->scope[1]);
+        fprintf(fs, "   [%d-%d]       ", out->curr->scope[0], out->curr->scope[1]);
         fprintf(fs, "%-18s", terminal_str[out->curr->type]);
         if (out->curr->is_array)
         {
@@ -691,24 +707,24 @@ void print_symbol_module(FILE* fs, mod sym_module)
             if (out->curr->is_dynamic)
             {
                 fprintf(fs, "      YES    ");
-                fprintf(fs, "   [%s%s-%s%s]   ", out->curr->array_range[0].value, out->curr->array_range[1].value, out->curr->array_range[2].value, out->curr->array_range[3].value);
+                fprintf(fs, "   [%s%s-%s%s]    ", out->curr->array_range[0].value, out->curr->array_range[1].value, out->curr->array_range[2].value, out->curr->array_range[3].value);
             }
             else
             {
                 fprintf(fs, "     NO    ");
-                fprintf(fs, "  [%s%lld-%s%lld]  ", out->curr->array_range[0].value, out->curr->array_range[1].integer, out->curr->array_range[2].value, out->curr->array_range[3].integer);
+                fprintf(fs, "   [%s%lld-%s%lld]   ", out->curr->array_range[0].value, out->curr->array_range[1].integer, out->curr->array_range[2].value, out->curr->array_range[3].integer);
             }
         }
         else
         {
             fprintf(fs, "    **    ");
-            fprintf(fs, "     **    ");
-            fprintf(fs, "     **    ");
+            fprintf(fs, "     **     ");
+            fprintf(fs, "     **     ");
         }
 
-        fprintf(fs, "%4d   ", out->curr->width);
-        fprintf(fs, "%5d   ", out->curr->offset);
-        fprintf(fs, "%5d    ", out->curr->nesting_level);
+        fprintf(fs, "   %4d   ", out->curr->width);
+        fprintf(fs, "   %5d   ", out->curr->offset);
+        fprintf(fs, "    %5d    ", out->curr->nesting_level);
         fprintf(fs, "\n");
         out = out->next;
     }
