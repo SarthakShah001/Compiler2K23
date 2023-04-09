@@ -1,8 +1,6 @@
 #include "intermediateCodeGen.h"
 
-
 char* currModuleName ; 
-
 
 qNode createQuadruple(){
     qNode newQnode = (qNode)malloc(sizeof(struct QUADRUPLE)) ; 
@@ -36,6 +34,8 @@ void generateIR(qNode curr, parseTreeNode root, char* modname){
         temp->op = INPUT_OP ;
         temp->arg1 = root->child->tok->lex.value;
         temp->arg1Node = root->child;
+        int x = find_mod_no(modname);
+        temp->arg1symbol = find_symbol(global_symbol_table[x],temp->arg1 );
         // temp->arg1symbol = 
         curr->next = temp;
         generateIR(curr->next, root->sibling,modname);
@@ -48,7 +48,7 @@ void generateIR(qNode curr, parseTreeNode root, char* modname){
         qNode temp = createQuadruple() ;
         temp->op = MOD_DEFN_OP;
         temp->arg1 = root->child->tok->lex.value;
-
+        temp->arg1Node = root->child;
+        
     }
 }
-
