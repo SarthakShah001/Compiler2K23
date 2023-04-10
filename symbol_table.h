@@ -18,8 +18,8 @@ int generate_symbol_table(parseTreeNode root, symbol_table curr, int nesting, in
 
 // void print_global_symbol_table();
 
-void print_symbol_module(FILE* fs, mod sym_module);
-void print_symbol_table(FILE* fs, symbol_table tab);
+void print_symbol_module(mod sym_module);
+void print_symbol_table(symbol_table tab);
 
 
 #endif

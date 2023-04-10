@@ -12,6 +12,8 @@
         "ast.h": "c",
         "parserdef.h": "c",
         "parsetree.h": "c",
-        "symbol_table_def.h": "c"
+        "symbol_table_def.h": "c",
+        "intermediatecodegen.h": "c",
+        "intermediatecodegendef.h": "c"
     }
 }

@@ -8,7 +8,8 @@ returns [ n:integer, k: boolean];
 start
 	declare a,b,h:integer;	
 	get_value(b);
-	declare p: array[-12..20] of integer;	
+	declare p: array[-12..20] of integer;
+	declare n:integer;              **ERROR: n is in output list**
 	a:= m[-5]+3;				   **Not an error: array index within bounds**
 	p:= m;					   **Not an error: type expressions of array variables p and m are same and assignment is a valid operation**
 	k:=true;	
@@ -18,6 +19,7 @@ start
 	start
 		declare p, u:integer;
 		declare b: array[2..20] of integer;
+		declare n:integer;
 		b:= m;
 		b[2]:= u+m[25];			   **ERROR: element of array m is out of bound** 
 		p:= b[18]*18.56E+2;		   **ERROR: type mismatch **
@@ -71,7 +73,7 @@ start
 	x:=c+y;	
 	C[18]:= a[18]+ b[18];
 
-	A[5]:= B[6]- 10;
+	NM[5]:= B[6]- 10;
 	m:= A[5]< C[18] + A[11];			      **ERROR: element of array A is out of bound** 
 	n:= 20*8-5;	
 end
@@ -101,7 +103,7 @@ start
 	declare w: integer;			 
 	w:= 23+B[6];  
 	print(C[1]);                    **ERROR:element of array C is out of bound** 
-	print(p[2]);                    
+	print(p[2]);                    **ERROR: variable p is not of type ARRAY**
 	print(C[q]);
 	print(true);
 	b:= a*25+100*C[1];		        **ERROR:element of array C is out of bound** 

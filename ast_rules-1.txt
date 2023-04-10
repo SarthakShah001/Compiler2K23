@@ -383,7 +383,7 @@
 48.<lvalueARRStmt> -> TK_SQBO <element_index_with_expressions> TK_SQBC TK_ASSIGNOP <expression>
 {
     1. LVALUEARRSTMT.node_syn = make_node("ARRAY_ASSIGN", 
-                                           make_node("ARRAY_ACCESS", LVALUEARRSTMT.node_inh, INDEX_with_expressions.node_syn), 
+                                           make_node("ARRAY_Factor", LVALUEARRSTMT.node_inh, INDEX_with_expressions.node_syn), 
                                            EXPRESSION.node_syn
                                          )
     2. free(sqbo)
@@ -566,7 +566,7 @@
     4. free(N7)
 }
 76. <N7> -> <logicalOp> <AnyTerm> <N7'>{ //maine + - konsa element hoga node me ispe dhyaan nh dia
-    1. N7'.node_inh = make_node("Arithmeticop",LOGICALOP.node_syn, ANYTERM.node_syn, N7.node_inh)
+    1. N7'.node_inh = make_node("Arithmeticop", N7.node_inh,LOGICALOP.node_syn, ANYTERM.node_syn)
     2. N7.node_syn = N7'.node_syn
     3. free(LOGICALOP)
     4. free(AnyTerm)

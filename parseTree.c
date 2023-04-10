@@ -90,39 +90,39 @@ void printParseTree(parseTreeNode treeNode)
         TOK currtoken = treeNode->tok;
         if (currtoken->token_type == TK_NUM)
         {
-            fprintf(fp, "    %-15lld", currtoken->lex.integer);
+            printf("    %-15lld", currtoken->lex.integer);
         }
         else if (currtoken->token_type == TK_RNUM)
         {
-            fprintf(fp, "    %-15lf", currtoken->lex.decimal);
+            printf("    %-15lf", currtoken->lex.decimal);
         }
         else
         {
-            fprintf(fp, "     %-15s", currtoken->lex.value);
+            printf("     %-15s", currtoken->lex.value);
         }
     }
     else
     {
-        fprintf(fp, "       ----       ");
+        printf("       ----       ");
     }
     // 2 start
     if (treeNode->child == NULL && treeNode->s->t != epsilon)
     {
-        fprintf(fp, "  %-9d", treeNode->tok->line_no);
+        printf("  %-9d", treeNode->tok->line_no);
     }
     else
     {
-        fprintf(fp, "     -     ");
+        printf("     -     ");
     }
     // 2 end
     // 3 start
     if (treeNode->s->is_terminal)
     {
-        fprintf(fp, "     %-15s ", terminal_str[treeNode->s->t]);
+        printf("     %-15s ", terminal_str[treeNode->s->t]);
     }
     else
     {
-        fprintf(fp, "          -          ");
+        printf("          -          ");
     }
     // // //3 end
     // //4 starts
@@ -132,59 +132,59 @@ void printParseTree(parseTreeNode treeNode)
         TOK currtoken = treeNode->tok;
         if (currtoken->token_type == TK_NUM)
         {
-            fprintf(fp, "     %-15lld", currtoken->lex.integer);
+            printf("     %-15lld", currtoken->lex.integer);
         }
         else if (currtoken->token_type == TK_RNUM)
         {
-            fprintf(fp, "     %-15lf", currtoken->lex.decimal);
+            printf("     %-15lf", currtoken->lex.decimal);
         }
         else
         {
-            fprintf(fp, "          -          ");
+            printf("          -          ");
         }
     }
     else
     {
-        fprintf(fp, "          -          ");
+        printf("          -          ");
     }
     //  //4 end
     // // 5 start
     if (treeNode->parent == NULL)
     {
 
-        fprintf(fp, "      ROOT         ");
+        printf("      ROOT         ");
     }
     else
     {
         if (treeNode->parent->s->is_terminal)
         {
-            fprintf(fp, "%-20s", terminal_str[treeNode->parent->s->t]);
+            printf("%-20s", terminal_str[treeNode->parent->s->t]);
         }
         else
         {
-            fprintf(fp, "%-20s", nonterminal_str[treeNode->parent->s->nt]);
+            printf("%-20s", nonterminal_str[treeNode->parent->s->nt]);
         }
     }
     // // 5 end
     // // // 6 start
     if (treeNode->child == NULL)
     {
-        fprintf(fp, "        YES        ");
+        printf("        YES        ");
     }
 
     else
     {
-        fprintf(fp, "          NO       ");
+        printf("          NO       ");
     }
     if (!treeNode->s->is_terminal)
     {
-        fprintf(fp, "    %-21s", nonterminal_str[treeNode->s->nt]);
+        printf("    %-21s", nonterminal_str[treeNode->s->nt]);
     }
     else
     {
-        fprintf(fp, "      -          ");
+        printf("      -          ");
     }
-    fprintf(fp, "\n");
+    printf("\n");
 
     parseTreeNode temp = treeNode->child;
     while (temp != NULL)
@@ -200,8 +200,8 @@ void printAST(parseTreeNode treeNode)
         return;
     printAST(treeNode->child);
     if(treeNode->s == NULL || treeNode->tok == NULL){
-        fprintf(fp, "%s", ast_strings[treeNode->ast_name]);
-        fprintf(fp, "\n");
+        printf("%s", ast_strings[treeNode->ast_name]);
+        printf("\n");
         
     }
     else{
@@ -219,39 +219,39 @@ void printAST(parseTreeNode treeNode)
         TOK currtoken = treeNode->tok;
         if (currtoken->token_type == TK_NUM)
         {
-            fprintf(fp, "    %-15lld", currtoken->lex.integer);
+            printf("    %-15lld", currtoken->lex.integer);
         }
         else if (currtoken->token_type == TK_RNUM)
         {
-            fprintf(fp, "    %-15lf", currtoken->lex.decimal);
+            printf("    %-15lf", currtoken->lex.decimal);
         }
         else
         {
-            fprintf(fp, "     %-15s", currtoken->lex.value);
+            printf("     %-15s", currtoken->lex.value);
         }
     }
     else
     {
-        fprintf(fp, "       ----       ");
+        printf("       ----       ");
     }
     // 2 start
     if (treeNode->child == NULL && treeNode->s->t != epsilon)
     {
-        fprintf(fp, "  %-9d", treeNode->tok->line_no);
+        printf("  %-9d", treeNode->tok->line_no);
     }
     else
     {
-        fprintf(fp, "     -     ");
+        printf("     -     ");
     }
     // 2 end
     // 3 start
     if (treeNode->s->is_terminal)
     {
-        fprintf(fp, "     %-15s ", terminal_str[treeNode->s->t]);
+        printf("     %-15s ", terminal_str[treeNode->s->t]);
     }
     else
     {
-        fprintf(fp, "          -          ");
+        printf("          -          ");
     }
     // // //3 end
     // //4 starts
@@ -261,59 +261,59 @@ void printAST(parseTreeNode treeNode)
         TOK currtoken = treeNode->tok;
         if (currtoken->token_type == TK_NUM)
         {
-            fprintf(fp, "     %-15lld", currtoken->lex.integer);
+            printf("     %-15lld", currtoken->lex.integer);
         }
         else if (currtoken->token_type == TK_RNUM)
         {
-            fprintf(fp, "     %-15lf", currtoken->lex.decimal);
+            printf("     %-15lf", currtoken->lex.decimal);
         }
         else
         {
-            fprintf(fp, "          -          ");
+            printf("          -          ");
         }
     }
     else
     {
-        fprintf(fp, "          -          ");
+        printf("          -          ");
     }
     //  //4 end
     // // 5 start
     if (treeNode->parent == NULL)
     {
 
-        fprintf(fp, "      ROOT         ");
+        printf("      ROOT         ");
     }
     else
     {
         if (treeNode->parent->s->is_terminal)
         {
-            fprintf(fp, "%-20s", terminal_str[treeNode->parent->s->t]);
+            printf("%-20s", terminal_str[treeNode->parent->s->t]);
         }
         else
         {
-            fprintf(fp, "%-20s", nonterminal_str[treeNode->parent->s->nt]);
+            printf("%-20s", nonterminal_str[treeNode->parent->s->nt]);
         }
     }
     // // 5 end
     // // // 6 start
     if (treeNode->child == NULL)
     {
-        fprintf(fp, "        YES        ");
+        printf("        YES        ");
     }
 
     else
     {
-        fprintf(fp, "          NO       ");
+        printf("          NO       ");
     }
     if (!treeNode->s->is_terminal)
     {
-        fprintf(fp, "    %-21s", nonterminal_str[treeNode->s->nt]);
+        printf("    %-21s", nonterminal_str[treeNode->s->nt]);
     }
     else
     {
-        fprintf(fp, "      -          ");
+        printf("      -          ");
     }
-    fprintf(fp, "\n");
+    printf("\n");
     }
     parseTreeNode temp = treeNode->child;
     while (temp != NULL)

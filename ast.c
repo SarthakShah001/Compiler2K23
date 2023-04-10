@@ -510,7 +510,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             currnode->syn_node = createTree();
             currnode->syn_node->ast_name = AST_ARRAY_ASSIGN;
             parseTreeNode temp = createTree();
-            temp->ast_name = AST_ARRAY_ACCESS;
+            temp->ast_name = AST_ARRAY_FACTOR;
             add_child(temp, currnode->inh_node);
             add_child(temp, generate_ast(currchild->sibling)->syn_node);
             add_child(currnode->syn_node, temp);

@@ -11,6 +11,8 @@
 
 qNode createQuadruple() ; 
 void generateIR(qNode curr ,parseTreeNode root, char* modname) ; 
+void addTemporary() ; 
+void newLabel() ; 
 
 
 #endif
