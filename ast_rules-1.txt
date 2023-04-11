@@ -327,12 +327,10 @@
     1. P1.node_syn = make_node("ARRAY_ACCESS",P1.node_inh,INDEX_ARR.node_syn);
 }
 
-
 41. <P1> -> epsilon
 {
     1. P1.node_syn = P1.node_inh;
 }
-
 
 42.<simpleStmt> -> <assignmentStmt> 
 {

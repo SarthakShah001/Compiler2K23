@@ -4,6 +4,52 @@
 #include <stdbool.h>
 
 mod global_symbol_table[500];
+bool is_same_type(tkType t1, tkType t2)
+{
+    if (t1 == t2)
+        return true;
+    else if (t1 == TK_INTEGER && t2 == TK_NUM || t2 == TK_INTEGER && t1 == TK_NUM)
+        return true;
+    else if (t1 == TK_REAL && t2 == TK_RNUM || t2 == TK_REAL && t1 == TK_RNUM)
+        return true;
+    else if (t1 == TK_BOOLEAN && (t2 == TK_TRUE || t2 == TK_FALSE) || t2 == TK_BOOLEAN && (t1 == TK_TRUE || t1 == TK_FALSE))
+        return true;
+    else
+        return false;
+}
+
+bool is_boolean(tkType t1)
+{
+    if (t1 == TK_BOOLEAN || t1 == TK_TRUE || t1 == TK_FALSE)
+        return true;
+    else
+        return false;
+}
+
+bool is_inBounds(ast_symbol curr_symbol, int n)
+{
+    int a, b;
+    if (curr_symbol->array_range[0].value[0] == '-')
+    {
+        a = -1 * curr_symbol->array_range[1].integer;
+    }
+    else
+    {
+        a = curr_symbol->array_range[1].integer;
+    }
+    if (curr_symbol->array_range[2].value[0] == '-')
+    {
+        b = -1 * curr_symbol->array_range[3].integer;
+    }
+    else
+    {
+        b = curr_symbol->array_range[3].integer;
+    }
+
+    if (a > b) return (n>=b && n<=a);
+    else return (n>=a && n<=b);
+}
+
 void global_symbol_table_init()
 {
     for (int i = 0; i < 500; i++)
@@ -55,9 +101,10 @@ ast_symbol ast_symbol_init()
 
 void insert_symbol_table(symbol_table table, ast_symbol s)
 {
-    if(table==NULL){
-    printf("table is NULL\n");
-    return;
+    if (table == NULL)
+    {
+        printf("table is NULL\n");
+        return;
     }
     int prob = 0;
     // printf("here1\n");
@@ -104,9 +151,10 @@ ast_symbol find_in_list(symbol_list_node l, char *str)
 }
 ast_symbol find_symbol(symbol_table table, char *str)
 {
-    if(table==NULL){
-    printf("Table is NULL\n");
-    return NULL;
+    if (table == NULL)
+    {
+        printf("Table is NULL\n");
+        return NULL;
     }
     symbol_table temp = table;
     while (temp->parent != NULL)
@@ -164,6 +212,33 @@ int find_mod_no(char *str)
     }
     return -1;
 }
+int range_cal(ast_symbol curr_symbol)
+{
+    int len_array;
+    int a, b;
+    if (curr_symbol->array_range[0].value[0] == '-')
+    {
+        a = -1 * curr_symbol->array_range[1].integer;
+    }
+    else
+    {
+        a = curr_symbol->array_range[1].integer;
+    }
+    if (curr_symbol->array_range[2].value[0] == '-')
+    {
+        b = -1 * curr_symbol->array_range[3].integer;
+    }
+    else
+    {
+        b = curr_symbol->array_range[3].integer;
+    }
+
+    if (a > b)
+        len_array = a - b + 1;
+    else
+        len_array = b - a + 1;
+    return len_array;
+}
 
 int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, int curr_offset, ast_symbol curr_symbol, int currscope[2])
 {
@@ -198,7 +273,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             {
                 // throw error, change colour
                 printf("\033[31m");
-                printf("In line no. -> %d module already declared\n", currchild->tok->line_no);
+                printf("ERROR: module %s cannot be redeclared in line no %d\n", currchild->tok->lex.value, currchild->tok->line_no);
                 printf("\033[0m");
             }
             else
@@ -242,7 +317,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             {
                 // throw error change colour
                 printf("\033[31m");
-                printf("In line no-> %d module already defined before\n", currchild->tok->line_no);
+                printf("ERROR: module %s cannot be overloaded in line no. %d\n", currchild->tok->lex.value, currchild->tok->line_no);
                 printf("\033[0m");
                 break;
             }
@@ -368,13 +443,19 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         offset = generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
         if (!curr_symbol->is_dynamic)
         {
-            int len_array = curr_symbol->array_range[3].integer - curr_symbol->array_range[1].integer;
-            if (len_array < 0)
+            int len_array = range_cal(curr_symbol);
+            if (nesting == 0)
             {
-                len_array = -1 * len_array;
+                curr_symbol->width = 1 + 2 * find_width(TK_INTEGER);
             }
-            len_array += 1;
-            curr_symbol->width = len_array * find_width(curr_symbol->type) + 1;
+            else
+            {
+                curr_symbol->width = len_array * find_width(curr_symbol->type) + 1;
+            }
+        }
+        if (curr_symbol->is_dynamic)
+        {
+            curr_symbol->width = 1;
         }
         offset = offset + curr_symbol->width;
         break;
@@ -446,13 +527,15 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     }
     case AST_PRINT:
     {
-        if (currchild->tok==NULL)
+        if (currchild->tok == NULL)
         {
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        }      
-        else if(currchild->tok->token_type==TK_ID){
-            if(find_symbol(table,currchild->tok->lex.value) == NULL){
-            //throw error
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        }
+        else if (currchild->tok->token_type == TK_ID)
+        {
+            if (find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // throw error
                 printf("\033[31m");
                 printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
                 printf("\033[0m");
@@ -462,10 +545,10 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     }
     case AST_ARRAY_ACCESS:
     {
-    // //     // id->sign(canbeNULL)->numberorid
+        // //     // id->sign(canbeNULL)->numberorid
 
-    // //     // array also be declared
-    // //     // array index should be integer and in range
+        // //     // array also be declared
+        // //     // array index should be integer and in range
         if (find_symbol(table, currchild->tok->lex.value) == NULL)
         {
             printf("\033[31m");
@@ -483,16 +566,17 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                 printf("\033[0m");
                 break;
             }
-            currchild=currchild->sibling->child;
+            currchild = currchild->sibling->child;
             // if(currchild==NULL){
             //         printf("currchild is NULL\n");
             //     }
             if (currchild->sibling == NULL)
             {
-                if(currchild==NULL){
+                if (currchild == NULL)
+                {
                     printf("currchild is NULL\n");
                 }
-            // printf("tok=%s\n", terminal_str[currchild->tok->token_type]);
+                // printf("tok=%s\n", terminal_str[currchild->tok->token_type]);
                 if (currchild->tok->token_type == TK_NUM)
                 {
                     if (t->is_dynamic)
@@ -539,7 +623,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                             }
                         }
                     }
-                 }
+                }
                 else if (currchild->tok->token_type == TK_ID)
                 {
                     ast_symbol t = find_symbol(table, currchild->tok->lex.value);
@@ -661,35 +745,100 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                 }
             }
         }
-    //     // variable should be declared and is int
+        //     // variable should be declared and is int
         break;
     }
     case AST_ID_ASSIGN:
-    {   
-        if(currchild==NULL){
-            printf("currchild is NULL\n");
-            break;
-        }
-        else if(currchild->tok==NULL){
-            printf("tok is NULL\n");
-            printf("%s\n",ast_strings[currchild->ast_name]);
-            break;
-        }
-        if(find_symbol(table,currchild->tok->lex.value)==NULL){
+    {
+        // if (currchild == NULL)
+        // {
+        //     printf("currchild is NULL\n");
+        //     break;
+        // }
+        // else if (currchild->tok == NULL)
+        // {
+        //     printf("tok is NULL\n");
+        //     printf("%s\n", ast_strings[currchild->ast_name]);
+        //     break;
+        // }
+        if (find_symbol(table, currchild->tok->lex.value) == NULL)
+        {
             printf("\033[31m");
             printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m");    
+            printf("\033[0m");
         }
-        currchild=currchild->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m");    
+        currchild = currchild->sibling;
+        if (currchild->tok != NULL)
+        {
+            ast_symbol t1 = find_symbol(table, currchild->tok->lex.value);
+            ast_symbol t2 = find_symbol(table, root->child->tok->lex.value);
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            else if (currchild->tok->token_type == TK_ID && (find_symbol(table, currchild->tok->lex.value)->type != find_symbol(table, root->child->tok->lex.value)->type))
+            {
+                // type mismatch error
+                printf("\033[31m");
+                printf("ERROR: Type mismatch error in line no %d\n", currchild->tok->line_no);
+                printf("\033[0m");
+            }
+            else if (currchild->tok->token_type == TK_ID && t1->is_array && t2->is_array)
+            {
+                int a = range_cal(t1);
+                int b = range_cal(t2);
+                if (a != b)
+                {
+                    printf("\033[31m");
+                    printf("ERROR: Type mismatch error in line no %d\n", currchild->tok->line_no);
+                    printf("\033[0m");
+                }
+            }
+            else if (currchild->tok->token_type == TK_ID && (t1->is_array || t2->is_array))
+            {
+                printf("\033[31m");
+                printf("ERROR: Type mismatch error in line no %d\n", currchild->tok->line_no);
+                printf("\033[0m");
+            }
+            else if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value)->is_array)
+            {
+                // type mismatch error
+                printf("\033[31m");
+                printf("ERROR: Type mismatch error in line no %d\n", currchild->tok->line_no);
+                printf("\033[0m");
+            }
+            else if (!is_same_type(find_symbol(table, root->child->tok->lex.value)->type, currchild->tok->token_type))
+            {
+                // type not matching error
+                printf("\033[31m");
+                printf("ERROR: Type mismatch error in line no %d\n", currchild->tok->line_no);
+                printf("\033[0m");
+            }
         }
-        }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+        else
+        {
+            if (find_symbol(table, root->child->tok->lex.value)->is_array)
+            {
+                printf("\033[31m");
+                printf("ERROR: Type mismatch error in line no %d\n", root->child->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            if (currchild->type_syn == epsilon)
+            {
+                break;
+            }
+            if (!is_same_type(find_symbol(table, root->child->tok->lex.value)->type, currchild->type_syn))
+            {
+                printf("\033[31m");
+                printf("ERROR: Type mismatch error in line no %d\n", root->child->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
         }
         // do nothing
         // all variable calculation at rhs should be compatible to each other
@@ -707,17 +856,20 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         //     printf("%s\n",ast_strings[currchild->ast_name]);
         //     break;
         // }
-        generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        currchild=currchild->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m");    
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        currchild = currchild->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+            }
         }
-        }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
         }
         // do nothing
         // index should be integer and in range
@@ -735,23 +887,56 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         {
             // throw error change colour
             printf("\033[31m");
-            printf("In Line no.-> %d Module needs to be declared first before use\n", currchild->tok->line_no);
+            printf("ERROR: module  needs to be declared first before use in line no -> %d \n", currchild->tok->line_no);
             printf("\033[0m");
         }
+        currchild = currchild->sibling;
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        currchild = currchild->sibling;
+        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
         break;
     }
     case AST_PARAMETER_LIST1:
     {
+        while (currchild != NULL)
+        {
+            if (find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+            }
+            currchild = currchild->sibling;
+        }
         // do nothing
         break;
     }
     case AST_PARAMETER_LIST2:
     {
+        while (currchild != NULL)
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            currchild = currchild->sibling;
+        }
         // do nothing
         break;
     }
     case AST_ACTUAL_PARA:
     {
+        if (currchild->tok != NULL && (currchild->tok->token_type == TK_PLUS || currchild->tok->token_type == TK_MINUS))
+        {
+            currchild = currchild->sibling;
+        }
+        if (currchild->tok != NULL && (currchild->tok->token_type == TK_ID) && (find_symbol(table, currchild->tok->lex.value) == NULL))
+        {
+            printf("\033[31m");
+            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+            printf("\033[0m");
+        }
+        else if (currchild->tok == NULL)
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        }
         // do nothing
         break;
     }
@@ -762,174 +947,679 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     }
     case AST_RELATIONAL_OP:
     {
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        tkType t1, t2;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t1 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t1 = currchild->tok->token_type;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        }
-        currchild=currchild->sibling->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t1 = currchild->type_syn;
+            if (t1 == epsilon)
+            {
+                break;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+
+        currchild = currchild->sibling->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t2 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t2 = currchild->tok->token_type;
+            }
         }
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t2 = currchild->type_syn;
+            if (t2 == epsilon)
+            {
+                break;
+            }
+        }
+
+        if (!is_same_type(t1, t2) || is_boolean(t1))
+        {
+            printf("\033[31m");
+            printf("ERROR: Type mismatch error in line no %d\n", root->child->sibling->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        root->type_syn = TK_BOOLEAN;
         // do nothing
         break;
     }
     case AST_LOGICAL_OP:
     {
-     if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        tkType t1, t2;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t1 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t1 = currchild->tok->token_type;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        }
-        currchild=currchild->sibling->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t1 = currchild->type_syn;
+            if (t1 == epsilon)
+            {
+                break;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+
+        currchild = currchild->sibling->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t2 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t2 = currchild->tok->token_type;
+            }
         }
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t2 = currchild->type_syn;
+            if (t2 == epsilon)
+            {
+                break;
+            }
+        }
+
+        if (!is_same_type(t1, t2) || !is_boolean(t1))
+        {
+            printf("\033[31m");
+            printf("ERROR: Type mismatch error in line no %d\n", root->child->sibling->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        root->type_syn = TK_BOOLEAN;
         // do nothing
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
+        // currchild = currchild->sibling->sibling;
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
+        // // do nothing
         break;
     }
     case AST_PLUS:
     {
-         if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        tkType t1, t2;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t1 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t1 = currchild->tok->token_type;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        }
-        currchild=currchild->sibling->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t1 = currchild->type_syn;
+            if (t1 == epsilon)
+            {
+                break;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+
+        currchild = currchild->sibling->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t2 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t2 = currchild->tok->token_type;
+            }
         }
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t2 = currchild->type_syn;
+            if (t2 == epsilon)
+            {
+                break;
+            }
+        }
+        if (!is_same_type(t1, t2) || is_boolean(t1))
+        {
+            printf("\033[31m");
+            printf("ERROR: Type mismatch error in line no %d\n", root->child->sibling->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        root->type_syn = t1;
         // do nothing
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
+        // currchild = currchild->sibling->sibling;
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
+        // // do nothing
         break;
     }
     case AST_MINUS:
     {
-         if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        tkType t1, t2;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t1 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t1 = currchild->tok->token_type;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        }
-        currchild=currchild->sibling->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t1 = currchild->type_syn;
+            if (t1 == epsilon)
+            {
+                break;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+
+        currchild = currchild->sibling->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t2 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t2 = currchild->tok->token_type;
+            }
         }
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t2 = currchild->type_syn;
+            if (t2 == epsilon)
+            {
+                break;
+            }
+        }
+
+        if (!is_same_type(t1, t2) || is_boolean(t1))
+        {
+            printf("\033[31m");
+            printf("ERROR: Type mismatch error in line no %d\n", root->child->sibling->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        root->type_syn = t1;
+        // do nothing
+        //     if (currchild->tok != NULL)
+        //     {
+        //         if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //         {
+        //             // var not declared error
+        //             printf("\033[31m");
+        //             printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //             printf("\033[0m");
+        //         }
+        //     }
+        //     else
+        //     {
+        //         generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        //     }
+        //     currchild = currchild->sibling->sibling;
+        //     if (currchild->tok != NULL)
+        //     {
+        //         if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //         {
+        //             // var not declared error
+        //             printf("\033[31m");
+        //             printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //             printf("\033[0m");
+        //         }
+        //     }
+        //     else
+        //     {
+        //         generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        //     }
         // do nothing
         break;
     }
     case AST_MUL:
     {
-         if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        tkType t1, t2;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t1 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t1 = currchild->tok->token_type;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        }
-        currchild=currchild->sibling->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t1 = currchild->type_syn;
+            if (t1 == epsilon)
+            {
+                break;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+
+        currchild = currchild->sibling->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t2 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t2 = currchild->tok->token_type;
+            }
         }
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t2 = currchild->type_syn;
+            if (t2 == epsilon)
+            {
+                break;
+            }
+        }
+
+        if (!is_same_type(t1, t2) || is_boolean(t1))
+        {
+            printf("\033[31m");
+            printf("ERROR: Type mismatch error in line no %d\n", root->child->sibling->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        root->type_syn = t1;
+        // do nothing
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
+        // currchild = currchild->sibling->sibling;
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
         //  do nothing
         break;
     }
     case AST_DIV:
     {
-         if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        tkType t1, t2;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t1 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t1 = currchild->tok->token_type;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
-        }
-        currchild=currchild->sibling->sibling;
-        if(currchild->tok!=NULL){
-            if(currchild->tok->token_type==TK_ID && find_symbol(table,currchild->tok->lex.value)==NULL){
-                //var not declared error
-            printf("\033[31m");
-            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
-            printf("\033[0m"); 
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t1 = currchild->type_syn;
+            if (t1 == epsilon)
+            {
+                break;
             }
         }
-        else{
-            generate_symbol_table(currchild,table,nesting,curr_offset,curr_symbol,currscope);
+
+        currchild = currchild->sibling->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+            {
+                // var not declared error
+                printf("\033[31m");
+                printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+            if (currchild->tok->token_type == TK_ID)
+            {
+                t2 = find_symbol(table, currchild->tok->lex.value)->type;
+            }
+            else
+            {
+                t2 = currchild->tok->token_type;
+            }
         }
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            t2 = currchild->type_syn;
+            if (t2 == epsilon)
+            {
+                break;
+            }
+        }
+
+        if (!is_same_type(t1, t2) || is_boolean(t1))
+        {
+            printf("\033[31m");
+            printf("ERROR: Type mismatch error in line no %d\n", root->child->sibling->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        root->type_syn = t1;
+        // do nothing
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
+        // currchild = currchild->sibling->sibling;
+        // if (currchild->tok != NULL)
+        // {
+        //     if (currchild->tok->token_type == TK_ID && find_symbol(table, currchild->tok->lex.value) == NULL)
+        //     {
+        //         // var not declared error
+        //         printf("\033[31m");
+        //         printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+        //         printf("\033[0m");
+        //     }
+        // }
+        // else
+        // {
+        //     generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        // }
         // do nothing
         break;
     }
     case AST_ARRAY_FACTOR:
     {
+        ast_symbol t = find_symbol(table, currchild->tok->lex.value);
+        if (find_symbol(table, currchild->tok->lex.value) == NULL)
+        {
+            printf("\033[31m");
+            printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        else if (!find_symbol(table, currchild->tok->lex.value)->is_array)
+        {
+            printf("\033[31m");
+            printf("ERROR: variable %s is not an error in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+            printf("\033[0m");
+            break;
+        }
+        currchild = currchild->sibling;
+        if (currchild->tok != NULL)
+        {
+            if (currchild->tok->lex.value[0] == '+' || currchild->tok->lex.value[0] == '-')
+            {
+                currchild = currchild->sibling;
+            }
+            if (currchild->tok != NULL)
+            {
+                if (currchild->tok->token_type == TK_ID)
+                {
+                    if (find_symbol(table, currchild->tok->lex.value) == NULL)
+                    {
+                        // var not declared error
+                        printf("\033[31m");
+                        printf("ERROR: variable %s is not declared in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                        printf("\033[0m");
+                        break;
+                    }
+                    else if (find_symbol(table, currchild->tok->lex.value)->type != TK_INTEGER)
+                    {
+                        // var should be integer
+                        printf("\033[31m");
+                        printf("ERROR: variable %s should be of type INTEGER in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                        printf("\033[0m");
+                        break;
+                    }
+                }
+                else if (currchild->tok->token_type != TK_NUM)
+                {
+                    // only integer access possible in array
+                    printf("\033[31m");
+                    printf("ERROR: array index should be type INTEGER in line %d\n",  currchild->tok->line_no);
+                    printf("\033[0m");
+                    break;
+                }
+                else{
+                    if(!is_inBounds(t,currchild->tok->lex.integer)){
+                    printf("\033[31m");
+                    printf("ERROR: array index not in bounds in line %d\n",  currchild->tok->line_no);
+                    printf("\033[0m");
+                    break;
+                    }
+                }
+            }
+            else
+            {
+                generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+                if (currchild->type_syn != TK_NUM && currchild->type_syn != TK_INTEGER)
+                {
+                    // throw error
+                    printf("\033[31m");
+                    printf("ERROR: variable %s should be of type INTEGER for array access in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                    printf("\033[0m");
+                    break;
+                }
+            }
+        }
+        else
+        {
+            generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+            if (currchild->type_syn != TK_NUM && currchild->type_syn != TK_INTEGER)
+            {
+                // throw error
+                printf("\033[31m");
+                printf("ERROR: variable %s should be of type INTEGER for array access in line %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                printf("\033[0m");
+                break;
+            }
+        }
+        root->type_syn=t->type;
         // do nothing
         break;
     }
@@ -942,20 +1632,23 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     {
         if (currchild->tok != NULL)
         {
+            // non-array declarations
             tkType t = currchild->tok->token_type;
             currchild = currchild->sibling;
             while (currchild != NULL)
             {
                 ast_symbol new_symbol = ast_symbol_init();
                 new_symbol->nesting_level = nesting;
-                if(find_symbol(table,currchild->tok->lex.value)!=NULL&&find_symbol(table,currchild->tok->lex.value)->nesting_level==nesting){
+                if (find_symbol(table, currchild->tok->lex.value) != NULL && find_symbol(table, currchild->tok->lex.value)->nesting_level == nesting)
+                {
                     printf("\033[31m");
                     printf("ERROR: variable %s is redeclared in line no %d\n", currchild->tok->lex.value, currchild->tok->line_no);
                     printf("\033[0m");
                     currchild = currchild->sibling;
                     continue;
                 }
-                if(nesting==1&&find_in_list(table->modulewrapper->outlist,currchild->tok->lex.value)!=NULL){
+                if (nesting == 1 && find_in_list(table->modulewrapper->outlist, currchild->tok->lex.value) != NULL)
+                {
                     printf("\033[31m");
                     printf("ERROR: variable %s is declared in output parameter list and cannot be redeclared in line no %d\n", currchild->tok->lex.value, currchild->tok->line_no);
                     printf("\033[0m");
@@ -965,7 +1658,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                 strcpy(new_symbol->var_name, currchild->tok->lex.value);
                 new_symbol->offset = offset;
                 new_symbol->width = find_width(t);
-                offset+=new_symbol->width;
+                offset += new_symbol->width;
                 new_symbol->type = t;
                 new_symbol->scope[0] = currscope[0];
                 new_symbol->scope[1] = currscope[1];
@@ -980,9 +1673,25 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             {
                 ast_symbol new_symbol = ast_symbol_init();
                 new_symbol->nesting_level = nesting;
+                if (find_symbol(table, currchild->tok->lex.value) != NULL && find_symbol(table, currchild->tok->lex.value)->nesting_level == nesting)
+                {
+                    printf("\033[31m");
+                    printf("ERROR: variable %s is redeclared in line no %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                    printf("\033[0m");
+                    currchild = currchild->sibling;
+                    continue;
+                }
+                if (nesting == 1 && find_in_list(table->modulewrapper->outlist, currchild->tok->lex.value) != NULL)
+                {
+                    printf("\033[31m");
+                    printf("ERROR: variable %s is declared in output parameter list and cannot be redeclared in line no %d\n", currchild->tok->lex.value, currchild->tok->line_no);
+                    printf("\033[0m");
+                    currchild = currchild->sibling;
+                    continue;
+                }
                 strcpy(new_symbol->var_name, currchild->tok->lex.value);
                 new_symbol->offset = offset;
-                new_symbol->is_array=true;
+                new_symbol->is_array = true;
                 offset = generate_symbol_table(root->child, table, nesting, offset, new_symbol, currscope);
                 new_symbol->scope[0] = currscope[0];
                 new_symbol->scope[1] = currscope[1];
@@ -1012,7 +1721,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             strcpy(new_table->mod_name, table->mod_name);
             table->child[table->no_child] = new_table;
             table->no_child++;
-            offset=generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
+            offset = generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
             currchild = currchild->sibling;
         }
         break;
@@ -1020,7 +1729,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     case AST_CASE:
     {
         currchild = currchild->sibling;
-        offset=generate_symbol_table(currchild, table, nesting, offset, NULL, root->scope);
+        offset = generate_symbol_table(currchild, table, nesting, offset, NULL, root->scope);
         break;
     }
     case AST_FORLOOP:
@@ -1031,7 +1740,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         strcpy(new_table->mod_name, table->mod_name);
         table->child[table->no_child] = new_table;
         table->no_child++;
-        offset=generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
+        offset = generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
         break;
     }
     case AST_WHILELOOP:
@@ -1042,7 +1751,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         strcpy(new_table->mod_name, table->mod_name);
         table->child[table->no_child] = new_table;
         table->no_child++;
-        offset=generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
+        offset = generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
         break;
     }
     case AST_INDEX_FOR_LOOP:
@@ -1057,7 +1766,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         strcpy(new_table->mod_name, table->mod_name);
         table->child[table->no_child] = new_table;
         table->no_child++;
-        offset=generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
+        offset = generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
         break;
     }
     default:
@@ -1067,24 +1776,25 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     }
     return offset;
 }
-void type_checking(parseTreeNode root,tkType syn,tkType inh){
-    parseTreeNode currchild=root->child;
+void type_checking(parseTreeNode root, tkType syn, tkType inh)
+{
+    parseTreeNode currchild = root->child;
     switch (root->ast_name)
     {
 
     case AST_PROGRAM:
     {
-        
+
         break;
     }
     case AST_MODULEDECLARATIONS:
     {
-        
+
         break;
     }
     case AST_MODULEDEFINITIONS:
     {
-    
+
         break;
     }
     case AST_DRIVER:
@@ -1093,44 +1803,42 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     }
     case AST_MODULE:
     {
-        
+
         break;
     }
     case AST_INPUT_PARAMETER_LIST:
     {
-        
+
         break;
     }
     case AST_OUTPUT_PARAMETER_LIST:
     {
-        
+
         break;
     }
     case AST_INP_PARAMETER:
     {
-       
+
         break;
     }
     case AST_OUT_PARAMETER:
     {
-     
-        
+
         break;
     }
     case AST_ARRAY:
     {
-     
+
         break;
     }
     case AST_RANGE_ARRAYS:
     {
-        
-       
+
         break;
     }
     case AST_STATEMENTS:
     {
-      
+
         break;
     }
     case AST_GET_VALUE:
@@ -1140,21 +1848,18 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     }
     case AST_PRINT:
     {
-        
+
         break;
     }
     case AST_ARRAY_ACCESS:
     {
-   
-       
-              
-           
-    //     // variable should be declared and is int
+
+        //     // variable should be declared and is int
         break;
     }
     case AST_ID_ASSIGN:
-    {   
-        
+    {
+
         // do nothing
         // all variable calculation at rhs should be compatible to each other
         // end result type of rhs compatible to lhs
@@ -1162,7 +1867,7 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     }
     case AST_ARRAY_ASSIGN:
     {
-        
+
         break;
     }
     case AST_INDEX_ARR:
@@ -1172,7 +1877,7 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     }
     case AST_MODULE_REUSE:
     {
-        
+
         break;
     }
     case AST_PARAMETER_LIST1:
@@ -1197,7 +1902,7 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     }
     case AST_RELATIONAL_OP:
     {
-        
+
         // do nothing
         break;
     }
@@ -1238,32 +1943,32 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     }
     case AST_DECLARE_STMT:
     {
-       
+
         break;
     }
     case AST_SWITCH:
     {
-        
+
         break;
     }
     case AST_CASES:
     {
-        
+
         break;
     }
     case AST_CASE:
     {
-      
+
         break;
     }
     case AST_FORLOOP:
     {
-        
+
         break;
     }
     case AST_WHILELOOP:
     {
-       
+
         break;
     }
     case AST_INDEX_FOR_LOOP:
@@ -1273,7 +1978,7 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     }
     case AST_DEFAULT:
     {
-        
+
         break;
     }
     default:
@@ -1284,6 +1989,52 @@ void type_checking(parseTreeNode root,tkType syn,tkType inh){
     return;
 }
 
+void print_symbol_table_list(mod sym_module, symbol_list_node in)
+{
+    // if (in == NULL) printf("\nList is NULL\n");
+
+    while (in != NULL)
+    {
+        // print variables
+        if (in->curr == NULL)
+        {
+            printf("curr was null\n");
+            continue;
+        }
+        printf("%-20s", in->curr->var_name);
+        // printf("%-25s", sym_module->table->mod_name);
+        printf("%-20s", sym_module->table->mod_name);
+        printf(" [%d-%d]       ", in->curr->scope[0], in->curr->scope[1]);
+        printf("%-18s", terminal_str[in->curr->type]);
+        if (in->curr->is_array)
+        {
+            printf("   YES    ");
+            if (in->curr->is_dynamic)
+            {
+                printf("     YES     ");
+                printf("   [%s%s..%s%s]    ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
+            }
+            else
+            {
+                printf("     NO    ");
+                printf("   [%s%lld..%s%lld]   ", in->curr->array_range[0].value, in->curr->array_range[1].integer, in->curr->array_range[2].value, in->curr->array_range[3].integer);
+            }
+        }
+        else
+        {
+            printf("    **    ");
+            printf("     **     ");
+            printf("     **     ");
+        }
+
+        printf("   %4d   ", in->curr->width);
+        printf("   %5d   ", in->curr->offset);
+        printf("    %5d", in->curr->nesting_level);
+        printf("\n");
+        in = in->next;
+    }
+    return;
+}
 
 void print_symbol_table(symbol_table tab)
 {
@@ -1292,9 +2043,9 @@ void print_symbol_table(symbol_table tab)
         if (tab->sym[i] != NULL)
         {
             // print symbols
-            printf("%-25s", tab->sym[i]->var_name);
-            printf("%-25s", tab->mod_name);
-            printf("   [%d-%d]       ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
+            printf("%-20s", tab->sym[i]->var_name);
+            printf("%-20s", tab->mod_name);
+            printf(" [%d-%d]       ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
             printf("%-18s", terminal_str[tab->sym[i]->type]);
             if (tab->sym[i]->is_array)
             {
@@ -1333,7 +2084,8 @@ void print_symbol_table(symbol_table tab)
     return;
 }
 
-void print_symbol_table_list(mod sym_module, symbol_list_node in){
+void print_symbol_table_list_array(mod sym_module, symbol_list_node in)
+{
     // if (in == NULL) printf("\nList is NULL\n");
 
     while (in != NULL)
@@ -1344,41 +2096,89 @@ void print_symbol_table_list(mod sym_module, symbol_list_node in){
             printf("curr was null\n");
             continue;
         }
-        printf("%-25s", in->curr->var_name);
-        // printf("%-25s", sym_module->table->mod_name);
-        printf("%-25s", sym_module->table->mod_name);
-        printf("   [%d-%d]       ", in->curr->scope[0], in->curr->scope[1]);
-        printf("%-18s", terminal_str[in->curr->type]);
+
         if (in->curr->is_array)
         {
-            printf("   YES    ");
+            printf("%-20s", sym_module->table->mod_name);
+            printf("     [%d-%d]        ", in->curr->scope[0], in->curr->scope[1]);
+            printf("%-20s", in->curr->var_name);
+
             if (in->curr->is_dynamic)
             {
-                printf("     YES     ");
-                printf("   [%s%s..%s%s]    ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
+                printf("    DYNAMIC   ");
+                printf("    [%s%s..%s%s]    ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
             }
             else
             {
-                printf("     NO    ");
+                printf("   STATIC  ");
                 printf("   [%s%lld..%s%lld]   ", in->curr->array_range[0].value, in->curr->array_range[1].integer, in->curr->array_range[2].value, in->curr->array_range[3].integer);
             }
-        }
-        else
-        {
-            printf("    **    ");
-            printf("     **     ");
-            printf("     **     ");
-        }
 
-        printf("   %4d   ", in->curr->width);
-        printf("   %5d   ", in->curr->offset);
-        printf("    %5d", in->curr->nesting_level);
-        printf("\n");
+            printf("%-15s", terminal_str[in->curr->type]);
+            printf("\n");
+        }
         in = in->next;
     }
-    return ;
+    return;
 }
 
+void print_symbol_table_array(symbol_table tab)
+{
+    // if (in == NULL) printf("\nList is NULL\n");
+    for (int i = 0; i < 1000; i++)
+    {
+        if (tab->sym[i] != NULL)
+        {
+            if (tab->sym[i]->is_array)
+            {
+                printf("%-20s", tab->mod_name);
+                printf("     [%d-%d]        ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
+                printf("%-20s", tab->sym[i]->var_name);
+
+                if (tab->sym[i]->is_dynamic)
+                {
+                    printf("    DYNAMIC   ");
+                    printf("   [%s%s..%s%s]   ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].value, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].value);
+                }
+                else
+                {
+                    printf("   STATIC  ");
+                    printf("   [%s%lld..%s%lld]  ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].integer, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].integer);
+                }
+
+                printf("%-15s", terminal_str[tab->sym[i]->type]);
+                printf("\n");
+            }
+        }
+    }
+
+    for (int i = 0; i < tab->no_child; i++)
+    {
+        print_symbol_table_array(tab->child[i]);
+    }
+
+    return;
+}
+
+void print_symbol_module_array(mod sym_module)
+{
+    // print inlist var
+    if (sym_module == NULL)
+    {
+        printf("module not present\n");
+        return;
+    }
+    // printf("current module=%s\n",sym_module->mod_name);
+    // print inlist array variables
+    print_symbol_table_list_array(sym_module, sym_module->inlist);
+
+    // print outlist array variables
+    print_symbol_table_list_array(sym_module, sym_module->outlist);
+
+    // symbol table array variables
+    print_symbol_table_array(sym_module->table);
+    return;
+}
 
 void print_symbol_module(mod sym_module)
 {
@@ -1388,14 +2188,12 @@ void print_symbol_module(mod sym_module)
         printf("module not present\n");
         return;
     }
-
     // printf("current module=%s\n",sym_module->mod_name);
-
     // print inlist variables
-    print_symbol_table_list(sym_module,sym_module->inlist);
+    print_symbol_table_list(sym_module, sym_module->inlist);
 
     // print outlist variables
-    print_symbol_table_list(sym_module,sym_module->outlist);
+    print_symbol_table_list(sym_module, sym_module->outlist);
 
     // symbol table variables
     print_symbol_table(sym_module->table);

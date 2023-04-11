@@ -10,16 +10,21 @@ typedef struct QUADRUPLE* qNode ;
 typedef enum {
     ASSIGN_OP, 
     MUL_OP , 
-    ADDN_OP,
-    SUBT_OP,
+    PLUS_OP,
+    MINUS_OP,
     DIV_OP, 
     LT_OP ,
     EQ_OP , 
     NE_OP , 
     GT_OP , 
-    GTE_OP,
-    LTE_OP,
-    FUN_DEF_OP,
+    GE_OP,
+    LE_OP,
+    OR_OP,
+    AND_OP,
+    GETVAL_OP,
+    PRINTVAL_OP,
+    LABEL_OP,
+    NULL_OP,
 
 } OPERATOR_LIST; 
 
@@ -29,10 +34,10 @@ struct QUADRUPLE {
     parseTreeNode arg1Node , arg2Node , resultNode;
     ast_symbol arg1symbol, arg2symbol , resultsymbol;
     qNode next ; 
+    qNode prev;
+    parseTreeNode label;
 }; 
 
 
 
 #endif
-
-// archaj god

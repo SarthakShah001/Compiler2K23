@@ -66,6 +66,8 @@ struct PARSETREENODE{
     parseTreeNode syn_node;
     parseTreeNode inh_node;
     astToken ast_name;
+    tkType type_inh;
+    tkType type_syn;
     int scope[2];
     bool is_visited;
 }; 

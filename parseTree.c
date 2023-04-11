@@ -30,6 +30,8 @@ parseTreeNode createTree()
     root->inh_node=NULL;
     root->scope[0]=0;
     root->scope[1]=0;
+    root->type_inh=epsilon;
+    root->type_syn=epsilon;
     return root;
 }
 void addRuleInTree(parseTreeNode treeNode, dlinkedlist list)

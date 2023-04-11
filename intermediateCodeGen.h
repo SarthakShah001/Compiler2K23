@@ -10,9 +10,10 @@
 // 
 
 qNode createQuadruple() ; 
-void generateIR(qNode curr ,parseTreeNode root, char* modname) ; 
-void addTemporary() ; 
-void newLabel() ; 
+qNode generateIR(qNode curr ,parseTreeNode root, char* modname) ; 
+char* addTemporary(); 
+char* newLabel();
+
 
 
 #endif

@@ -37,7 +37,7 @@ void printMenu()
     printf("\n 6 -> Print the Activation Record size\n");
     printf("\n 7 -> Print type expression and width of Array variable\n");
     printf("\n 8 -> Print the Errors and Total Compiling time\n");
-    printf("\n 9 -> Print the Assembly Code Generated\n");
+    printf("\n 9 -> Print the Assembly Code Generated\n\n");
 }
 void displayInfo(){
     printf("\n     ------------------------------------------------------\n");
@@ -59,6 +59,7 @@ void displayInfo(){
     // if there are no errors of any kind, print below message:
     // printf("*****  CODE Compiles Succesfully  *****");
 }
+
 int count_nodes(parseTreeNode node)
 {
     if (node == NULL)
@@ -67,28 +68,29 @@ int count_nodes(parseTreeNode node)
     }
     return count_nodes(node->sibling) + count_nodes(node->child) + 1;
 }
+
 int count_tree_size(parseTreeNode node)
 {
     if (node == NULL)
     {
         return 0;
     }
-     return count_tree_size(node->sibling) + count_tree_size(node->child) + sizeof(*node);
+    return count_tree_size(node->sibling) + count_tree_size(node->child) + sizeof(*node);
 }
 
 
 
 int main(int argc, char *argv[])
 {
-    global_symbol_table_init();
     displayInfo();
+    global_symbol_table_init();
     if (argc < 6)
     {
         printf("very few arguments\n");
         exit(0);
     }
     FILE *fp = NULL;
-    FILE *fs = NULL;
+    // FILE *fs = NULL;
     fp = fopen(argv[1], "r");
     if (fp == NULL)
     {
@@ -98,6 +100,7 @@ int main(int argc, char *argv[])
     fp1 = fopen(argv[2], "w");
     parseTreeNode root;
     parseTreeNode ast_root;
+    int t[2] = {0, 0};
     while (true)
     {
         fp = fopen(argv[1], "r");
@@ -227,14 +230,14 @@ int main(int argc, char *argv[])
             root = startParser(fp, atoi(argv[3]));
             ast_root = generate_ast(root);
             ast_root = ast_root->syn_node;
-            int t[2] = {0, 0};
+            // int t[2] = {0, 0};
             generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
             // setbuf(fs, NULL);
-            printf("VARIABLE NAME       ");
-            printf("   SCOPE/MODULE NAME    ");
-            printf("    SCOPE(LINE NO) ");
+            printf("VARIABLE NAME     ");
+            printf(" SCOPE/MODULE NAME  ");
+            printf("   SCOPE(LINE NO) ");
             printf("  VARIABLE TYPE    ");
-            printf("  IS_ARRAY ");
+            printf(" IS_ARRAY  ");
             printf("  IS_DYNAMIC ");
             printf(" RANGE_IF_ARR ");
             printf("  WIDTH  ");
@@ -251,8 +254,7 @@ int main(int argc, char *argv[])
                     // table is not present
                     printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
                 }
-                else
-                    print_symbol_module(global_symbol_table[i]);
+                else print_symbol_module(global_symbol_table[i]);
             }
 
         break;
@@ -272,19 +274,72 @@ int main(int argc, char *argv[])
         }
         case 7:
         {
-            // static and dynamic arrays
-            break;
+        // print static and dynamic array variables
+        
+        root = startParser(fp, atoi(argv[3]));
+        ast_root = generate_ast(root);
+        ast_root = ast_root->syn_node;
+        generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
+
+        printf("  SCOPE/MODULE NAME    ");
+        printf("  SCOPE(LINE NO) ");
+        printf("  NAME OF VARIABLE     ");
+        printf("  IS_DYNAMIC ");
+        printf(" RANGE_IF_ARR ");
+        printf(" ELEMENT TYPE ");
+        printf("\n\n");
+
+        printf("no_of_modules = %d\n", no_of_modules);
+        for (int i = 0; i < no_of_modules; i++)
+        {
+
+            if (global_symbol_table[i]->table == NULL)
+            {
+                // table is not present
+                printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
+            }
+            else print_symbol_module_array(global_symbol_table[i]);
+        }
+
+        break;
         }
         case 8:
         {
             // Error reporting and total compiling time
+
+            // if code is syntactically incorrect, print syntactic errors
+            // else report all semantic and type checking errors
+
+            clock_t start_time, end_time;
+            double total_CPU_time, total_CPU_time_in_seconds;
+            start_time = clock();
+
+            // PARSER CODE HERE
+            root = startParser(fp, atoi(argv[3]));
+
+            // AST and SYMBOL TABLE CODE HERE
+            ast_root = generate_ast(root);
+            ast_root = ast_root->syn_node;
+            generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
+
+            // INTERMEDIATE AND CODEGEN CODE HERE
+            
+
+            end_time = clock();
+
+            total_CPU_time = (double)(end_time - start_time);
+
+            total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
+
+            printf("TOTAL CPU CLOCK TICKS := %lf \n", total_CPU_time);
+            printf("TOTAL CPU TIME IN SECONDS := %lf \n", total_CPU_time_in_seconds);
+
             break;
         }
         case 9:
         {
             // assembly code generation
             break;
-
         }
         default:
         {

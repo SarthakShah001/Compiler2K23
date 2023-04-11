@@ -1,0 +1,3 @@
+in t9.txt
+line 169: A is of type array
+170: Q is not declared (each case has its own scope)
