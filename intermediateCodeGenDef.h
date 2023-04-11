@@ -24,18 +24,26 @@ typedef enum {
     GETVAL_OP,
     PRINTVAL_OP,
     LABEL_OP,
-    NULL_OP,
+    NULL_OP
 
 } OPERATOR_LIST; 
 
+struct labelNode  {
+    char* labelName ; 
+    char* moduleName; 
+} ; 
+
 struct QUADRUPLE {
     OPERATOR_LIST op ; 
-    char* arg1 , arg2 , result ; 
+    char arg1[25] , arg2[25] , result[25] ; 
     parseTreeNode arg1Node , arg2Node , resultNode;
     ast_symbol arg1symbol, arg2symbol , resultsymbol;
+    symbol_table arg1symboltable,arg2symboltable, resultsymboltable;
+
     qNode next ; 
     qNode prev;
     parseTreeNode label;
+    
 }; 
 
 

@@ -873,7 +873,7 @@
     7. free(STATEMENTS)
 }
 133. <range_for_loop> -> <index_for_loop1> TK_RANGEOP <index_for_loop2>{
-    RANGE_FOR_LOOP.node_syn = make_node("range_arrays",index_for_loop1.node_syn,index_for_loop2.node_syn)
+    RANGE_FOR_LOOP.node_syn = make_node("range_for_loop",index_for_loop1.node_syn,index_for_loop2.node_syn)
       free(index_for_loop1)
       free(RANGEOP)
       free(index_for_loop2)

@@ -8,9 +8,9 @@
 // new label func
 // emit function 
 // 
-
-qNode createQuadruple() ; 
-qNode generateIR(qNode curr ,parseTreeNode root, char* modname) ; 
+void printQuadruple(qNode q);
+qNode createQuadruple(); 
+qNode generateIR(qNode curr ,parseTreeNode root, symbol_table st, int childcount) ; 
 char* addTemporary(); 
 char* newLabel();
 

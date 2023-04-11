@@ -19,6 +19,7 @@
 #include "parser.h"
 #include "ast.h"
 #include "symbol_table.h"
+#include "intermediateCodeGen.h"
 
 #define BUFF_SIZE 5000
 
@@ -39,7 +40,8 @@ void printMenu()
     printf("\n 8 -> Print the Errors and Total Compiling time\n");
     printf("\n 9 -> Print the Assembly Code Generated\n\n");
 }
-void displayInfo(){
+void displayInfo()
+{
     printf("\n     ------------------------------------------------------\n");
     printf("\033[32m");
     printf("\n\t FIRST and FOLLOW sets automated\n");
@@ -77,8 +79,6 @@ int count_tree_size(parseTreeNode node)
     }
     return count_tree_size(node->sibling) + count_tree_size(node->child) + sizeof(*node);
 }
-
-
 
 int main(int argc, char *argv[])
 {
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 
             double compression_percentage = ((double)(size_parseTree - size_AST) / (double)(size_parseTree)) * 100;
             printf("Compression Percentage = %lf\n", compression_percentage);
-            
+
             break;
         }
         case 5:
@@ -233,6 +233,8 @@ int main(int argc, char *argv[])
             // int t[2] = {0, 0};
             generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
             // setbuf(fs, NULL);
+            printf("no_of_modules=%d\n", no_of_modules);
+
             printf("VARIABLE NAME     ");
             printf(" SCOPE/MODULE NAME  ");
             printf("   SCOPE(LINE NO) ");
@@ -245,7 +247,6 @@ int main(int argc, char *argv[])
             printf("  NESTING  ");
             printf("\n\n");
 
-            printf("no_of_modules=%d\n", no_of_modules);
             for (int i = 0; i < no_of_modules; i++)
             {
 
@@ -254,54 +255,57 @@ int main(int argc, char *argv[])
                     // table is not present
                     printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
                 }
-                else print_symbol_module(global_symbol_table[i]);
+                else
+                    print_symbol_module(global_symbol_table[i]);
             }
 
-        break;
+            break;
         }
         case 6:
         {
-        // fs = fopen(argv[5], "w");
-        // if (fs == NULL)
-        // {
-        // printf("File opening failed.\n");
-        // return 0;
-        // }
-        // fclose(fs);
-        printf("\nActivation record to be printed\n");
+            // fs = fopen(argv[5], "w");
+            // if (fs == NULL)
+            // {
+            // printf("File opening failed.\n");
+            // return 0;
+            // }
+            // fclose(fs);
+            printf("\nActivation record to be printed\n");
 
-        break;
+            break;
         }
         case 7:
         {
-        // print static and dynamic array variables
-        
-        root = startParser(fp, atoi(argv[3]));
-        ast_root = generate_ast(root);
-        ast_root = ast_root->syn_node;
-        generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
+            // print static and dynamic array variables
 
-        printf("  SCOPE/MODULE NAME    ");
-        printf("  SCOPE(LINE NO) ");
-        printf("  NAME OF VARIABLE     ");
-        printf("  IS_DYNAMIC ");
-        printf(" RANGE_IF_ARR ");
-        printf(" ELEMENT TYPE ");
-        printf("\n\n");
+            root = startParser(fp, atoi(argv[3]));
+            ast_root = generate_ast(root);
+            ast_root = ast_root->syn_node;
+            generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
 
-        printf("no_of_modules = %d\n", no_of_modules);
-        for (int i = 0; i < no_of_modules; i++)
-        {
+            printf("no_of_modules = %d\n", no_of_modules);
 
-            if (global_symbol_table[i]->table == NULL)
+            printf("  SCOPE/MODULE NAME    ");
+            printf("  SCOPE(LINE NO) ");
+            printf("  NAME OF VARIABLE     ");
+            printf("  IS_DYNAMIC ");
+            printf(" RANGE_IF_ARR ");
+            printf(" ELEMENT TYPE ");
+            printf("\n\n");
+
+            for (int i = 0; i < no_of_modules; i++)
             {
-                // table is not present
-                printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
-            }
-            else print_symbol_module_array(global_symbol_table[i]);
-        }
 
-        break;
+                if (global_symbol_table[i]->table == NULL)
+                {
+                    // table is not present
+                    printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
+                }
+                else
+                    print_symbol_module_array(global_symbol_table[i]);
+            }
+
+            break;
         }
         case 8:
         {
@@ -323,7 +327,6 @@ int main(int argc, char *argv[])
             generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
 
             // INTERMEDIATE AND CODEGEN CODE HERE
-            
 
             end_time = clock();
 
@@ -339,6 +342,24 @@ int main(int argc, char *argv[])
         case 9:
         {
             // assembly code generation
+
+            break;
+        }
+        case 10:
+        {
+            root = startParser(fp, atoi(argv[3]));
+
+            // AST and SYMBOL TABLE CODE HERE
+            ast_root = generate_ast(root);
+            ast_root = ast_root->syn_node;
+            generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
+            qNode start = (qNode)malloc(sizeof(struct QUADRUPLE));
+            // if (ast_root == NULL)
+            // {
+            //     printf("ast_null\n");
+            // }
+            generateIR(start, ast_root, NULL, 0);
+            printQuadruple(start->next);
             break;
         }
         default:

@@ -23,6 +23,8 @@ struct MODULE{
     symbol_table table;
     symbol_list_node inlist;
     symbol_list_node outlist;
+    bool is_declared;
+    bool is_defined;
 };
 
 extern mod global_symbol_table[500];

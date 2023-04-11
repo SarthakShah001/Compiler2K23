@@ -31,7 +31,7 @@ char *ast_strings[] = {
     "AST_MUL",
     "AST_DIV",
     "AST_ARRAY_FACTOR",
-    "AST_UNARY_INDEX_EXPR",
+    "AST_RANGE_FOR_LOOP",
     "AST_DECLARE_STMT",
     "AST_SWITCH",
     "AST_CASES",
@@ -950,7 +950,7 @@ parseTreeNode generate_ast(parseTreeNode root)
             if (currchild->sibling != NULL)
             {
                 currnode->syn_node = createTree();
-                currnode->syn_node->ast_name = AST_UNARY_INDEX_EXPR;
+                currnode->syn_node->ast_name = AST_UNARYEXPR;
                 add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
                 add_child(currnode->syn_node, generate_ast(currchild->sibling)->syn_node);
             }
@@ -1114,7 +1114,7 @@ parseTreeNode generate_ast(parseTreeNode root)
         case range_for_loop:
         {
             currnode->syn_node = createTree();
-            currnode->syn_node->ast_name = AST_RANGE_ARRAYS;
+            currnode->syn_node->ast_name = AST_RANGE_FOR_LOOP;
             add_child(currnode->syn_node, generate_ast(currchild)->syn_node);
             add_child(currnode->syn_node, generate_ast(currchild->sibling->sibling)->syn_node);
             break;
