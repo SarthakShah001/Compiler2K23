@@ -1,9 +1,9 @@
 /*
                     *****  Group No. - 9  *****
         Name : Sarthak Shah                 ID : 2020A7PS0092P
-        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
-        Name : Archaj Jain                  ID : 2020A7PS0072P
         Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
         Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
 
 */
@@ -185,21 +185,6 @@ int main(int argc, char *argv[])
 
         case 4:
         {
-            // clock_t start_time, end_time;
-            // double total_CPU_time, total_CPU_time_in_seconds;
-            // start_time = clock();
-
-            // // PARSER CODE HERE
-            // startParser(fp, atoi(argv[3]));
-
-            // end_time = clock();
-
-            // total_CPU_time = (double)(end_time - start_time);
-
-            // total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
-
-            // printf("TOTAL CPU CLOCK TICKS := %lf \n", total_CPU_time);
-            // printf("TOTAL CPU TIME IN SECONDS := %lf \n", total_CPU_time_in_seconds);
 
             // printf("\nMemory allocation to be printed\n");
 
@@ -238,13 +223,13 @@ int main(int argc, char *argv[])
             printf("VARIABLE NAME     ");
             printf(" SCOPE/MODULE NAME  ");
             printf("   SCOPE(LINE NO) ");
-            printf("  VARIABLE TYPE    ");
-            printf(" IS_ARRAY  ");
-            printf("  IS_DYNAMIC ");
-            printf(" RANGE_IF_ARR ");
-            printf("  WIDTH  ");
+            printf("  VARIABLE TYPE   ");
+            printf("IS_ARRAY  ");
+            printf(" IS_DYNAMIC  ");
+            printf("RANGE_IF_ARR ");
+            printf("  WIDTH   ");
             printf("  OFFSET  ");
-            printf("  NESTING  ");
+            printf("   NESTING ");
             printf("\n\n");
 
             for (int i = 0; i < no_of_modules; i++)
@@ -285,12 +270,12 @@ int main(int argc, char *argv[])
 
             printf("no_of_modules = %d\n", no_of_modules);
 
-            printf("  SCOPE/MODULE NAME    ");
-            printf("  SCOPE(LINE NO) ");
+            printf("SCOPE/MODULE NAME    ");
+            printf("  SCOPE(LINE NO)  ");
             printf("  NAME OF VARIABLE     ");
-            printf("  IS_DYNAMIC ");
-            printf(" RANGE_IF_ARR ");
-            printf(" ELEMENT TYPE ");
+            printf("  IS_DYNAMIC  ");
+            printf("  RANGE_IF_ARR  ");
+            printf("  ELEMENT TYPE ");
             printf("\n\n");
 
             for (int i = 0; i < no_of_modules; i++)
@@ -334,7 +319,7 @@ int main(int argc, char *argv[])
 
             total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
 
-            printf("TOTAL CPU CLOCK TICKS := %lf \n", total_CPU_time);
+            printf("\nTOTAL CPU CLOCK TICKS := %lf \n", total_CPU_time);
             printf("TOTAL CPU TIME IN SECONDS := %lf \n", total_CPU_time_in_seconds);
 
             break;
@@ -360,6 +345,7 @@ int main(int argc, char *argv[])
             // }
             generateIR(start, ast_root, NULL, 0);
             printQuadruple(start->next);
+
             break;
         }
         default:

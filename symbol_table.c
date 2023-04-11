@@ -1,3 +1,13 @@
+/*
+                    *****  Group No. - 9  *****
+        Name : Sarthak Shah                 ID : 2020A7PS0092P
+        Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
+        Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
+
+*/
+
 #include "symbol_table.h"
 #include <stdlib.h>
 #include <string.h>
@@ -2237,14 +2247,14 @@ void print_symbol_table_list(mod sym_module, symbol_list_node in)
         // printf("%-25s", sym_module->table->mod_name);
         printf("%-20s", sym_module->table->mod_name);
         printf("   %3d-%-3d     ", in->curr->scope[0], in->curr->scope[1]);
-        printf("%-18s", terminal_str[in->curr->type]);
+        printf("   %-15s", terminal_str[in->curr->type]);
         if (in->curr->is_array)
         {
             printf("   YES    ");
             if (in->curr->is_dynamic)
             {
                 printf("     YES     ");
-                printf("   %s%s..%s%s    ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
+                printf("    %s%s..%s%s   ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
             }
             else
             {
@@ -2254,14 +2264,14 @@ void print_symbol_table_list(mod sym_module, symbol_list_node in)
         }
         else
         {
-            printf("    **    ");
+            printf("    NO    ");
             printf("     **     ");
-            printf("     **     ");
+            printf("     **      ");
         }
 
         printf("   %4d   ", in->curr->width);
         printf("   %5d   ", in->curr->offset);
-        printf("    %5d", in->curr->nesting_level);
+        printf("    %5d  ", in->curr->nesting_level);
         printf("\n");
         in = in->next;
     }
@@ -2278,7 +2288,7 @@ void print_symbol_table(symbol_table tab)
             printf("%-20s", tab->sym[i]->var_name);
             printf("%-20s", tab->mod_name);
             printf("   %3d-%-3d     ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
-            printf("%-18s", terminal_str[tab->sym[i]->type]);
+            printf("   %-15s", terminal_str[tab->sym[i]->type]);
             if (tab->sym[i]->is_array)
             {
                 printf("   YES    ");
@@ -2290,19 +2300,19 @@ void print_symbol_table(symbol_table tab)
                 else
                 {
                     printf("     NO    ");
-                    printf("   %s%3lld..%s%-3lld]   ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].integer, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].integer);
+                    printf("   %s%3lld..%s%-3lld   ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].integer, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].integer);
                 }
             }
             else
             {
-                printf("    **    ");
+                printf("    NO    ");
                 printf("     **     ");
-                printf("     **     ");
+                printf("     **      ");
             }
 
             printf("   %4d   ", tab->sym[i]->width);
             printf("   %5d   ", tab->sym[i]->offset);
-            printf("    %5d", tab->sym[i]->nesting_level);
+            printf("    %5d  ", tab->sym[i]->nesting_level);
             printf("\n");
         }
     }
@@ -2332,21 +2342,21 @@ void print_symbol_table_list_array(mod sym_module, symbol_list_node in)
         if (in->curr->is_array)
         {
             printf("%-20s", sym_module->table->mod_name);
-            printf("     [%d-%d]        ", in->curr->scope[0], in->curr->scope[1]);
-            printf("%-20s", in->curr->var_name);
+            printf("     %3d-%-3d        ", in->curr->scope[0], in->curr->scope[1]);
+            printf("   %-20s", in->curr->var_name);
 
             if (in->curr->is_dynamic)
             {
-                printf("    DYNAMIC   ");
-                printf("    [%s%s..%s%s]    ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
+                printf("      YES     ");
+                printf("      %s%s..%s%s    ", in->curr->array_range[0].value, in->curr->array_range[1].value, in->curr->array_range[2].value, in->curr->array_range[3].value);
             }
             else
             {
-                printf("   STATIC  ");
-                printf("   [%s%lld..%s%lld]   ", in->curr->array_range[0].value, in->curr->array_range[1].integer, in->curr->array_range[2].value, in->curr->array_range[3].integer);
+                printf("     NO    ");
+                printf("     %s%3lld..%s%-3lld    ", in->curr->array_range[0].value, in->curr->array_range[1].integer, in->curr->array_range[2].value, in->curr->array_range[3].integer);
             }
 
-            printf("%-15s", terminal_str[in->curr->type]);
+            printf("    %-15s", terminal_str[in->curr->type]);
             printf("\n");
         }
         in = in->next;
@@ -2364,21 +2374,21 @@ void print_symbol_table_array(symbol_table tab)
             if (tab->sym[i]->is_array)
             {
                 printf("%-20s", tab->mod_name);
-                printf("     [%d-%d]        ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
-                printf("%-20s", tab->sym[i]->var_name);
+                printf("     %3d-%-3d        ", tab->sym[i]->scope[0], tab->sym[i]->scope[1]);
+                printf("   %-20s", tab->sym[i]->var_name);
 
                 if (tab->sym[i]->is_dynamic)
                 {
-                    printf("    DYNAMIC   ");
-                    printf("   [%s%s..%s%s]   ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].value, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].value);
+                    printf("      YES     ");
+                    printf("     %s%s..%s%s     ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].value, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].value);
                 }
                 else
                 {
-                    printf("   STATIC  ");
-                    printf("   [%s%lld..%s%lld]  ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].integer, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].integer);
+                    printf("     NO    ");
+                    printf("     %s%3lld..%s%-3lld    ", tab->sym[i]->array_range[0].value, tab->sym[i]->array_range[1].integer, tab->sym[i]->array_range[2].value, tab->sym[i]->array_range[3].integer);
                 }
 
-                printf("%-15s", terminal_str[tab->sym[i]->type]);
+                printf("    %-15s", terminal_str[tab->sym[i]->type]);
                 printf("\n");
             }
         }

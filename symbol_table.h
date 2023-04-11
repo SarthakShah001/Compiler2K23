@@ -1,3 +1,13 @@
+/*
+                    *****  Group No. - 9  *****
+        Name : Sarthak Shah                 ID : 2020A7PS0092P
+        Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
+        Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
+
+*/
+
 #ifndef _symbol_table_
 #define _symbol_table_
 #include "symbol_table_def.h"
@@ -15,7 +25,7 @@ ast_symbol find_in_list(symbol_list_node l, char *str);
 bool is_present_var(symbol_table table, char *str);
 int range_cal(ast_symbol curr_symbol);
 int find_mod_no(char *str);
-
+int find_width(tkType t);
 int generate_symbol_table(parseTreeNode root, symbol_table curr, int nesting, int curr_offset,ast_symbol curr_symbol,int currscope[2]);
 // returns offset
 
