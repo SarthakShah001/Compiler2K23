@@ -22,29 +22,29 @@ void codegen(qNode head){
 
     fprintf(asmFile , "section .text\n") ;
 
-    fprintf(asmFile , "%%macro pushAll \n
-                        push RAX\n
-                        push RBX\n
-                        push RCX\n
-                        push RDX\n
-                        push RSP\n
-                        push RBP\n
-                        push RSI\n
-                        push RDI\n
-                       %%endmacro \n\n
-                    ") ;
+    fprintf(asmFile , "%%macro pushAll \n");
+    fprintf(asmFile , "\t\t pop RAX \n");
+    fprintf(asmFile , "\t\t pop RBX \n");
+    fprintf(asmFile , "\t\t pop RCX \n");
+    fprintf(asmFile , "\t\t pop RDX \n");
+    fprintf(asmFile , "\t\t pop RSP \n");
+    fprintf(asmFile , "\t\t pop RBP \n");
+    fprintf(asmFile , "\t\t pop RSI \n");
+    fprintf(asmFile , "\t\t pop RDI \n");
+    fprintf(asmFile , "%%endmacro \n");
 
-    fprintf(asmFile , "%%macro popAll \n
-                        pop RAX\n
-                        pop RBX\n
-                        pop RCX\n
-                        pop RDX\n
-                        pop RSP\n
-                        pop RBP\n
-                        pop RSI\n
-                        pop RDI\n
-                       %%endmacro \n\n
-                    ") ;
+
+    fprintf(asmFile , "%%macro popAll \n");
+    fprintf(asmFile , "\t\t push RAX \n");
+    fprintf(asmFile , "\t\t push RBX \n");
+    fprintf(asmFile , "\t\t push RCX \n");
+    fprintf(asmFile , "\t\t push RDX \n");
+    fprintf(asmFile , "\t\t push RSP \n");
+    fprintf(asmFile , "\t\t push RBP \n");
+    fprintf(asmFile , "\t\t push RSI \n");
+    fprintf(asmFile , "\t\t push RDI \n");
+    fprintf(asmFile , "%%endmacro \n");
+
 
 
     while(head){
@@ -52,6 +52,8 @@ void codegen(qNode head){
         switch (head->op)
         {
             case ASSIGN_OP:{
+                // x = 10 or x = t1; 
+                if(find_symbol(head->))
                 fprintf(asmFile , "") ; 
                 break ; 
             }

@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 {
     displayInfo();
     global_symbol_table_init();
-    if (argc < 6)
+    if (argc < 3)
     {
         printf("very few arguments\n");
         exit(0);
@@ -248,13 +248,6 @@ int main(int argc, char *argv[])
         }
         case 6:
         {
-            // fs = fopen(argv[5], "w");
-            // if (fs == NULL)
-            // {
-            // printf("File opening failed.\n");
-            // return 0;
-            // }
-            // fclose(fs);
             printf("\nActivation record to be printed\n");
 
             break;
@@ -333,7 +326,7 @@ int main(int argc, char *argv[])
         case 10:
         {
             root = startParser(fp, atoi(argv[3]));
-
+            
             // AST and SYMBOL TABLE CODE HERE
             ast_root = generate_ast(root);
             ast_root = ast_root->syn_node;
@@ -344,6 +337,7 @@ int main(int argc, char *argv[])
             //     printf("ast_null\n");
             // }
             generateIR(start, ast_root, NULL, 0);
+            printf("operator           arg1               arg2                result\n"); 
             printQuadruple(start->next);
 
             break;

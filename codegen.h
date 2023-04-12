@@ -10,7 +10,7 @@
 
 #ifndef _codegen_
 #define _codegen_
-#include "intermediateCodeGenDef.h"
+#include "intermediateCodeGen.h"
 
 #include <string.h>
 #include <stdlib.h>
