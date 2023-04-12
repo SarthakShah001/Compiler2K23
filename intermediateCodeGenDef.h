@@ -34,6 +34,7 @@ typedef enum {
     GETVAL_OP,
     PRINTVAL_OP,
     LABEL_OP,
+    DRIVERDEFN_OP,
     NULL_OP
 
 } OPERATOR_LIST; 

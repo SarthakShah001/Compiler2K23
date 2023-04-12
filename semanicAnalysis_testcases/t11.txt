@@ -107,7 +107,7 @@ start
 	end
 
 	u:= u+ x*m-n; ** x is real**
-	declare p_1: boolean;
+	declare p_1: boolean; ** redeclrare**
 	p_1 := true;
 	use module switch_int_default with parameters n;
 	switch(p_1)				
@@ -165,6 +165,7 @@ start
 	for(q_1 in 2..10)
 	start
 		q_1 := 11; ** q_1 cant be assigned **
+		abcd:=2;  ** abcd is not declared**
 	end
 
     q_1 := 5;
@@ -210,7 +211,7 @@ start
 	declare a,h:integer;	
 	get_value(b); ** b is not declared**
 	print(b);  ** error**
-	get_value(m); ** m is input paramter**
+	get_value(m);
 	declare b4: array[100..150] of boolean;
 	declare p2: array[2..20] of boolean;
 	declare p: array[2..20] of integer;	
@@ -241,7 +242,7 @@ start
 		[v1, u, k, v3]:=use module function1 with parameters b4, v2, p, v3, u;	**ERROR: input parameter type mismatch ** ** error here**	
 	end
         a:= a - p*b;				   **ERROR: types of p and b are different**
-	b:= b+3;
+	b:= b+3;  ** type mismatch**
 	k:= a>b OR b>100;
 	[v1, a, k, h]:=use module function1 with parameters b7, v2, p, b7, b;	**ERROR: input parameter type mismatch **			
 	print(k);	

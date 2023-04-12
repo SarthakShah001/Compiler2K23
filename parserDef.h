@@ -20,6 +20,7 @@ typedef struct SYMBOL* symbol;
 #define terminal tkType
 #define num_rules 138
 #define max_rule_length 200
+// extern int error_count;
 typedef enum NONTERMINAL{
 program,
 moduleDeclarations,

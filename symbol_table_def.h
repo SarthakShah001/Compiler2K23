@@ -13,6 +13,7 @@ typedef struct SYMBOL_TABLE* symbol_table;
 typedef struct AST_SYMBOL* ast_symbol;
 typedef struct Symbol_List_Node* symbol_list_node;
 typedef struct MODULE* mod;
+extern int no_of_errors;
 struct Symbol_List_Node{
     ast_symbol curr;
     symbol_list_node next;
@@ -25,6 +26,7 @@ struct MODULE{
     symbol_list_node outlist;
     bool is_declared;
     bool is_defined;
+    int width;
 };
 
 extern mod global_symbol_table[500];
@@ -39,6 +41,7 @@ struct AST_SYMBOL{
     int width;
     int offset;
     int nesting_level;
+    bool is_assigned;
 };
 
 struct SYMBOL_TABLE{

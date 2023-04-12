@@ -32,6 +32,7 @@ char *operator_string[] = {
     "GETVAL",
     "PRINTVAL",
     "LABEL",
+    "driver_start"
     "NULL",
 };
 char *addTemporary(symbol_table t, tkType type)
@@ -157,6 +158,11 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
     case AST_DRIVER:
     {
         // currModuleName = "driver";
+         qNode temp = createQuadruple();
+        temp->op = DRIVERDEFN_OP;
+        strcpy(temp->arg1, "driver");
+        curr->next = temp;
+        curr = curr->next;
         int x = find_mod_no("driver");
         childcount = 0;
         qNode temp2 = generateIR(curr, root->child, global_symbol_table[x]->table, childcount);
@@ -495,6 +501,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
                 temp->arg2Node = root->child->sibling;
                 temp->arg2symbol = find_symbol(st, temp->arg2);
             }
+            sprintf(temp->result,"%s",addTemporary(st,temp->arg2Node->tok->token_type));
         }
         // temp->prev = temp2;
         // while(temp->prev!=NULL){

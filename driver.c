@@ -20,8 +20,9 @@
 #include "ast.h"
 #include "symbol_table.h"
 #include "intermediateCodeGen.h"
-
+#include "codegen.h"
 #define BUFF_SIZE 5000
+#define buff_size 200
 
 void printMenu()
 {
@@ -80,6 +81,122 @@ int count_tree_size(parseTreeNode node)
     return count_tree_size(node->sibling) + count_tree_size(node->child) + sizeof(*node);
 }
 
+void print_parseTree_main(parseTreeNode root){
+    printf("       LEXEME       ");
+    printf("  LINE_NO  ");
+    printf("     TOKEN-TYPE      ");
+    printf("  VALUE if NUM/RNUM  ");
+    printf("       PARENT       ");
+    printf("   IS A LEAF NODE  ");
+    printf("    NON-TERMINAL     ");
+    printf("\n\n");
+
+    printParseTree(root);
+    // freeParseTree(root) ;
+    // printParseTree(root) ;
+    root = NULL;
+    return;
+}
+
+void print_AST_main(parseTreeNode ast_root){
+    printf("       LEXEME       ");
+    printf("  LINE_NO  ");
+    printf("     TOKEN-TYPE      ");
+    printf("  VALUE if NUM/RNUM  ");
+    printf("       PARENT       ");
+    printf("   IS A LEAF NODE  ");
+    printf("    NON-TERMINAL     ");
+    printf("\n\n");
+    ast_root = ast_root->syn_node;
+    if (ast_root->child == NULL)
+    {
+        printf("YES NULL\n");
+    }
+    else
+    {
+        printf("NO NULL %s\n", ast_strings[ast_root->child->ast_name]);
+    }
+
+    printf("ast_root=%s\n", nonterminal_str[ast_root->s->nt]);
+    printAST(ast_root);
+}
+
+void print_symbol_table_main()
+{
+    printf("no_of_modules=%d\n", no_of_modules);
+
+    printf("VARIABLE NAME     ");
+    printf(" SCOPE/MODULE NAME  ");
+    printf("   SCOPE(LINE NO) ");
+    printf("  VARIABLE TYPE   ");
+    printf("IS_ARRAY  ");
+    printf(" IS_DYNAMIC  ");
+    printf("RANGE_IF_ARR ");
+    printf("  WIDTH   ");
+    printf("  OFFSET  ");
+    printf("   NESTING ");
+    printf("\n\n");
+
+    for (int i = 0; i < no_of_modules; i++)
+    {
+
+        if (global_symbol_table[i]->table == NULL)
+        {
+            // table is not present
+            printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
+        }
+        else
+            print_symbol_module(global_symbol_table[i]);
+    }
+
+    return;
+}
+
+void print_symbol_table_array_main()
+{
+    printf("no_of_modules = %d\n", no_of_modules);
+
+    printf("SCOPE/MODULE NAME    ");
+    printf("  SCOPE(LINE NO)  ");
+    printf("  NAME OF VARIABLE     ");
+    printf("  IS_DYNAMIC  ");
+    printf("  RANGE_IF_ARR  ");
+    printf("  ELEMENT TYPE ");
+    printf("\n\n");
+
+    for (int i = 0; i < no_of_modules; i++)
+    {
+
+        if (global_symbol_table[i]->table == NULL)
+        {
+            // table is not present
+            printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
+        }
+        else
+            print_symbol_module_array(global_symbol_table[i]);
+    }
+    return;
+}
+
+void print_activation_record_main(){
+    printf("Module name      ");
+    printf("     Width     ");
+    printf("\n\n");
+
+    for (int i = 0; i < no_of_modules; i++)
+    {
+
+        if (global_symbol_table[i]->table != NULL)
+        {
+            // table is present
+            printf("%-20s", global_symbol_table[i]->mod_name);
+            printf("      %d     ", global_symbol_table[i]->width);
+            printf("\n");
+        }
+    }
+    return;
+}
+
 int main(int argc, char *argv[])
 {
     displayInfo();
@@ -90,14 +207,13 @@ int main(int argc, char *argv[])
         exit(0);
     }
     FILE *fp = NULL;
-    // FILE *fs = NULL;
     fp = fopen(argv[1], "r");
     if (fp == NULL)
     {
         printf("error in opening file\n");
+        exit(0);
     }
-    FILE *fp1 = NULL;
-    fp1 = fopen(argv[2], "w");
+
     parseTreeNode root;
     parseTreeNode ast_root;
     int t[2] = {0, 0};
@@ -114,6 +230,7 @@ int main(int argc, char *argv[])
         case 0:
         {
             printf("\nTERMINATING THE PROGRAM\n");
+            fclose(fp);
             exit(0);
         }
         case 1:
@@ -123,61 +240,26 @@ int main(int argc, char *argv[])
             // char *testCaseFile = buffer;
             // removeComments(testCaseFile, cleanFile);
             // puts(cleanFile);
-            // break;
-            print_tokens(fp, atoi(argv[3]));
+            print_tokens(fp, buff_size);
             break;
         }
 
         case 2:
         {
-            // fp1 = fopen(argv[2], "w");
-            // setbuf(fp1, NULL);
-            root = startParser(fp, atoi(argv[3]));
-            // openparsetreefile(fp1);
+            root = startParser(fp, buff_size);
 
-            printf("       LEXEME       ");
-            printf("  LINE_NO  ");
-            printf("     TOKEN-TYPE      ");
-            printf("  VALUE if NUM/RNUM  ");
-            printf("       PARENT       ");
-            printf("   IS A LEAF NODE  ");
-            printf("    NON-TERMINAL     ");
-            printf("\n\n");
-
-            printParseTree(root);
+            print_parseTree_main(root);
             // freeParseTree(root) ;
             // printParseTree(root) ;
-            root = NULL;
             break;
         }
 
         case 3:
         {
-            // fp1 = fopen(argv[4], "w");
-            // setbuf(fp1, NULL);
-            root = startParser(fp, atoi(argv[3]));
-            parseTreeNode ast_root = generate_ast(root);
-            // openparsetreefile(fp1);
-            printf("       LEXEME       ");
-            printf("  LINE_NO  ");
-            printf("     TOKEN-TYPE      ");
-            printf("  VALUE if NUM/RNUM  ");
-            printf("       PARENT       ");
-            printf("   IS A LEAF NODE  ");
-            printf("    NON-TERMINAL     ");
-            printf("\n\n");
-            ast_root = ast_root->syn_node;
-            if (ast_root->child == NULL)
-            {
-                printf("YES NULL\n");
-            }
-            else
-            {
-                printf("NO NULL %s\n", ast_strings[ast_root->child->ast_name]);
-            }
-
-            printf("ast_root=%s\n", nonterminal_str[ast_root->s->nt]);
-            printAST(ast_root);
+            root = startParser(fp, buff_size);
+            ast_root = generate_ast(root);
+    
+            print_AST_main(ast_root);
             // freeParseTree(root) ;
 
             break;
@@ -188,7 +270,7 @@ int main(int argc, char *argv[])
 
             // printf("\nMemory allocation to be printed\n");
 
-            root = startParser(fp, BUFF_SIZE);
+            root = startParser(fp, buff_size);
             int no_parseTreeNodes = count_nodes(root);
             int size_parseTree = count_tree_size(root);
 
@@ -210,39 +292,14 @@ int main(int argc, char *argv[])
         }
         case 5:
         {
-            // fp1 = fopen(argv[4], "w");
-            // setbuf(fp1, NULL);
-            root = startParser(fp, atoi(argv[3]));
+            
+            root = startParser(fp, buff_size);
             ast_root = generate_ast(root);
             ast_root = ast_root->syn_node;
-            // int t[2] = {0, 0};
+
             generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
-            // setbuf(fs, NULL);
-            printf("no_of_modules=%d\n", no_of_modules);
 
-            printf("VARIABLE NAME     ");
-            printf(" SCOPE/MODULE NAME  ");
-            printf("   SCOPE(LINE NO) ");
-            printf("  VARIABLE TYPE   ");
-            printf("IS_ARRAY  ");
-            printf(" IS_DYNAMIC  ");
-            printf("RANGE_IF_ARR ");
-            printf("  WIDTH   ");
-            printf("  OFFSET  ");
-            printf("   NESTING ");
-            printf("\n\n");
-
-            for (int i = 0; i < no_of_modules; i++)
-            {
-
-                if (global_symbol_table[i]->table == NULL)
-                {
-                    // table is not present
-                    printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
-                }
-                else
-                    print_symbol_module(global_symbol_table[i]);
-            }
+            print_symbol_table_main();
 
             break;
         }
@@ -250,38 +307,20 @@ int main(int argc, char *argv[])
         {
             printf("\nActivation record to be printed\n");
 
+            print_activation_record_main();
+
             break;
         }
         case 7:
         {
             // print static and dynamic array variables
 
-            root = startParser(fp, atoi(argv[3]));
+            root = startParser(fp, buff_size);
             ast_root = generate_ast(root);
             ast_root = ast_root->syn_node;
             generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
 
-            printf("no_of_modules = %d\n", no_of_modules);
-
-            printf("SCOPE/MODULE NAME    ");
-            printf("  SCOPE(LINE NO)  ");
-            printf("  NAME OF VARIABLE     ");
-            printf("  IS_DYNAMIC  ");
-            printf("  RANGE_IF_ARR  ");
-            printf("  ELEMENT TYPE ");
-            printf("\n\n");
-
-            for (int i = 0; i < no_of_modules; i++)
-            {
-
-                if (global_symbol_table[i]->table == NULL)
-                {
-                    // table is not present
-                    printf("\n\nSymbol table not present for module <<%s>>\n\n", global_symbol_table[i]->mod_name);
-                }
-                else
-                    print_symbol_module_array(global_symbol_table[i]);
-            }
+            print_symbol_table_array_main();
 
             break;
         }
@@ -297,13 +336,16 @@ int main(int argc, char *argv[])
             start_time = clock();
 
             // PARSER CODE HERE
-            root = startParser(fp, atoi(argv[3]));
+            root = startParser(fp, buff_size);
 
             // AST and SYMBOL TABLE CODE HERE
+            no_of_errors=0;
             ast_root = generate_ast(root);
             ast_root = ast_root->syn_node;
             generate_symbol_table(ast_root, NULL, 0, 0, NULL, t);
-
+            if(no_of_errors>0){
+                printf("\nTotal no of errors = %d\n", no_of_errors);
+            }
             // INTERMEDIATE AND CODEGEN CODE HERE
 
             end_time = clock();
@@ -325,7 +367,7 @@ int main(int argc, char *argv[])
         }
         case 10:
         {
-            root = startParser(fp, atoi(argv[3]));
+            root = startParser(fp, buff_size);
             
             // AST and SYMBOL TABLE CODE HERE
             ast_root = generate_ast(root);
@@ -336,12 +378,15 @@ int main(int argc, char *argv[])
             // {
             //     printf("ast_null\n");
             // }
+            print_symbol_table_main();
             generateIR(start, ast_root, NULL, 0);
             printf("operator           arg1               arg2                result\n"); 
             printQuadruple(start->next);
-
+            print_symbol_table_main();
+            // createCode(start->next);
             break;
         }
+        
         default:
         {
             printf("\nwrong choice\n");
