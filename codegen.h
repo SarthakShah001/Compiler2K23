@@ -16,6 +16,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void createCode(qNode head) ;
+void createCode(qNode head,FILE *asmFile) ;
 
 #endif

@@ -54,11 +54,11 @@ int spaceUsed(symbol_table st)
     return ans;
 }
 
-void createCode(qNode head)
+void createCode(qNode head,FILE *asmFile)
 {
-    asmFile = fopen("./code.asm", "w");
 
     // macro definition and code skeleton
+    fprintf(asmFile, "extern printf, scanf\n");
 
     fprintf(asmFile, "section .data\n\n");
 
@@ -92,7 +92,10 @@ void createCode(qNode head)
 
     while (head)
     {
-
+        if (head != NULL)
+        {
+            // printf("curr op= %s\n", operator_string[head->op]);
+        }
         switch (head->op)
         {
         case ASSIGN_OP:
@@ -124,16 +127,20 @@ void createCode(qNode head)
                 else
                 {
                     int width = head->arg1symbol->width;
+                    int offset = head->arg1symbol->offset;
                     if (width == 1)
                     {
-                        // fprintf(asmFile);
+                        // fprintf(asmFile , "chk 1");
                     }
                     else if (width == 2)
                     {
-                        fprintf(asmFile, "\t\t ");
+                        fprintf(asmFile, "\t\t mov RAX , [RBP-%d] \n", head->arg1symbol->offset);
+                        fprintf(asmFile, "\t\t mov [RBP-%d] , RAX\n", head->resultsymbol->offset);
+
                     }
                     else if (width == 4)
                     {
+                        // fprintf(asmFile , "chk 4");
                     }
                 }
             }
@@ -141,16 +148,16 @@ void createCode(qNode head)
             else
             {
             }
-            fprintf(asmFile, "\t\t popAll\n");
+            fprintf(asmFile, "\t\t popAll\n\n");
             break;
         }
 
         case MUL_OP:
         {
             fprintf(asmFile, "\t\t pushAll\n");
-
             if (head->arg1symbol == NULL && head->arg2symbol == NULL)
             {
+
                 if (head->arg1Node->tok->token_type == TK_RNUM)
                 {
                 }
@@ -171,50 +178,57 @@ void createCode(qNode head)
                 }
                 else if (head->arg1Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
-                    int offset2 = head->arg2symbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset2 = head->arg2symbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
-                    fprintf(asmFile, "\t\t mul RBX \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
+                        fprintf(asmFile, "\t\t mul RBX \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else if (head->arg1symbol != NULL && head->arg2symbol == NULL)
             {
-                if (head->arg1Node->tok->token_type == TK_RNUM)
+                if (head->arg2Node->tok->token_type == TK_RNUM)
                 {
                 }
-                else if (head->arg1Node->tok->token_type == TK_NUM)
+                else if (head->arg2Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
-                    int offset1 = head->arg1symbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset1 = head->arg1symbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg2);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset1);
-                    fprintf(asmFile, "\t\t mul RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg2);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset1);
+                        fprintf(asmFile, "\t\t mul RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else
             {
-                if (head->arg1Node->tok->token_type == TK_RNUM)
+                if (head->arg1symbol->type == TK_REAL)
                 {
                 }
-                else if (head->arg1Node->tok->token_type == TK_NUM)
+                else if (head->arg1symbol->type== TK_INTEGER)
                 {
-
-                    int offset = head->resultsymbol->offset;
-                    int offset1 = head->arg1symbol->offset;
-                    int offset2 = head->arg2symbol->offset;
-                    fprintf(asmFile, "\t\t mov RAX , [RBP-%d] \n", offset1);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
-                    fprintf(asmFile, "\t\t mul RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset1 = head->arg1symbol->offset;
+                        int offset2 = head->arg2symbol->offset;
+                        fprintf(asmFile, "\t\t mov RAX , [RBP-%d] \n", offset1);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
+                        fprintf(asmFile, "\t\t mul RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
-
-            fprintf(asmFile, "\t\t popAll\n");
+            fprintf(asmFile, "\t\t popAll\n\n");
 
             break;
         }
@@ -231,12 +245,15 @@ void createCode(qNode head)
                 }
                 else if (head->arg1Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
-                    fprintf(asmFile, "\t\t mov RBX , %s \n", head->arg2);
-                    fprintf(asmFile, "\t\t add RAX , RBX \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
+                        fprintf(asmFile, "\t\t mov RBX , %s \n", head->arg2);
+                        fprintf(asmFile, "\t\t add RAX , RBX \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else if (head->arg1symbol == NULL && head->arg2symbol != NULL)
@@ -246,50 +263,58 @@ void createCode(qNode head)
                 }
                 else if (head->arg1Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
-                    int offset2 = head->arg2symbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset2 = head->arg2symbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
-                    fprintf(asmFile, "\t\t add RAX ,RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
+                        fprintf(asmFile, "\t\t add RAX ,RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else if (head->arg1symbol != NULL && head->arg2symbol == NULL)
             {
-                if (head->arg1Node->tok->token_type == TK_RNUM)
+                if (head->arg2Node->tok->token_type == TK_RNUM)
                 {
                 }
-                else if (head->arg1Node->tok->token_type == TK_NUM)
+                else if (head->arg2Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
-                    int offset1 = head->arg1symbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset1 = head->arg1symbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg2);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset1);
-                    fprintf(asmFile, "\t\t add RAX ,RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg2);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset1);
+                        fprintf(asmFile, "\t\t add RAX ,RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else
             {
-                if (head->arg1Node->tok->token_type == TK_RNUM)
+                if (head->arg1symbol->type == TK_REAL)
                 {
                 }
-                else if (head->arg1Node->tok->token_type == TK_NUM)
+                else if (head->arg1symbol->type == TK_INTEGER)
                 {
-
-                    int offset = head->resultsymbol->offset;
-                    int offset1 = head->arg1symbol->offset;
-                    int offset2 = head->arg2symbol->offset;
-                    fprintf(asmFile, "\t\t mov RAX , [RBP-%d] \n", offset1);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
-                    fprintf(asmFile, "\t\t add RAX ,RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset1 = head->arg1symbol->offset;
+                        int offset2 = head->arg2symbol->offset;
+                        fprintf(asmFile, "\t\t mov RAX , [RBP-%d] \n", offset1);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
+                        fprintf(asmFile, "\t\t add RAX ,RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
 
-            fprintf(asmFile, "\t\t popAll\n");
+            fprintf(asmFile, "\t\t popAll\n\n");
 
             break;
         }
@@ -305,12 +330,15 @@ void createCode(qNode head)
                 }
                 else if (head->arg1Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
-                    fprintf(asmFile, "\t\t mov RBX , %s \n", head->arg2);
-                    fprintf(asmFile, "\t\t sub RAX , RBX \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
+                        fprintf(asmFile, "\t\t mov RBX , %s \n", head->arg2);
+                        fprintf(asmFile, "\t\t sub RAX , RBX \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else if (head->arg1symbol == NULL && head->arg2symbol != NULL)
@@ -320,50 +348,58 @@ void createCode(qNode head)
                 }
                 else if (head->arg1Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
-                    int offset2 = head->arg2symbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset2 = head->arg2symbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
-                    fprintf(asmFile, "\t\t sub RAX ,RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg1);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
+                        fprintf(asmFile, "\t\t sub RAX ,RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else if (head->arg1symbol != NULL && head->arg2symbol == NULL)
             {
-                if (head->arg1Node->tok->token_type == TK_RNUM)
+                if (head->arg2Node->tok->token_type == TK_RNUM)
                 {
                 }
-                else if (head->arg1Node->tok->token_type == TK_NUM)
+                else if (head->arg2Node->tok->token_type == TK_NUM)
                 {
-                    int offset = head->resultsymbol->offset;
-                    int offset1 = head->arg1symbol->offset;
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset1 = head->arg1symbol->offset;
 
-                    fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg2);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset1);
-                    fprintf(asmFile, "\t\t sub RAX ,RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                        fprintf(asmFile, "\t\t mov RAX , %s \n", head->arg2);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset1);
+                        fprintf(asmFile, "\t\t sub RAX ,RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
             else
             {
-                if (head->arg1Node->tok->token_type == TK_RNUM)
+                if (head->arg1symbol->type == TK_REAL)
                 {
                 }
-                else if (head->arg1Node->tok->token_type == TK_NUM)
+                else if (head->arg1symbol->type == TK_INTEGER)
                 {
-
-                    int offset = head->resultsymbol->offset;
-                    int offset1 = head->arg1symbol->offset;
-                    int offset2 = head->arg2symbol->offset;
-                    fprintf(asmFile, "\t\t mov RAX , [RBP-%d] \n", offset1);
-                    fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
-                    fprintf(asmFile, "\t\t sub RAX ,RBX  \n");
-                    fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    if (head->resultsymbol != NULL)
+                    {
+                        int offset = head->resultsymbol->offset;
+                        int offset1 = head->arg1symbol->offset;
+                        int offset2 = head->arg2symbol->offset;
+                        fprintf(asmFile, "\t\t mov RAX , [RBP-%d] \n", offset1);
+                        fprintf(asmFile, "\t\t mov RBX , [RBP-%d] \n", offset2);
+                        fprintf(asmFile, "\t\t sub RAX ,RBX  \n");
+                        fprintf(asmFile, "\t\t mov [RBP-%d], RAX\n", offset);
+                    }
                 }
             }
 
-            fprintf(asmFile, "\t\t popAll\n");
+            fprintf(asmFile, "\t\t popAll\n\n");
 
             break;
         }
@@ -409,6 +445,9 @@ void createCode(qNode head)
 
             break;
         }
+        case GT_OP:{
+            break;
+        }
 
         case AND_OP:
         {
@@ -421,17 +460,17 @@ void createCode(qNode head)
 
             fprintf(asmFile, "\t\t pushAll\n");
 
-            int offset = head->arg1symbol->offset ; 
+            int offset = head->arg1symbol->offset;
 
-            switch (head->arg1Node->tok->token_type)
+            switch (head->arg1symbol->type)
             {
-            case TK_NUM:
+            case TK_INTEGER:
             {
                 fprintf(asmFile, "\t\t mov RDI , int_val \n");
 
                 break;
             }
-            case TK_RNUM:
+            case TK_REAL:
             {
                 fprintf(asmFile, "\t\t mov RDI , real_val \n");
 
@@ -442,24 +481,27 @@ void createCode(qNode head)
                 fprintf(asmFile, "\t\t mov RDI , bool_val \n");
                 break;
             }
-
-                // array case need to be handled
-
-            default:
-                break;
             }
+            fprintf(asmFile, "\t\t push RBP\n");
+            fprintf(asmFile, "\t\t mov RDX, RBP\n");
+            fprintf(asmFile, "\t\t sub RDX, %d \n" , offset) ; 
+            fprintf(asmFile, "\t\t mov RAX, 0x0000_ffff_ffff_ffff\n");
+            fprintf(asmFile, "\t\t mov [RDX] , RAX\n");
+            fprintf(asmFile, "\t\t mov RSI, RDX\n");        
+            fprintf(asmFile, "\t\t xor RAX, RAX \n");
+            fprintf(asmFile, "\t\t call scanf \n");
+            fprintf(asmFile, "\t\t pop RBP \n"); 
 
-            fprintf(asmFile, "\t\t popAll\n");
+            fprintf(asmFile, "\t\t popAll\n\n");
 
             break;
         }
 
         case PRINTVAL_OP:
         {
-            fprintf(asmFile, "\t\t pushAll\n");
+            // fprintf(asmFile, "\t\t pushAll\n");
 
-           
-            fprintf(asmFile, "\t\t popAll\n");
+            // fprintf(asmFile, "\t\t popAll\n\n");
 
             break;
         }
@@ -474,10 +516,10 @@ void createCode(qNode head)
             int x = find_mod_no("driver");
             symbol_table st = global_symbol_table[x]->table;
             int space = spaceUsed(st);
-            fprintf(asmFile, "global main");
+            fprintf(asmFile, "global main\n");
             fprintf(asmFile, "main:\n");
             fprintf(asmFile, "\t\t ENTER %d,0\n", space);
-            fprintf(asmFile, "\t\tSUB RSP , 0\n\n");
+            fprintf(asmFile, "\t\t SUB RSP , 0\n\n");
             break;
         }
 
@@ -490,8 +532,8 @@ void createCode(qNode head)
 
         head = head->next;
     }
-
-    fprintf(asmFile, "\t\t ret");
+    fprintf(asmFile, "\t\t leave\n");
+    fprintf(asmFile, "\t\t ret\n");
 
     fclose(asmFile);
 }

@@ -1,4 +1,12 @@
-// ek global symbol table jisme har module ke symbol table ka pointer input plidt or output plist + ek symbol table jisme jo jo mam ne dia hao
+/*
+                    *****  Group No. - 9  *****
+        Name : Sarthak Shah                 ID : 2020A7PS0092P
+        Name : Siddharth Khandelwal         ID : 2020A7PS0098P
+        Name : Archaj Jain                  ID : 2020A7PS0072P
+        Name : BhanuPratap Singh Rathore    ID : 2020A7PS1675P
+        Name : Rishi Rakesh Shrivastava     ID : 2020A7PS0108P
+
+*/
 #ifndef _symbol_table_def_
 #define _symbol_table_def_
 
@@ -42,6 +50,7 @@ struct AST_SYMBOL{
     int offset;
     int nesting_level;
     bool is_assigned;
+    bool is_error;
 };
 
 struct SYMBOL_TABLE{

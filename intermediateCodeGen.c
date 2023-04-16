@@ -32,16 +32,16 @@ char *operator_string[] = {
     "GETVAL",
     "PRINTVAL",
     "LABEL",
-    "driver_start"
+    "driver_start",
     "NULL",
 };
 char *addTemporary(symbol_table t, tkType type)
 {
-    int max_offset=0;
+    int max_offset=-1;
     int width_offset=0;
     for(int i=0;i<1000;i++){
         if(t->sym[i]!=NULL){
-            if(t->sym[i]->offset>=max_offset){
+            if(t->sym[i]->offset>max_offset){
             max_offset=t->sym[i]->offset;
             width_offset=t->sym[i]->width;
             }
@@ -53,7 +53,9 @@ char *addTemporary(symbol_table t, tkType type)
     sprintf(str, "Temp_%d", tempNum);
     strcpy(temp->var_name,str);
     temp->offset=max_offset+width_offset;
-    temp->width= find_width(type);
+    // printf("%s----%d\n",temp->var_name,type);
+    temp->width= 2;
+    insert_symbol_table(t,temp);
     return str;
 }
 char *newLabel()
@@ -122,7 +124,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
     {
         return curr;
     }
-    printf("Currently in %s \n", ast_strings[root->ast_name]);
+    // printf("Currently in %s \n", ast_strings[root->ast_name]);
     // parseTreeNode currchild = root->child;
     switch (root->ast_name)
     {
@@ -422,7 +424,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         {
             if (root->child->tok->token_type == TK_NUM)
             {
-                sprintf(temp->result, "%s", addTemporary(st, TK_NUM));
+                sprintf(temp->result, "%s", addTemporary(st, TK_INTEGER));
                 sprintf(temp->arg1, "%lld", root->child->tok->lex.integer);
                 temp->arg1Node = root->child;
             }
@@ -441,6 +443,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
                 
             }
         }
+        temp->resultsymbol = find_symbol(st,temp->result);
         curr->next = temp;
         curr = curr->next;
         break;
@@ -507,6 +510,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         // while(temp->prev!=NULL){
         //     temp = temp->prev;
         // }
+        temp->resultsymbol = find_symbol(st,temp->result);
         curr->next = temp;
         curr = curr->next;
 
@@ -611,6 +615,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         }
 
         sprintf(temp->result, "%s", addTemporary(st, TK_BOOLEAN));
+        temp->resultsymbol = find_symbol(st,temp->result);
         curr->next = temp;
         curr = curr->next;
         // generateIR(curr,root->sibling,modname);
@@ -694,6 +699,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
             }
         }
         sprintf(temp->result, "%s", addTemporary(st, TK_BOOLEAN));
+        temp->resultsymbol = find_symbol(st,temp->result);
         curr->next = temp;
         curr = curr->next;
         // generateIR(curr,root->sibling,modname);
@@ -706,7 +712,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         temp->op = PLUS_OP;
         if (root->child->tok != NULL)
         {
-            printf("i am child terminal of plus\n");
+            // printf("i am child terminal of plus\n");
             if (root->child->tok->token_type == TK_NUM)
             {
                 sprintf(temp->arg1, "%lld", root->child->tok->lex.integer);
@@ -719,7 +725,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
             }
             else
             {
-                printf("%s\n", root->child->tok->lex.value);
+                // printf("%s\n", root->child->tok->lex.value);
 
                 sprintf(temp->arg1, "%s", root->child->tok->lex.value);
                 temp->arg1Node = root->child;
@@ -738,7 +744,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         }
         else
         {
-            printf("i am child astnode of plus\n");
+            // printf("i am child astnode of plus\n");
             qNode temp1 = generateIR(curr, root->child, st, childcount);
             strcpy(temp->arg1, temp1->result);
             temp->arg1Node = temp1->resultNode;
@@ -747,7 +753,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         }
         if (root->child->sibling->sibling->tok == NULL)
         {
-            printf("i am 3rd child ast of plus\n");
+            // printf("i am 3rd child ast of plus\n");
 
             qNode temp2 = generateIR(curr, root->child->sibling->sibling, st, childcount);
             strcpy(temp->arg2, temp2->result);
@@ -758,7 +764,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
 
         else
         {
-            printf("i am 3rd child terminal of plus\n");
+            // printf("i am 3rd child terminal of plus\n");
             if (root->child->sibling->sibling->tok->token_type == TK_NUM)
             {
                 sprintf(temp->arg2, "%lld", root->child->sibling->sibling->tok->lex.integer);
@@ -781,6 +787,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
             if (temp->arg1Node->tok->token_type == TK_NUM)
             {
                 sprintf(temp->result, "%s", addTemporary(st, TK_INTEGER));
+                
             }
             else
             {
@@ -792,6 +799,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
             sprintf(temp->result, "%s", addTemporary(st, temp->arg1symbol->type));
             
         }
+        temp->resultsymbol = find_symbol(st,temp->result);
         curr->next = temp;
         curr = curr->next;
         // generateIR(curr,root->sibling,modname);
@@ -804,7 +812,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         temp->op = MINUS_OP;
         if (root->child->tok != NULL)
         {
-            printf("i am child terminal of plus\n");
+            // printf("i am child terminal of plus\n");
             if (root->child->tok->token_type == TK_NUM)
             {
                 sprintf(temp->arg1, "%lld", root->child->tok->lex.integer);
@@ -824,7 +832,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         }
         else
         {
-            printf("i am child astnode of plus\n");
+            // printf("i am child astnode of plus\n");
             qNode temp1 = generateIR(curr, root->child, st, childcount);
             strcpy(temp->arg1, temp1->result);
             temp->arg1Node = temp1->resultNode;
@@ -833,7 +841,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
         }
         if (root->child->sibling->sibling->tok == NULL)
         {
-             printf("i am 3rd child ast of plus\n");
+            //  printf("i am 3rd child ast of plus\n");
             qNode temp2 = generateIR(curr, root->child->sibling->sibling, st, childcount);
             strcpy(temp->arg2, temp2->result);
             temp->arg2Node = temp2->resultNode;
@@ -843,7 +851,7 @@ qNode generateIR(qNode curr, parseTreeNode root, symbol_table st, int childcount
 
         else
         {
-            printf("i am 3rd child terminal of plus\n");
+            // printf("i am 3rd child terminal of plus\n");
             if (root->child->sibling->sibling->tok->token_type == TK_NUM)
             {
                 sprintf(temp->arg2, "%lld", root->child->sibling->sibling->tok->lex.integer);
@@ -877,6 +885,7 @@ if (temp->arg1symbol == NULL)
         {
             sprintf(temp->result, "%s", addTemporary(st, temp->arg1symbol->type));
         }    
+        temp->resultsymbol = find_symbol(st,temp->result);
         
         curr->next = temp;
         curr = curr->next;
@@ -961,6 +970,7 @@ if (temp->arg1symbol == NULL)
             sprintf(temp->result, "%s", addTemporary(st, temp->arg1symbol->type));
             
         }
+        temp->resultsymbol = find_symbol(st,temp->result);
         curr->next = temp;
         curr = curr->next;
         // generateIR(curr,root->sibling,modname);
@@ -1027,6 +1037,8 @@ if (temp->arg1symbol == NULL)
             }
         }
         sprintf(temp->result, "%s", addTemporary(st,TK_REAL));
+        temp->resultsymbol = find_symbol(st,temp->result);
+        
         curr->next = temp;
         curr = curr->next;
         // generateIR(curr,root->sibling,modname);
@@ -1034,7 +1046,42 @@ if (temp->arg1symbol == NULL)
     }
     case AST_ARRAY_FACTOR:
     {
+        qNode temp = createQuadruple();
+        temp->op = ASSIGN_OP;
+        strcpy(temp->arg1,root->child->tok->lex.value);
+        temp->arg1Node = root->child;
+        temp->arg1symbol = find_symbol(st,temp->arg1);
+        if(root->child->sibling->tok==NULL){
+                qNode temp2 = generateIR(curr, root->child->sibling, st, childcount);
+            strcpy(temp->arg2, temp2->result);
+            temp->arg2Node = temp2->resultNode;
+            temp->arg2symbol = temp2->resultsymbol;
+            
+            curr = temp2;
+        }
+        else{
+                if (root->child->sibling->tok->token_type == TK_NUM)
+            {
+                sprintf(temp->arg2, "%lld", root->child->sibling->tok->lex.integer);
+                temp->arg2Node = root->child->sibling;
+            }
+            
+            else
+            {
+                sprintf(temp->arg2, "%s", root->child->sibling->tok->lex.value);
+                temp->arg2Node = root->child->sibling;
+                temp->arg2symbol = find_symbol(st, temp->arg2);
+            }
+        
+        }
 
+        
+            sprintf(temp->result, "%s", addTemporary(st, temp->arg1symbol->type));
+            temp->resultsymbol = find_symbol(st,temp->result);
+            
+            curr->next = temp;
+            curr = curr->next;
+    
         break;
     }
     case AST_RANGE_FOR_LOOP:

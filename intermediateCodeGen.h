@@ -18,6 +18,7 @@
 // new label func
 // emit function 
 // 
+extern char *operator_string[];
 void printQuadruple(qNode q);
 qNode createQuadruple(); 
 qNode generateIR(qNode curr ,parseTreeNode root, symbol_table st, int childcount) ; 

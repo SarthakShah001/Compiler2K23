@@ -1,3 +1,4 @@
+
 /*
                     *****  Group No. - 9  *****
         Name : Sarthak Shah                 ID : 2020A7PS0092P
@@ -68,6 +69,8 @@ void global_symbol_table_init()
     for (int i = 0; i < 500; i++)
     {
         global_symbol_table[i] = (mod)malloc(sizeof(struct MODULE));
+        global_symbol_table[i]->inlist=NULL;
+        global_symbol_table[i]->outlist=NULL;
         global_symbol_table[i]->is_declared = false;
         global_symbol_table[i]->is_defined = false;
     }
@@ -119,7 +122,7 @@ void insert_symbol_table(symbol_table table, ast_symbol s)
 {
     if (table == NULL)
     {
-        printf("table is NULL\n");
+        // printf("table is NULL\n");
         return;
     }
     int prob = 0;
@@ -169,7 +172,7 @@ ast_symbol find_symbol(symbol_table table, char *str)
 {
     if (table == NULL)
     {
-        printf("Table is NULL\n");
+        // printf("Table is NULL\n");
         return NULL;
     }
     symbol_table temp = table;
@@ -294,6 +297,8 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
 
     case AST_PROGRAM:
     {
+        global_symbol_table_init();
+        no_of_errors=0;
         generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
         currchild = currchild->sibling;
         generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
@@ -348,7 +353,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     {
         int temp_array[2];
         copy_array(temp_array, currscope);
-        generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        offset=generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
+        int mod_no=find_mod_no("driver");
+        global_symbol_table[mod_no]->width=offset;
         copy_array(currscope, temp_array);
         break;
     }
@@ -370,6 +377,12 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         }
         else
         {
+            if(global_symbol_table[mod_no]->is_declared){
+                printf("\033[31m");
+                printf("ERROR in line %d: module %s both declared and defined before use\n", currchild->tok->line_no, global_symbol_table[mod_no]->mod_name);
+                printf("\033[0m");
+                no_of_errors++;
+            }
             if (global_symbol_table[mod_no]->table != NULL)
             {
                 // throw error change colour
@@ -1075,6 +1088,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         }
         else
         {
+            
             generate_symbol_table(currchild, table, nesting, curr_offset, curr_symbol, currscope);
             copy_array(currscope, temp_array);
         }
@@ -1983,7 +1997,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             no_of_errors++;
             break;
         }
+        if(root->parent->ast_name==AST_ARRAY_ASSIGN){
         t->is_assigned = true;
+        }
         currchild = currchild->sibling;
         if (currchild->tok != NULL)
         {
@@ -2171,6 +2187,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             printf("ERROR in line %d: variable %s is not declared\n", currchild->tok->line_no, currchild->tok->lex.value);
             printf("\033[0m");
             no_of_errors++;
+            break;
         }
         else
         {
@@ -2183,6 +2200,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                 no_of_errors++;
                 break;
             }
+           
         }
         currchild = currchild->sibling;
         currchild->type_inh = t->type;
@@ -2200,7 +2218,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             {
                 // throw error no default
                 printf("\033[31m");
-                printf("ERROR in line : default case absent for switch case\n");
+                printf("ERROR in scope[%d-%d] : default case absent for switch case\n",currscope[0],currscope[1]);
                 printf("\033[0m");
                 no_of_errors++;
             }
@@ -2211,7 +2229,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             {
                 // throw error default should not be there
                 printf("\033[31m");
-                printf("ERROR in line: default case should not be present in scope [%d-%d] \n", currscope[0], currscope[1]);
+                printf("ERROR in scope[%d-%d]: default case should not be present \n", currscope[0], currscope[1]);
                 printf("\033[0m");
                 no_of_errors++;
             }
@@ -2248,6 +2266,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             printf("ERROR in line %d: type mismatch b/w switch and case variable\n", currchild->tok->line_no);
             printf("\033[0m");
             no_of_errors++;
+            break;
         }
         else if (!is_boolean(currchild->tok->token_type) && (root->type_inh != TK_INTEGER))
         {
@@ -2256,6 +2275,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             printf("ERROR in line %d: type mismatch b/w switch and case variable\n", currchild->tok->line_no);
             printf("\033[0m");
             no_of_errors++;
+            break;
         }
         currchild = currchild->sibling;
         offset = generate_symbol_table(currchild, table, nesting, offset, NULL, root->scope);
@@ -2318,11 +2338,11 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         symbol_list_node l = (symbol_list_node)malloc(sizeof(struct Symbol_List_Node));
         if (currchild->tok != NULL)
         {
-            if (currchild->tok->token_type != TK_ID)
+            if (currchild->tok->token_type != TK_ID&&currchild->tok->token_type != TK_TRUE&&currchild->tok->token_type != TK_FALSE)
             {
                 // while loop expression should not be a constant
                 printf("\033[31m");
-                printf("ERROR in line %d: while_loop variable cannot be a constant\n", currchild->tok->line_no);
+                printf("ERROR in line %d: while_loop variable cannot be a constant non boolean\n", currchild->tok->line_no);
                 printf("\033[0m");
                 no_of_errors++;
             }
@@ -2347,7 +2367,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
         else
         {
             generate_symbol_table(currchild, table, nesting, offset, curr_symbol, currscope);
-
+            if(currchild->type_syn==epsilon){
+                break;
+            }
             if (currchild->type_syn != TK_BOOLEAN)
             {
                 // while loop expression should be of boolean type
@@ -2380,6 +2402,14 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
                 arr[i] = false;
             }
         }
+        temp = l->next;
+        while (temp != NULL)
+        {
+            // printf("%s ",temp->curr->var_name);
+            // printf("\n");
+            temp->curr->is_assigned=false;
+            temp = temp->next;
+        }
         offset = generate_symbol_table(currchild, new_table, nesting + 1, offset, NULL, root->scope);
         temp = l->next;
         bool var_assigned = false;
@@ -2389,7 +2419,7 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
             // printf("\n");
             if (temp->curr->is_assigned)
             {
-                var_assigned = true;
+            var_assigned = true;
             }
             temp = temp->next;
         }
@@ -2437,8 +2467,9 @@ int generate_symbol_table(parseTreeNode root, symbol_table table, int nesting, i
     }
     return offset;
 }
-void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_count)
+int pass2(parseTreeNode root, int mod_no, symbol_table st, int child_count)
 {
+    // printf("Currently in %s with scope [%d-%d]\n", ast_strings[root->ast_name],root->scope[0],root->scope[1]);
     parseTreeNode currchild = root->child;
     switch (root->ast_name)
     {
@@ -2447,7 +2478,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     {
         while (currchild != NULL)
         {
-            type_checking(currchild, mod_no, st, child_count);
+            pass2(currchild, mod_no, st, child_count);
             currchild = currchild->sibling;
         }
         break;
@@ -2462,7 +2493,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     {
         while (currchild != NULL)
         {
-            type_checking(currchild, mod_no, st, child_count);
+            pass2(currchild, mod_no, st, child_count);
             currchild = currchild->sibling;
         }
         break;
@@ -2471,7 +2502,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     {
         int i = find_mod_no("driver");
         mod m = global_symbol_table[i];
-        type_checking(currchild, i, m->table, 0);
+        pass2(currchild, i, m->table, 0);
         break;
     }
     case AST_MODULE:
@@ -2484,7 +2515,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
             currchild = currchild->sibling;
         }
 
-        type_checking(currchild, t, m->table, 0);
+        pass2(currchild, t, m->table, 0);
 
         break;
     }
@@ -2524,7 +2555,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     {
         while (currchild != NULL)
         {
-            type_checking(currchild, mod_no, st, child_count);
+            child_count= pass2(currchild, mod_no, st, child_count);
             currchild = currchild->sibling;
         }
         break;
@@ -2542,7 +2573,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     case AST_ARRAY_ACCESS:
     {
 
-        //     // variable should be declared and is int
+        // variable should be declared and is int
         break;
     }
     case AST_ID_ASSIGN:
@@ -2567,22 +2598,32 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     {
         int i = find_mod_no(currchild->tok->lex.value);
         currchild = currchild->sibling;
-        type_checking(currchild, i, st, child_count);
+        pass2(currchild, i, st, child_count);
         currchild = currchild->sibling;
-        type_checking(currchild, i, st, child_count);
+        pass2(currchild,i, st, child_count);
         break;
     }
     case AST_PARAMETER_LIST1:
     {
+        
+        // printf("mod_name=%s\n", global_symbol_table[mod_no]->mod_name);
+    //    int m= find_mod_no(root->parent->child->tok->lex.value);
         symbol_list_node outlist = global_symbol_table[mod_no]->outlist;
         while (currchild != NULL && outlist != NULL)
         {
+            if(currchild->tok->token_type!=TK_ID){
+            // output parameter should be a variable
+                printf("\033[31m");
+                printf("ERROR in line %d: only variable can be assigned\n", currchild->tok->line_no);
+                printf("\033[0m");
+                no_of_errors++;
+            }
             ast_symbol a = find_symbol(st, currchild->tok->lex.value);
             if (a == NULL)
             {
                 // var not declared error
                 printf("\033[31m");
-                printf("ERROR in line %d: variable %s is not declared\n", currchild->tok->line_no, currchild->tok->lex.value);
+                printf("ERROR in line %d: variable %s is not declared in output parameters\n", currchild->tok->line_no, currchild->tok->lex.value);
                 printf("\033[0m");
                 no_of_errors++;
             }
@@ -2594,32 +2635,56 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
                 printf("\033[0m");
                 no_of_errors++;
             }
+            else{
+                if(a->is_array){
+                // array can't be assigned a non-array var
+                    printf("\033[31m");
+                    printf("ERROR in line %d: array %s can't be assigned non-array var fron return list \n",currchild->tok->line_no,a->var_name); 
+                    printf("\033[0m");
+                    no_of_errors++;
+                }
+            
+            }
+            
             currchild = currchild->sibling;
             outlist = outlist->next;
         }
         if (currchild != NULL || outlist != NULL)
         {
-            // no of parameters don't match error
+            // // no of parameters don't match error
+            // if(currchild!=NULL){
+            // // printf("currchild not empty\n");
+            // }
+            // else{
+            // // printf("outlist not empty\n");
+            // // printf("%s\n", outlist->curr->var_name);
+            
+            // }
             printf("\033[31m");
-            printf("ERROR in line %d: no. of variables do not match with outlist parameters\n", currchild->tok->line_no);
+            printf("ERROR in line %d: no. of variables do not match with outlist parameters\n", root->parent->child->tok->line_no);
             printf("\033[0m");
             no_of_errors++;
         }
 
-        // do nothing
         break;
     }
     case AST_PARAMETER_LIST2:
     {
         symbol_list_node inlist = global_symbol_table[mod_no]->inlist;
+        // printf("mod_name=%s\n", global_symbol_table[mod_no]->mod_name);
         while (currchild != NULL && inlist != NULL)
         {
-            ast_symbol a = find_symbol(st, currchild->tok->lex.value);
+            parseTreeNode t=currchild->child;
+            if(t->sibling!=NULL){
+                t=t->sibling;
+            }
+            if(t->tok->token_type==TK_ID){
+            ast_symbol a = find_symbol(st, t->tok->lex.value);
             if (a == NULL)
             {
                 // var not declared error
                 printf("\033[31m");
-                printf("ERROR in line %d: variable %s is not declared\n", currchild->tok->line_no, currchild->tok->lex.value);
+                printf("ERROR in line %d: variable %s is not declared in input parameters\n", t->tok->line_no, t->tok->lex.value);
                 printf("\033[0m");
                 no_of_errors++;
             }
@@ -2627,9 +2692,56 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
             {
                 // type mismatch error inlist
                 printf("\033[31m");
-                printf("ERROR in line %d: variable %s does not match with inlist parameter type\n", currchild->tok->line_no, currchild->tok->lex.value);
+                printf("ERROR in line %d: variable %s does not match with inlist parameter type\n", t->tok->line_no, t->tok->lex.value);
                 printf("\033[0m");
                 no_of_errors++;
+            }
+            else {
+                if(a->is_array&&inlist->curr->is_array){
+                    int t1= range_cal(a);
+                    int t2= range_cal(inlist->curr);
+                    if(t1!=t2){
+                    // arrays are structurally inequivalent
+                        printf("\033[31m");
+                        printf("ERROR in line %d: array %s and %s are structurally inequivalent\n", t->tok->line_no, t->tok->lex.value,inlist->curr->var_name);
+                        printf("\033[0m");
+                        no_of_errors++;
+                    }
+                
+                }
+                else if(a->is_array||inlist->curr->is_array){
+                if(a->is_array){
+                // array can't be assigned to non-array var
+                        printf("\033[31m");
+                        printf("ERROR in line %d: array %s cannot be assigned to non-array %s variable \n",t->tok->line_no,a->var_name,inlist->curr->var_name); 
+                        printf("\033[0m");
+                        no_of_errors++;
+                
+                }
+                else{
+                    // non array var can't be assigned to array
+                        printf("\033[31m");
+                        printf("ERROR in line %d: non-array variable %s cannot be assigned to array %s\n", t->tok->line_no,a->var_name,inlist->curr->var_name );
+                        printf("\033[0m");
+                        no_of_errors++;
+                }
+                }
+            }
+            }
+            else{
+                if(is_same_type(t->tok->token_type, inlist->curr->type)){
+                    if(t->tok->token_type ==TK_NUM){
+                    printf("\033[31m");
+                    printf("ERROR in line %d: variable %lld does not match with inlist parameter type\n", t->tok->line_no, t->tok->lex.integer);
+                    printf("\033[0m");
+                    }
+                    if(t->tok->token_type ==TK_RNUM){
+                    printf("\033[31m");
+                    printf("ERROR in line %d: variable %lf does not match with inlist parameter type\n", t->tok->line_no, t->tok->lex.decimal);
+                    printf("\033[0m");
+                    }
+                }
+                
             }
             currchild = currchild->sibling;
             inlist = inlist->next;
@@ -2638,7 +2750,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
         {
             // no of parameters don't match error
             printf("\033[31m");
-            printf("ERROR in line %d: no. of variables do not match with inlist parameters\n", currchild->tok->line_no);
+            printf("ERROR in line %d: no. of variables do not match with inlist parameters\n", root->parent->child->tok->line_no);
             printf("\033[0m");
             no_of_errors++;
         }
@@ -2703,19 +2815,37 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     }
     case AST_SWITCH:
     {
+        ast_symbol t = find_symbol(st, currchild->tok->lex.value);
+        if (find_symbol(st, currchild->tok->lex.value) == NULL)
+        {
+            
+            break;
+        }
+        else
+        {
+            if (t->type != TK_INTEGER && t->type != TK_BOOLEAN)
+            {
+               
+                break;
+            }
+            
+            
+        }
         currchild = currchild->sibling;
         while (currchild != NULL)
         {
-            type_checking(currchild, mod_no, st->child[child_count], 0);
+            child_count= pass2(currchild, mod_no, st, child_count);
             currchild = currchild->sibling;
         }
+        child_count++;
         break;
     }
     case AST_CASES:
     {
         while (currchild != NULL)
         {
-            type_checking(currchild, mod_no, st->child[child_count], 0);
+            // printf("childcount=%d\n", child_count);
+            pass2(currchild, mod_no, st->child[child_count], child_count);
             child_count++;
             currchild = currchild->sibling;
         }
@@ -2723,17 +2853,22 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     }
     case AST_CASE:
     {
-
+        currchild = currchild->sibling;
+        pass2(currchild, mod_no,st,0);
         break;
     }
     case AST_FORLOOP:
     {
-
+        currchild= currchild->sibling->sibling;
+        pass2(currchild, mod_no,st->child[child_count],0);
+        child_count++;
         break;
     }
     case AST_WHILELOOP:
     {
-
+        currchild=currchild->sibling;
+        pass2(currchild, mod_no,st->child[child_count],0);
+        child_count++;
         break;
     }
     case AST_INDEX_FOR_LOOP:
@@ -2743,7 +2878,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
     }
     case AST_DEFAULT:
     {
-
+        pass2(currchild, mod_no,st->child[child_count],0);
         break;
     }
     default:
@@ -2751,7 +2886,7 @@ void type_checking(parseTreeNode root, int mod_no, symbol_table st, int child_co
         break;
     }
     }
-    return;
+    return child_count;
 }
 
 void print_symbol_table_list(mod sym_module, symbol_list_node in)
@@ -2763,7 +2898,7 @@ void print_symbol_table_list(mod sym_module, symbol_list_node in)
         // print variables
         if (in->curr == NULL)
         {
-            printf("curr was null\n");
+            // printf("curr was null\n");
             continue;
         }
         printf("%-20s", in->curr->var_name);
@@ -2930,7 +3065,7 @@ void print_symbol_module_array(mod sym_module)
     // print inlist var
     if (sym_module == NULL)
     {
-        printf("module not present\n");
+        // printf("module not present\n");
         return;
     }
     // printf("current module=%s\n",sym_module->mod_name);
@@ -2950,7 +3085,7 @@ void print_symbol_module(mod sym_module)
     // print inlist var
     if (sym_module == NULL)
     {
-        printf("module not present\n");
+        // printf("module not present\n");
         return;
     }
     // printf("current module=%s\n",sym_module->mod_name);

@@ -9,7 +9,7 @@
 # */
 
 final:
-	gcc hashTable.c lexer.c parser.c stackADT.c doublyLinkedList.c setADT.c parseTree.c remove_comments.c driver.c ast.c symbol_table.c intermediateCodeGen.c codegen.c -o stage1exe
+	gcc hashTable.c lexer.c parser.c stackADT.c doublyLinkedList.c setADT.c parseTree.c remove_comments.c  ast.c symbol_table.c intermediateCodeGen.c codegen.c driver.c -o compiler
 
 
 

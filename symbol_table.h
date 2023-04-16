@@ -38,5 +38,5 @@ void print_symbol_table(symbol_table tab);
 void print_symbol_module_array(mod sym_module);
 void print_symbol_table_list_array(mod sym_module, symbol_list_node in);
 void print_symbol_table_array(symbol_table tab);
-
+int pass2(parseTreeNode root, int mod_no, symbol_table st, int child_count);
 #endif

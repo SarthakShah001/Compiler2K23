@@ -10,6 +10,7 @@
 
 #include "parser.h"
 #include "setADT.h"
+int error_count = 0;
 char *nonterminal_str[] = {
     "<program>",
     "<moduleDeclarations>",
@@ -331,6 +332,7 @@ void fill_parse_table()
 
 parseTreeNode startParser(FILE *fp, int size)
 {
+    error_count=0;
     fill_hash_tables();
     fill_grammer();
     for (int i = 0; i < num_nonterminals; i++)
@@ -366,7 +368,6 @@ parseTreeNode startParser(FILE *fp, int size)
     parseTreeNode root = createTree();
     push_on_stack(stk, root);
     Token current_token = get_next_token();
-    int error_count = 0;
     while (!is_tk_finish && !isEmpty(stk))
     {
         if (current_token.token_type == TK_EOF)
@@ -464,7 +465,7 @@ parseTreeNode startParser(FILE *fp, int size)
             error_count++;
         }
     }
-    printf("No. of errors=%d\n", error_count);
+    
     fptr = NULL;
     return root;
 }
